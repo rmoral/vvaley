@@ -59,8 +59,12 @@ URLs útiles en local:
 | `/invitados/<slug>`        | Ficha del invitado                        |
 | `/admin/login`             | Acceso al backoffice                      |
 | `/admin`                   | Panel                                     |
+| `/blog`                    | Listado de posts publicados               |
+| `/blog/<slug>`             | Detalle de un post (con fallback i18n)    |
 | `/admin/invitados`         | Gestión de invitados                      |
 | `/admin/episodios`         | Gestión de episodios                      |
+| `/admin/blog`              | Gestión del blog (CRUD multilingüe)       |
+| `/admin/newsletter`        | Suscriptores, filtros y export CSV        |
 
 ## Variables de entorno
 
@@ -70,6 +74,12 @@ Ver `.env.example`. Las imprescindibles:
 - `AUTH_SECRET` — secreto de Auth.js (`openssl rand -base64 32`).
 - `NEXTAUTH_URL` — URL pública del site (`http://localhost:3000` en dev, el dominio en prod).
 - `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` — credenciales del primer admin que crea `prisma:seed`.
+
+Newsletter (opcional pero recomendado en producción):
+
+- `PUBLIC_SITE_URL` — URL canónica del site (ej. `https://valiravalley.com`). Si no se define se usa `NEXTAUTH_URL`. Se utiliza para construir los enlaces de confirmación y baja del email.
+- `RESEND_API_KEY` — clave de [Resend](https://resend.com). Sin esta variable, los emails de confirmación se imprimen en la consola del servidor (útil en desarrollo, copia/pega el enlace para probar).
+- `EMAIL_FROM` — remitente de los emails (ej. `Valira Valley <noreply@valiravalley.com>`). El dominio debe estar verificado en Resend.
 
 ## Despliegue en EC2 (Ubuntu + Apache)
 
@@ -127,17 +137,19 @@ bash deploy/deploy.sh
 
 ## Roadmap
 
-Iteración actual:
+Iteraciones completadas:
 
 - [x] Web pública multilingüe (es/ca/en/fr) basada en el tema original.
 - [x] Backoffice con login y CRUD de Invitados y Episodios.
 - [x] Páginas públicas `/podcast`, `/podcast/[slug]`, `/invitados/[slug]`.
+- [x] Newsletter con doble opt-in (subscribe → email de confirmación → confirm/unsubscribe), admin con búsqueda, filtros y export CSV.
+- [x] Blog multilingüe con CRUD por idioma, fallback automático en la web pública y renderizado Markdown.
 
-Próximas iteraciones (no implementadas en este commit):
+Próximas iteraciones:
 
-- Newsletter: modelo `NewsletterSubscriber` + endpoint de suscripción + envíos (Resend/Mailgun).
-- Blog y noticias: modelos `Post` y `News` con traducciones por entrada y editor enriquecido.
+- Noticias (`News`) con la misma estructura multilingüe del blog.
 - Eventos: modelo `Event` + inscripciones públicas.
 - Subida de medios: portadas e imágenes a S3/Cloudflare R2 desde el backoffice.
 - Publicación a RRSS: cola de jobs `SocialPublication` con conectores a LinkedIn, X, Instagram, TikTok.
+- Envíos de campaña de la newsletter (no sólo el email transaccional de confirmación).
 - Roles y permisos finos para `EDITOR` vs `ADMIN`.

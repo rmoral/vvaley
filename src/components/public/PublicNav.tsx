@@ -14,23 +14,7 @@ export function PublicNav({ locale }: { locale: AppLocale }) {
       >
         VALIRA<em className="text-river not-italic"> · </em>VALLEY
       </Link>
-      <ul className="hidden gap-10 list-none md:flex">
-        <li>
-          <a
-            href="#naming"
-            className="text-[0.82rem] font-medium uppercase tracking-[0.07em] text-text-3 no-underline transition-colors hover:text-river"
-          >
-            {t("naming")}
-          </a>
-        </li>
-        <li>
-          <a
-            href="#pilares"
-            className="text-[0.82rem] font-medium uppercase tracking-[0.07em] text-text-3 no-underline transition-colors hover:text-river"
-          >
-            {t("pillars")}
-          </a>
-        </li>
+      <ul className="hidden gap-8 list-none md:flex">
         <li>
           <Link
             href="/podcast"
@@ -40,22 +24,38 @@ export function PublicNav({ locale }: { locale: AppLocale }) {
           </Link>
         </li>
         <li>
-          <a
-            href="#fases"
+          <Link
+            href="/blog"
+            className="text-[0.82rem] font-medium uppercase tracking-[0.07em] text-text-3 no-underline transition-colors hover:text-river"
+          >
+            {t("blog")}
+          </Link>
+        </li>
+        <li>
+          <Link
+            href="/#pilares"
+            className="text-[0.82rem] font-medium uppercase tracking-[0.07em] text-text-3 no-underline transition-colors hover:text-river"
+          >
+            {t("pillars")}
+          </Link>
+        </li>
+        <li>
+          <Link
+            href="/#fases"
             className="text-[0.82rem] font-medium uppercase tracking-[0.07em] text-text-3 no-underline transition-colors hover:text-river"
           >
             {t("strategy")}
-          </a>
+          </Link>
         </li>
       </ul>
       <div className="flex items-center gap-3">
         <LocaleSwitcher current={locale} />
-        <a
-          href="#newsletter"
+        <Link
+          href="/#newsletter"
           className="rounded-[3px] bg-river px-5 py-2 text-[0.8rem] font-semibold uppercase tracking-[0.07em] text-white no-underline transition-all hover:-translate-y-px hover:bg-text"
         >
           {t("subscribe")}
-        </a>
+        </Link>
       </div>
     </nav>
   );

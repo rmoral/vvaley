@@ -3,6 +3,7 @@
     "naming": "Le Nom",
     "pillars": "Piliers",
     "podcast": "Podcast",
+    "blog": "Blog",
     "strategy": "Stratégie",
     "subscribe": "S'abonner"
   },
@@ -180,6 +181,29 @@
     "back": "Retour",
     "episodes": "Épisodes auxquels il/elle participe",
     "noEpisodes": "N'a encore participé à aucun épisode publié."
+  },
+  "blogList": {
+    "title": "Blog",
+    "sub": "Réflexions, analyses et études de cas sur l'entreprise, l'économie, l'entrepreneuriat et l'IA.",
+    "empty": "Aucun article publié pour l'instant. Revenez bientôt.",
+    "by": "Par"
+  },
+  "blogPost": {
+    "back": "Retour au blog",
+    "by": "Par",
+    "fallback_notice": "Cet article n'est pas encore disponible dans votre langue. Nous vous le montrons dans sa version originale."
+  },
+  "newsletterPages": {
+    "confirmed_eyebrow": "Abonnement confirmé",
+    "confirmed_title": "C'est bon, vous êtes inscrit.",
+    "confirmed_body": "Nous vous enverrons le résumé bimensuel de chaque épisode et les outils d'IA les plus utiles de la semaine.",
+    "unsub_eyebrow": "Abonnement annulé",
+    "unsub_title": "Vous êtes désabonné(e)",
+    "unsub_body": "Nous avons retiré votre adresse de la newsletter. Si c'était une erreur, vous pouvez vous réabonner à tout moment.",
+    "error_eyebrow": "Erreur",
+    "error_title": "Lien invalide",
+    "error_body": "Ce lien est expiré ou incorrect. Réessayez de vous abonner depuis la page d'accueil si vous le souhaitez.",
+    "back_home": "Retour à l'accueil"
   },
   "common": {
     "siteName": "Valira Valley"

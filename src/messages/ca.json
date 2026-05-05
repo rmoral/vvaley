@@ -3,6 +3,7 @@
     "naming": "El Nom",
     "pillars": "Pilars",
     "podcast": "Podcast",
+    "blog": "Blog",
     "strategy": "Estratègia",
     "subscribe": "Subscriu-te"
   },
@@ -180,6 +181,29 @@
     "back": "Tornar",
     "episodes": "Episodis on participa",
     "noEpisodes": "Encara no ha participat en cap episodi publicat."
+  },
+  "blogList": {
+    "title": "Blog",
+    "sub": "Reflexions, anàlisis i casos sobre empresa, economia, emprenedoria i IA.",
+    "empty": "Encara no hi ha articles publicats. Torna aviat.",
+    "by": "Per"
+  },
+  "blogPost": {
+    "back": "Tornar al blog",
+    "by": "Per",
+    "fallback_notice": "Aquest article encara no està disponible en el teu idioma. Te'l mostrem en la seva versió original."
+  },
+  "newsletterPages": {
+    "confirmed_eyebrow": "Subscripció confirmada",
+    "confirmed_title": "Llest! Ja hi ets.",
+    "confirmed_body": "T'enviarem el resum quinzenal amb cada nou episodi i les eines d'IA més útils de la setmana.",
+    "unsub_eyebrow": "Subscripció cancel·lada",
+    "unsub_title": "T'has donat de baixa",
+    "unsub_body": "Hem eliminat el teu correu de la newsletter. Si va ser un error, pots tornar a subscriure't quan vulguis.",
+    "error_eyebrow": "Error",
+    "error_title": "Enllaç no vàlid",
+    "error_body": "L'enllaç ha caducat o no és correcte. Si vols, prova a subscriure't de nou des de la home.",
+    "back_home": "Tornar a la home"
   },
   "common": {
     "siteName": "Valira Valley"

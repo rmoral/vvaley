@@ -3,6 +3,7 @@
     "naming": "El Nombre",
     "pillars": "Pilares",
     "podcast": "Podcast",
+    "blog": "Blog",
     "strategy": "Estrategia",
     "subscribe": "Suscríbete"
   },
@@ -180,6 +181,29 @@
     "back": "Volver",
     "episodes": "Episodios en los que participa",
     "noEpisodes": "Aún no ha participado en ningún episodio publicado."
+  },
+  "blogList": {
+    "title": "Blog",
+    "sub": "Reflexiones, análisis y casos en torno a empresa, economía, emprendimiento e IA.",
+    "empty": "Aún no hay artículos publicados. Vuelve pronto.",
+    "by": "Por"
+  },
+  "blogPost": {
+    "back": "Volver al blog",
+    "by": "Por",
+    "fallback_notice": "Este artículo aún no está disponible en tu idioma. Te lo mostramos en su versión original."
+  },
+  "newsletterPages": {
+    "confirmed_eyebrow": "Suscripción confirmada",
+    "confirmed_title": "¡Listo! Estás dentro.",
+    "confirmed_body": "Te enviaremos el resumen quincenal con cada nuevo episodio y las herramientas de IA más útiles de la semana.",
+    "unsub_eyebrow": "Suscripción cancelada",
+    "unsub_title": "Te has dado de baja",
+    "unsub_body": "Hemos eliminado tu correo de la newsletter. Si fue un error, puedes volver a suscribirte cuando quieras.",
+    "error_eyebrow": "Error",
+    "error_title": "Enlace no válido",
+    "error_body": "El enlace está caducado o no es correcto. Si quieres, prueba a suscribirte de nuevo desde la home.",
+    "back_home": "Volver a la home"
   },
   "common": {
     "siteName": "Valira Valley"

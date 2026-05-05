@@ -8,13 +8,25 @@ export default async function AdminDashboardPage() {
   const session = await auth();
   if (!session?.user) redirect("/admin/login");
 
-  const [guestCount, episodeCount, publishedCount, draftCount] =
-    await Promise.all([
-      prisma.guest.count(),
-      prisma.episode.count(),
-      prisma.episode.count({ where: { status: "PUBLISHED" } }),
-      prisma.episode.count({ where: { status: "DRAFT" } }),
-    ]);
+  const [
+    guestCount,
+    episodeCount,
+    publishedCount,
+    draftCount,
+    postCount,
+    publishedPosts,
+    confirmedSubs,
+    pendingSubs,
+  ] = await Promise.all([
+    prisma.guest.count(),
+    prisma.episode.count(),
+    prisma.episode.count({ where: { status: "PUBLISHED" } }),
+    prisma.episode.count({ where: { status: "DRAFT" } }),
+    prisma.post.count(),
+    prisma.post.count({ where: { status: "PUBLISHED" } }),
+    prisma.newsletterSubscriber.count({ where: { status: "CONFIRMED" } }),
+    prisma.newsletterSubscriber.count({ where: { status: "PENDING" } }),
+  ]);
 
   return (
     <AdminShell userName={session.user.name ?? session.user.email}>
@@ -30,11 +42,15 @@ export default async function AdminDashboardPage() {
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <Card label="Invitados" value={guestCount} href="/admin/invitados" />
         <Card label="Episodios" value={episodeCount} href="/admin/episodios" />
-        <Card label="Publicados" value={publishedCount} href="/admin/episodios?status=PUBLISHED" />
-        <Card label="Borradores" value={draftCount} href="/admin/episodios?status=DRAFT" />
+        <Card label="Eps. publicados" value={publishedCount} href="/admin/episodios?status=PUBLISHED" />
+        <Card label="Eps. borradores" value={draftCount} href="/admin/episodios?status=DRAFT" />
+        <Card label="Posts" value={postCount} href="/admin/blog" />
+        <Card label="Posts publicados" value={publishedPosts} href="/admin/blog?status=PUBLISHED" />
+        <Card label="Suscriptores" value={confirmedSubs} href="/admin/newsletter?status=CONFIRMED" />
+        <Card label="Pendientes" value={pendingSubs} href="/admin/newsletter?status=PENDING" />
       </div>
 
-      <section className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2">
+      <section className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
         <Link
           href="/admin/invitados/nuevo"
           className="rounded-lg border border-bg3 bg-white p-6 no-underline transition-colors hover:border-river"
@@ -61,6 +77,20 @@ export default async function AdminDashboardPage() {
           </div>
           <div className="mt-1 text-[0.85rem] text-text-3">
             Empieza un nuevo episodio en estado borrador.
+          </div>
+        </Link>
+        <Link
+          href="/admin/blog/nuevo"
+          className="rounded-lg border border-bg3 bg-white p-6 no-underline transition-colors hover:border-river"
+        >
+          <div className="text-[0.76rem] uppercase tracking-[0.1em] text-river">
+            Acción rápida
+          </div>
+          <div className="mt-1 font-display text-[1.1rem] font-bold text-text">
+            Escribir post
+          </div>
+          <div className="mt-1 text-[0.85rem] text-text-3">
+            Crea un nuevo artículo del blog.
           </div>
         </Link>
       </section>

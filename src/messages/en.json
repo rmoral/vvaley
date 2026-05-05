@@ -3,6 +3,7 @@
     "naming": "The Name",
     "pillars": "Pillars",
     "podcast": "Podcast",
+    "blog": "Blog",
     "strategy": "Strategy",
     "subscribe": "Subscribe"
   },
@@ -180,6 +181,29 @@
     "back": "Back",
     "episodes": "Episodes featured in",
     "noEpisodes": "Has not yet appeared in any published episode."
+  },
+  "blogList": {
+    "title": "Blog",
+    "sub": "Notes, analysis and case studies on business, economy, entrepreneurship and AI.",
+    "empty": "No articles published yet. Check back soon.",
+    "by": "By"
+  },
+  "blogPost": {
+    "back": "Back to blog",
+    "by": "By",
+    "fallback_notice": "This article isn't available in your language yet. We're showing you the original version."
+  },
+  "newsletterPages": {
+    "confirmed_eyebrow": "Subscription confirmed",
+    "confirmed_title": "You're in.",
+    "confirmed_body": "We'll send you the bi-weekly recap of every episode plus the most useful AI tool of the week.",
+    "unsub_eyebrow": "Subscription cancelled",
+    "unsub_title": "You've been unsubscribed",
+    "unsub_body": "We've removed your email from the newsletter. If it was a mistake, you can subscribe again any time.",
+    "error_eyebrow": "Error",
+    "error_title": "Invalid link",
+    "error_body": "This link is expired or incorrect. Feel free to try subscribing again from the home page.",
+    "back_home": "Back to home"
   },
   "common": {
     "siteName": "Valira Valley"

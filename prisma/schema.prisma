@@ -23,6 +23,7 @@ model User {
   role         UserRole @default(EDITOR)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  posts        Post[]
 }
 
 // ---------- Podcast ---------- //
@@ -95,4 +96,66 @@ model EpisodeGuest {
 
   @@id([episodeId, guestId])
   @@index([guestId])
+}
+
+// ---------- Newsletter ---------- //
+
+enum SubscriberStatus {
+  PENDING
+  CONFIRMED
+  UNSUBSCRIBED
+}
+
+model NewsletterSubscriber {
+  id             String           @id @default(cuid())
+  email          String           @unique
+  name           String?
+  locale         String           @default("es")
+  status         SubscriberStatus @default(PENDING)
+  confirmToken   String?          @unique
+  confirmedAt    DateTime?
+  unsubscribedAt DateTime?
+  source         String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([status, createdAt])
+}
+
+// ---------- Blog ---------- //
+
+enum PostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+model Post {
+  id            String            @id @default(cuid())
+  slug          String            @unique
+  status        PostStatus        @default(DRAFT)
+  authorId      String?
+  author        User?             @relation(fields: [authorId], references: [id])
+  coverImageUrl String?
+  publishedAt   DateTime?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  translations  PostTranslation[]
+
+  @@index([status, publishedAt])
+}
+
+model PostTranslation {
+  id      String  @id @default(cuid())
+  postId  String
+  locale  String
+  title   String
+  summary String?
+  body    String  @db.Text
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, locale])
+  @@index([locale])
 }

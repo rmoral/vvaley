@@ -5,6 +5,8 @@ const navItems = [
   { href: "/admin", label: "Inicio", exact: true },
   { href: "/admin/invitados", label: "Invitados" },
   { href: "/admin/episodios", label: "Episodios" },
+  { href: "/admin/blog", label: "Blog" },
+  { href: "/admin/newsletter", label: "Newsletter" },
 ];
 
 export function AdminShell({
