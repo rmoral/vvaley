@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations, getFormatter } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
+import { NewsletterInline } from "@/components/public/NewsletterInline";
 
 export const dynamic = "force-dynamic";
 
@@ -96,6 +97,8 @@ export default async function EpisodePage({
           </ul>
         </section>
       )}
+
+      <NewsletterInline source={`episode:${ep.slug}`} variant="episode" />
     </main>
   );
 }

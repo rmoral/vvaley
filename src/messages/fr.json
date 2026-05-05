@@ -205,6 +205,19 @@
     "error_body": "Ce lien est expiré ou incorrect. Réessayez de vous abonner depuis la page d'accueil si vous le souhaitez.",
     "back_home": "Retour à l'accueil"
   },
+  "newsletterCta": {
+    "eyebrow": "Newsletter bimensuelle",
+    "title": "Le podcast dans votre boîte, tous les 15 jours",
+    "inlineBlogTitle": "Cet article vous a plu ? Recevez la suite",
+    "inlineEpisodeTitle": "Chaque nouvel épisode, directement dans votre boîte",
+    "sub": "Un résumé de chaque épisode + l'outil d'IA le plus utile de la semaine pour votre business.",
+    "emailLabel": "Courriel",
+    "placeholder": "vous@email.com",
+    "cta": "S'abonner",
+    "trust": "Pas de spam · Désabonnement en un clic.",
+    "success": "Nous vous avons envoyé un courriel pour confirmer l'abonnement.",
+    "error": "Nous n'avons pas pu traiter votre abonnement. Réessayez."
+  },
   "common": {
     "siteName": "Valira Valley"
   }

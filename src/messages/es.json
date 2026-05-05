@@ -205,6 +205,19 @@
     "error_body": "El enlace está caducado o no es correcto. Si quieres, prueba a suscribirte de nuevo desde la home.",
     "back_home": "Volver a la home"
   },
+  "newsletterCta": {
+    "eyebrow": "Newsletter quincenal",
+    "title": "El podcast en tu bandeja, cada 15 días",
+    "inlineBlogTitle": "¿Te ha gustado? Recíbelo en tu bandeja",
+    "inlineEpisodeTitle": "Cada nuevo episodio, directo a tu inbox",
+    "sub": "Resumen de cada episodio + la herramienta de IA más útil de la semana para tu negocio.",
+    "emailLabel": "Email",
+    "placeholder": "tu@email.com",
+    "cta": "Suscribirme",
+    "trust": "Sin spam · Te das de baja en un clic.",
+    "success": "Te hemos enviado un email para confirmar la suscripción.",
+    "error": "No hemos podido procesar tu suscripción. Inténtalo de nuevo."
+  },
   "common": {
     "siteName": "Valira Valley"
   }

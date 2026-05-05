@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { pickTranslation } from "@/lib/blog";
 import { renderMarkdown } from "@/lib/markdown";
+import { NewsletterInline } from "@/components/public/NewsletterInline";
 import type { AppLocale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
@@ -69,6 +70,8 @@ export default async function BlogPostPage({
         className="prose prose-neutral max-w-none text-[1rem] leading-[1.75] text-text-2 [&_a]:text-river [&_a:hover]:text-text [&_h2]:mt-10 [&_h2]:mb-3 [&_h2]:font-display [&_h2]:text-[1.5rem] [&_h2]:font-bold [&_h2]:text-text [&_h3]:mt-8 [&_h3]:mb-2 [&_h3]:font-display [&_h3]:text-[1.2rem] [&_h3]:font-semibold [&_h3]:text-text [&_p]:mb-4 [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:mb-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_blockquote]:my-4 [&_blockquote]:border-l-2 [&_blockquote]:border-river [&_blockquote]:pl-4 [&_blockquote]:italic [&_code]:rounded [&_code]:bg-bg2 [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-[0.92em]"
         dangerouslySetInnerHTML={{ __html: html }}
       />
+
+      <NewsletterInline source={`blog:${post.slug}`} variant="blog" />
 
       {post.author?.name && (
         <p className="mt-12 border-t border-bg3 pt-6 text-[0.85rem] text-text-3">

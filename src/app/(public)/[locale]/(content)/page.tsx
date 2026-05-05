@@ -1,7 +1,6 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { RevealMount } from "@/components/public/Reveal";
-import { NewsletterForm } from "@/components/public/NewsletterForm";
 
 export default async function HomePage({
   params,
@@ -254,21 +253,7 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* Newsletter */}
-      <section id="newsletter" className="border-t border-bg3 bg-white px-6 py-24 text-center md:px-16">
-        <SectionTag block>{t("newsletter.tag")}</SectionTag>
-        <h2 className="reveal mx-auto mb-4 font-display text-[clamp(1.8rem,3vw,2.6rem)] font-bold leading-[1.15] text-text">
-          {t("newsletter.title_1")}
-          <br />
-          {t("newsletter.title_2")}
-        </h2>
-        <p className="reveal mx-auto mb-10 max-w-[500px] text-[0.97rem] font-light leading-[1.75] text-text-2">
-          {t("newsletter.sub")}
-        </p>
-        <div className="reveal mx-auto max-w-[440px]">
-          <NewsletterForm />
-        </div>
-      </section>
+      {/* Newsletter strip is rendered globally by the public layout. */}
     </>
   );
 }

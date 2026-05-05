@@ -205,6 +205,19 @@
     "error_body": "L'enllaç ha caducat o no és correcte. Si vols, prova a subscriure't de nou des de la home.",
     "back_home": "Tornar a la home"
   },
+  "newsletterCta": {
+    "eyebrow": "Newsletter quinzenal",
+    "title": "El podcast a la teva safata, cada 15 dies",
+    "inlineBlogTitle": "T'ha agradat? Rep-ho a la teva safata",
+    "inlineEpisodeTitle": "Cada nou episodi, directe a la teva bústia",
+    "sub": "Resum de cada episodi + l'eina d'IA més útil de la setmana per al teu negoci.",
+    "emailLabel": "Correu electrònic",
+    "placeholder": "el-teu@email.com",
+    "cta": "Subscriure'm",
+    "trust": "Sense spam · Te'n dones de baixa en un clic.",
+    "success": "T'hem enviat un correu per confirmar la subscripció.",
+    "error": "No hem pogut processar la teva subscripció. Torna-ho a intentar."
+  },
   "common": {
     "siteName": "Valira Valley"
   }

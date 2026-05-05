@@ -1,38 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
-
-type State = "idle" | "loading" | "ok" | "error";
+import { useTranslations } from "next-intl";
+import { useNewsletterSubscribe } from "@/hooks/useNewsletterSubscribe";
 
 export function NewsletterForm({ source = "home" }: { source?: string }) {
   const t = useTranslations("home.newsletter");
-  const locale = useLocale();
-  const [email, setEmail] = useState("");
-  const [state, setState] = useState<State>("idle");
-
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (state === "loading") return;
-    setState("loading");
-    try {
-      const res = await fetch("/api/newsletter/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, locale, source }),
-      });
-      const data = (await res.json().catch(() => null)) as
-        | { ok?: boolean }
-        | null;
-      setState(res.ok && data?.ok ? "ok" : "error");
-      if (res.ok) setEmail("");
-    } catch {
-      setState("error");
-    }
-  }
+  const { email, setEmail, state, submit } = useNewsletterSubscribe(source);
 
   return (
-    <form className="flex flex-col gap-3" onSubmit={onSubmit} noValidate>
+    <form
+      className="flex flex-col gap-3"
+      onSubmit={(e) => {
+        e.preventDefault();
+        submit();
+      }}
+      noValidate
+    >
       <div className="flex gap-3">
         <input
           type="email"
