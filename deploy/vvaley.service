@@ -27,11 +27,11 @@ WorkingDirectory=/home/ubuntu/web/vvaley
 # Reads DATABASE_URL, AUTH_SECRET, NEXTAUTH_URL, RESEND_API_KEY, etc.
 EnvironmentFile=/home/ubuntu/web/vvaley/.env
 Environment=NODE_ENV=production
-Environment=PORT=3000
+Environment=PORT=3015
 Environment=HOSTNAME=127.0.0.1
 
 # Bind to localhost only — Apache reverse-proxies on :443.
-ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -p 3000 -H 127.0.0.1
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -p 3015 -H 127.0.0.1
 
 Restart=on-failure
 RestartSec=5

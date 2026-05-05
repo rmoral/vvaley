@@ -17,7 +17,7 @@ despliegue; los siguientes son una sola línea (`bash deploy/deploy.sh`).
 │  · ProxyPass / 127.0.0.1  │
 │  · X-Forwarded-Proto https│
 └──────┬────────────────────┘
-       │ 127.0.0.1:3000
+       │ 127.0.0.1:3015
 ┌──────▼────────────────────┐
 │  Node + Next 15           │
 │  systemd: vvaley.service  │
@@ -47,7 +47,7 @@ git push origin main
 ```
 
 **Comprueba el security group EC2**: sólo deben estar abiertos al
-exterior **22, 80 y 443**. El puerto 3000 (donde escucha Node) no
+exterior **22, 80 y 443**. El puerto 3015 (donde escucha Node) no
 debe ser accesible desde fuera — si lo expones, alguien puede saltarse
 el redirect HTTPS de Apache.
 
@@ -204,8 +204,8 @@ sudo visudo -cf /etc/sudoers.d/vvaley   # debe imprimir "parsed OK"
 ### Smoke test local en el server (Apache aún no toca)
 
 ```bash
-curl -s -o /dev/null -w "home: %{http_code}\n" http://127.0.0.1:3000/
-curl -s -o /dev/null -w "admin: %{http_code}\n" http://127.0.0.1:3000/admin/login
+curl -s -o /dev/null -w "home: %{http_code}\n" http://127.0.0.1:3015/
+curl -s -o /dev/null -w "admin: %{http_code}\n" http://127.0.0.1:3015/admin/login
 ```
 
 Esperado: `200` en ambos.
@@ -276,8 +276,8 @@ Mantén las líneas `SSLEngine`, `SSLCertificateFile`,
     # ─── Reverse proxy a Node (PM2) ───
     ProxyPreserveHost On
     ProxyRequests     Off
-    ProxyPass        / http://127.0.0.1:3000/ retry=1 acquire=3000 timeout=600 Keepalive=On
-    ProxyPassReverse / http://127.0.0.1:3000/
+    ProxyPass        / http://127.0.0.1:3015/ retry=1 acquire=3000 timeout=600 Keepalive=On
+    ProxyPassReverse / http://127.0.0.1:3015/
 
     # Para que Auth.js / Next sepan que están detrás de HTTPS
     RequestHeader set X-Forwarded-Proto "https"
@@ -420,7 +420,7 @@ ssh ubuntu@18.217.132.43 "cd /home/ubuntu/web/vvaley && bash deploy/deploy.sh"
 | Síntoma | Diagnóstico |
 |---|---|
 | 502 Bad Gateway | El servicio está caído. `sudo systemctl status vvaley` y `journalctl -u vvaley -n 100`. |
-| `vvaley.service` en `failed`/`activating (auto-restart)` | Mira `journalctl -u vvaley -n 200`. Casi siempre: `.env` mal formado, puerto 3000 ocupado o falta `pnpm build`. |
+| `vvaley.service` en `failed`/`activating (auto-restart)` | Mira `journalctl -u vvaley -n 200`. Casi siempre: `.env` mal formado, puerto 3015 ocupado o falta `pnpm build`. |
 | 404 en todas las rutas | Apache aún sirve `/var/www/html/vvaley` (DocumentRoot no quitado del `:443`). |
 | Login admin: "Configuration" o redirect loop | `NEXTAUTH_URL` no es `https://valiravalley.com` o falta `RequestHeader X-Forwarded-Proto`. |
 | Home OK pero `/podcast` da error de DB | `pnpm prisma migrate deploy` no se ejecutó. Hazlo y `sudo systemctl restart vvaley`. |
@@ -483,5 +483,5 @@ journalctl -u vvaley -n 30
 Verifica que todo sigue respondiendo:
 
 ```bash
-curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:3000/
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:3015/
 ```
