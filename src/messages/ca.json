@@ -4,6 +4,8 @@
     "pillars": "Pilars",
     "podcast": "Podcast",
     "blog": "Blog",
+    "news": "Notícies",
+    "events": "Esdeveniments",
     "strategy": "Estratègia",
     "subscribe": "Subscriu-te"
   },
@@ -204,6 +206,59 @@
     "error_title": "Enllaç no vàlid",
     "error_body": "L'enllaç ha caducat o no és correcte. Si vols, prova a subscriure't de nou des de la home.",
     "back_home": "Tornar a la home"
+  },
+  "newsList": {
+    "title": "Notícies",
+    "sub": "El que passa al voltant de Valira Valley i de l'ecosistema andorrà d'innovació.",
+    "empty": "Encara no hi ha notícies publicades."
+  },
+  "newsDetail": {
+    "back": "Tornar a notícies",
+    "fallback_notice": "Aquesta notícia encara no està disponible en el teu idioma. Te la mostrem en la seva versió original.",
+    "no_body": "Aquesta notícia només té resum."
+  },
+  "eventsList": {
+    "title": "Esdeveniments",
+    "sub": "Trobades, tallers i directes de l'ecosistema Valira Valley.",
+    "empty": "Encara no hi ha esdeveniments programats.",
+    "upcoming": "Pròxims",
+    "past": "Passats",
+    "loc_online": "Online",
+    "loc_inperson": "Presencial",
+    "loc_hybrid": "Híbrid"
+  },
+  "eventDetail": {
+    "back": "Tornar a esdeveniments",
+    "fallback_notice": "Aquest esdeveniment encara no està traduït al teu idioma. Te'l mostrem en la seva versió original.",
+    "loc_online": "Online",
+    "loc_inperson": "Presencial",
+    "loc_hybrid": "Híbrid",
+    "seats_left": "Queden {count} places.",
+    "seats_full": "Aforament complet. Les noves inscripcions entren a llista d'espera.",
+    "gate_not_open_yet": "Les inscripcions encara no estan obertes.",
+    "gate_closed": "Les inscripcions ja s'han tancat.",
+    "gate_event_passed": "L'esdeveniment ja ha passat.",
+    "form_title": "Apunta't a l'esdeveniment",
+    "form_cta": "Confirmar inscripció",
+    "field_name": "Nom complet",
+    "field_email": "Correu",
+    "field_company": "Empresa (opcional)",
+    "field_notes": "Alguna cosa que haguem de saber? (opcional)",
+    "registered_eyebrow": "Inscripció confirmada",
+    "registered_title": "T'esperem!",
+    "registered_body": "T'hem enviat un correu amb la confirmació. T'avisarem abans de l'esdeveniment amb els detalls finals.",
+    "waitlist_eyebrow": "Llista d'espera",
+    "waitlist_title": "Estàs a la llista d'espera",
+    "waitlist_body": "L'aforament està complet. Si s'allibera una plaça, t'avisarem per correu.",
+    "error_not_open_yet": "Les inscripcions encara no estan obertes.",
+    "error_closed": "Les inscripcions s'han tancat.",
+    "error_event_passed": "L'esdeveniment ja ha passat.",
+    "error_not_published": "Aquest esdeveniment no està disponible.",
+    "error_invalid_input": "Revisa les dades del formulari.",
+    "error_invalid_json": "Hi ha hagut un problema enviant les dades.",
+    "error_not_found": "Aquest esdeveniment ja no existeix.",
+    "error_network": "Sense connexió. Torna-ho a intentar.",
+    "error_unknown": "No hem pogut processar la teva inscripció. Torna-ho a intentar."
   },
   "newsletterCta": {
     "eyebrow": "Newsletter quinzenal",

@@ -61,9 +61,16 @@ URLs útiles en local:
 | `/admin`                   | Panel                                     |
 | `/blog`                    | Listado de posts publicados               |
 | `/blog/<slug>`             | Detalle de un post (con fallback i18n)    |
+| `/noticias`                | Listado de noticias                        |
+| `/noticias/<slug>`         | Detalle de una noticia                     |
+| `/eventos`                 | Listado de eventos (próximos + pasados)    |
+| `/eventos/<slug>`          | Detalle del evento + formulario de inscripción |
 | `/admin/invitados`         | Gestión de invitados                      |
 | `/admin/episodios`         | Gestión de episodios                      |
 | `/admin/blog`              | Gestión del blog (CRUD multilingüe)       |
+| `/admin/noticias`          | Gestión de noticias (CRUD multilingüe)    |
+| `/admin/eventos`           | Gestión de eventos                         |
+| `/admin/eventos/<id>/inscripciones` | Lista de inscritos + export CSV   |
 | `/admin/newsletter`        | Suscriptores, filtros y export CSV        |
 
 ## Variables de entorno
@@ -144,11 +151,12 @@ Iteraciones completadas:
 - [x] Páginas públicas `/podcast`, `/podcast/[slug]`, `/invitados/[slug]`.
 - [x] Newsletter con doble opt-in (subscribe → email de confirmación → confirm/unsubscribe), admin con búsqueda, filtros y export CSV.
 - [x] Blog multilingüe con CRUD por idioma, fallback automático en la web pública y renderizado Markdown.
+- [x] CTA de newsletter en todas las páginas de contenido (strip + variante inline tras el cuerpo de cada post/episodio/invitado).
+- [x] Noticias multilingües (con soporte para noticia "propia" o curada con `externalUrl`).
+- [x] Eventos multilingües con inscripciones públicas, gestión de aforo (waitlist automático), email de confirmación y CSV de inscritos.
 
 Próximas iteraciones:
 
-- Noticias (`News`) con la misma estructura multilingüe del blog.
-- Eventos: modelo `Event` + inscripciones públicas.
 - Subida de medios: portadas e imágenes a S3/Cloudflare R2 desde el backoffice.
 - Publicación a RRSS: cola de jobs `SocialPublication` con conectores a LinkedIn, X, Instagram, TikTok.
 - Envíos de campaña de la newsletter (no sólo el email transaccional de confirmación).

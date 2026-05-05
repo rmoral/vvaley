@@ -4,6 +4,8 @@
     "pillars": "Pillars",
     "podcast": "Podcast",
     "blog": "Blog",
+    "news": "News",
+    "events": "Events",
     "strategy": "Strategy",
     "subscribe": "Subscribe"
   },
@@ -204,6 +206,59 @@
     "error_title": "Invalid link",
     "error_body": "This link is expired or incorrect. Feel free to try subscribing again from the home page.",
     "back_home": "Back to home"
+  },
+  "newsList": {
+    "title": "News",
+    "sub": "What's happening around Valira Valley and Andorra's innovation ecosystem.",
+    "empty": "No news published yet."
+  },
+  "newsDetail": {
+    "back": "Back to news",
+    "fallback_notice": "This article isn't available in your language yet. We're showing you the original version.",
+    "no_body": "This news only has a summary."
+  },
+  "eventsList": {
+    "title": "Events",
+    "sub": "Meet-ups, workshops and live shows from the Valira Valley ecosystem.",
+    "empty": "No events scheduled yet.",
+    "upcoming": "Upcoming",
+    "past": "Past",
+    "loc_online": "Online",
+    "loc_inperson": "In-person",
+    "loc_hybrid": "Hybrid"
+  },
+  "eventDetail": {
+    "back": "Back to events",
+    "fallback_notice": "This event isn't translated to your language yet. We're showing you the original version.",
+    "loc_online": "Online",
+    "loc_inperson": "In-person",
+    "loc_hybrid": "Hybrid",
+    "seats_left": "{count} seats left.",
+    "seats_full": "Sold out. New registrations join the waitlist.",
+    "gate_not_open_yet": "Registrations aren't open yet.",
+    "gate_closed": "Registrations are closed.",
+    "gate_event_passed": "This event has already happened.",
+    "form_title": "Register for this event",
+    "form_cta": "Confirm registration",
+    "field_name": "Full name",
+    "field_email": "Email",
+    "field_company": "Company (optional)",
+    "field_notes": "Anything we should know? (optional)",
+    "registered_eyebrow": "Registration confirmed",
+    "registered_title": "See you there!",
+    "registered_body": "We've emailed your confirmation. We'll send the final details before the event.",
+    "waitlist_eyebrow": "Waitlist",
+    "waitlist_title": "You're on the waitlist",
+    "waitlist_body": "We're at capacity. We'll email you if a seat opens up.",
+    "error_not_open_yet": "Registrations aren't open yet.",
+    "error_closed": "Registrations are closed.",
+    "error_event_passed": "This event has already happened.",
+    "error_not_published": "This event isn't available.",
+    "error_invalid_input": "Please check the form fields.",
+    "error_invalid_json": "There was a problem sending the data.",
+    "error_not_found": "This event doesn't exist anymore.",
+    "error_network": "No connection. Please try again.",
+    "error_unknown": "We couldn't process your registration. Please try again."
   },
   "newsletterCta": {
     "eyebrow": "Bi-weekly newsletter",

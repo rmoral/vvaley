@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
-import { pickTranslation } from "@/lib/blog";
+import { pickTranslation } from "@/lib/translations";
 import { renderMarkdown } from "@/lib/markdown";
 import { NewsletterInline } from "@/components/public/NewsletterInline";
 import type { AppLocale } from "@/i18n/routing";

@@ -1,7 +1,7 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
-import { pickTranslation } from "@/lib/blog";
+import { pickTranslation } from "@/lib/translations";
 import type { AppLocale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";

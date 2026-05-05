@@ -8,6 +8,7 @@ export default async function AdminDashboardPage() {
   const session = await auth();
   if (!session?.user) redirect("/admin/login");
 
+  const now = new Date();
   const [
     guestCount,
     episodeCount,
@@ -15,6 +16,10 @@ export default async function AdminDashboardPage() {
     draftCount,
     postCount,
     publishedPosts,
+    newsCount,
+    publishedNews,
+    upcomingEvents,
+    eventRegistrations,
     confirmedSubs,
     pendingSubs,
   ] = await Promise.all([
@@ -24,6 +29,10 @@ export default async function AdminDashboardPage() {
     prisma.episode.count({ where: { status: "DRAFT" } }),
     prisma.post.count(),
     prisma.post.count({ where: { status: "PUBLISHED" } }),
+    prisma.news.count(),
+    prisma.news.count({ where: { status: "PUBLISHED" } }),
+    prisma.event.count({ where: { status: "PUBLISHED", startsAt: { gte: now } } }),
+    prisma.eventRegistration.count({ where: { status: "CONFIRMED" } }),
     prisma.newsletterSubscriber.count({ where: { status: "CONFIRMED" } }),
     prisma.newsletterSubscriber.count({ where: { status: "PENDING" } }),
   ]);
@@ -46,6 +55,10 @@ export default async function AdminDashboardPage() {
         <Card label="Eps. borradores" value={draftCount} href="/admin/episodios?status=DRAFT" />
         <Card label="Posts" value={postCount} href="/admin/blog" />
         <Card label="Posts publicados" value={publishedPosts} href="/admin/blog?status=PUBLISHED" />
+        <Card label="Noticias" value={newsCount} href="/admin/noticias" />
+        <Card label="Noticias publicadas" value={publishedNews} href="/admin/noticias?status=PUBLISHED" />
+        <Card label="Próximos eventos" value={upcomingEvents} href="/admin/eventos?status=PUBLISHED" />
+        <Card label="Inscripciones" value={eventRegistrations} href="/admin/eventos" />
         <Card label="Suscriptores" value={confirmedSubs} href="/admin/newsletter?status=CONFIRMED" />
         <Card label="Pendientes" value={pendingSubs} href="/admin/newsletter?status=PENDING" />
       </div>

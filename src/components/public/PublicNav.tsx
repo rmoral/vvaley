@@ -14,7 +14,7 @@ export function PublicNav({ locale }: { locale: AppLocale }) {
       >
         VALIRA<em className="text-river not-italic"> · </em>VALLEY
       </Link>
-      <ul className="hidden gap-8 list-none md:flex">
+      <ul className="hidden gap-6 list-none md:flex">
         <li>
           <Link
             href="/podcast"
@@ -33,18 +33,18 @@ export function PublicNav({ locale }: { locale: AppLocale }) {
         </li>
         <li>
           <Link
-            href="/#pilares"
+            href="/noticias"
             className="text-[0.82rem] font-medium uppercase tracking-[0.07em] text-text-3 no-underline transition-colors hover:text-river"
           >
-            {t("pillars")}
+            {t("news")}
           </Link>
         </li>
         <li>
           <Link
-            href="/#fases"
+            href="/eventos"
             className="text-[0.82rem] font-medium uppercase tracking-[0.07em] text-text-3 no-underline transition-colors hover:text-river"
           >
-            {t("strategy")}
+            {t("events")}
           </Link>
         </li>
       </ul>

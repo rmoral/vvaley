@@ -4,6 +4,8 @@
     "pillars": "Pilares",
     "podcast": "Podcast",
     "blog": "Blog",
+    "news": "Noticias",
+    "events": "Eventos",
     "strategy": "Estrategia",
     "subscribe": "Suscríbete"
   },
@@ -204,6 +206,59 @@
     "error_title": "Enlace no válido",
     "error_body": "El enlace está caducado o no es correcto. Si quieres, prueba a suscribirte de nuevo desde la home.",
     "back_home": "Volver a la home"
+  },
+  "newsList": {
+    "title": "Noticias",
+    "sub": "Lo que pasa en torno a Valira Valley y al ecosistema andorrano de innovación.",
+    "empty": "Aún no hay noticias publicadas."
+  },
+  "newsDetail": {
+    "back": "Volver a noticias",
+    "fallback_notice": "Esta noticia aún no está disponible en tu idioma. Te la mostramos en su versión original.",
+    "no_body": "Esta noticia sólo tiene resumen."
+  },
+  "eventsList": {
+    "title": "Eventos",
+    "sub": "Encuentros, talleres y directos del ecosistema Valira Valley.",
+    "empty": "Aún no hay eventos programados.",
+    "upcoming": "Próximos",
+    "past": "Pasados",
+    "loc_online": "Online",
+    "loc_inperson": "Presencial",
+    "loc_hybrid": "Híbrido"
+  },
+  "eventDetail": {
+    "back": "Volver a eventos",
+    "fallback_notice": "Este evento aún no está traducido a tu idioma. Te lo mostramos en su versión original.",
+    "loc_online": "Online",
+    "loc_inperson": "Presencial",
+    "loc_hybrid": "Híbrido",
+    "seats_left": "Quedan {count} plazas.",
+    "seats_full": "Aforo completo. Las nuevas inscripciones entran en lista de espera.",
+    "gate_not_open_yet": "Las inscripciones aún no están abiertas.",
+    "gate_closed": "Las inscripciones ya se han cerrado.",
+    "gate_event_passed": "El evento ya ha pasado.",
+    "form_title": "Apúntate al evento",
+    "form_cta": "Confirmar inscripción",
+    "field_name": "Nombre completo",
+    "field_email": "Email",
+    "field_company": "Empresa (opcional)",
+    "field_notes": "¿Algo que debamos saber? (opcional)",
+    "registered_eyebrow": "Inscripción confirmada",
+    "registered_title": "¡Te esperamos!",
+    "registered_body": "Te hemos enviado un email con la confirmación. Te avisaremos antes del evento con los detalles finales.",
+    "waitlist_eyebrow": "Lista de espera",
+    "waitlist_title": "Estás en lista de espera",
+    "waitlist_body": "El aforo está completo. Si se libera una plaza, te avisaremos por email.",
+    "error_not_open_yet": "Las inscripciones aún no están abiertas.",
+    "error_closed": "Las inscripciones se han cerrado.",
+    "error_event_passed": "El evento ya ha pasado.",
+    "error_not_published": "Este evento no está disponible.",
+    "error_invalid_input": "Revisa los datos del formulario.",
+    "error_invalid_json": "Hubo un problema enviando los datos.",
+    "error_not_found": "Este evento ya no existe.",
+    "error_network": "Sin conexión. Inténtalo de nuevo.",
+    "error_unknown": "No hemos podido procesar tu inscripción. Inténtalo de nuevo."
   },
   "newsletterCta": {
     "eyebrow": "Newsletter quincenal",

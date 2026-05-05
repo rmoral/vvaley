@@ -6,6 +6,8 @@ const navItems = [
   { href: "/admin/invitados", label: "Invitados" },
   { href: "/admin/episodios", label: "Episodios" },
   { href: "/admin/blog", label: "Blog" },
+  { href: "/admin/noticias", label: "Noticias" },
+  { href: "/admin/eventos", label: "Eventos" },
   { href: "/admin/newsletter", label: "Newsletter" },
 ];
 

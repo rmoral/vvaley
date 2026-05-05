@@ -24,6 +24,8 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   posts        Post[]
+  news         News[]
+  events       Event[]
 }
 
 // ---------- Podcast ---------- //
@@ -158,4 +160,120 @@ model PostTranslation {
 
   @@unique([postId, locale])
   @@index([locale])
+}
+
+// ---------- News ---------- //
+
+enum NewsStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+model News {
+  id            String            @id @default(cuid())
+  slug          String            @unique
+  status        NewsStatus        @default(DRAFT)
+  authorId      String?
+  author        User?             @relation(fields: [authorId], references: [id])
+  coverImageUrl String?
+  externalUrl   String?
+  publishedAt   DateTime?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  translations  NewsTranslation[]
+
+  @@index([status, publishedAt])
+}
+
+model NewsTranslation {
+  id      String  @id @default(cuid())
+  newsId  String
+  locale  String
+  title   String
+  summary String?
+  body    String? @db.Text
+
+  news News @relation(fields: [newsId], references: [id], onDelete: Cascade)
+
+  @@unique([newsId, locale])
+  @@index([locale])
+}
+
+// ---------- Events ---------- //
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+  COMPLETED
+}
+
+enum EventLocationType {
+  ONLINE
+  INPERSON
+  HYBRID
+}
+
+enum RegistrationStatus {
+  CONFIRMED
+  WAITLIST
+  CANCELLED
+}
+
+model Event {
+  id                   String              @id @default(cuid())
+  slug                 String              @unique
+  status               EventStatus         @default(DRAFT)
+  locationType         EventLocationType   @default(INPERSON)
+  startsAt             DateTime
+  endsAt               DateTime?
+  timezone             String              @default("Europe/Andorra")
+  venueName            String?
+  venueAddress         String?
+  onlineUrl            String?
+  capacity             Int?
+  registrationOpensAt  DateTime?
+  registrationClosesAt DateTime?
+  coverImageUrl        String?
+  authorId             String?
+  author               User?               @relation(fields: [authorId], references: [id])
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  translations         EventTranslation[]
+  registrations        EventRegistration[]
+
+  @@index([status, startsAt])
+}
+
+model EventTranslation {
+  id          String  @id @default(cuid())
+  eventId     String
+  locale      String
+  title       String
+  summary     String?
+  description String? @db.Text
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, locale])
+  @@index([locale])
+}
+
+model EventRegistration {
+  id        String             @id @default(cuid())
+  eventId   String
+  email     String
+  fullName  String
+  company   String?
+  notes     String?
+  locale    String             @default("es")
+  status    RegistrationStatus @default(CONFIRMED)
+  createdAt DateTime           @default(now())
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, email])
+  @@index([eventId, status])
 }
