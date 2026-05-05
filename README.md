@@ -24,9 +24,11 @@ prisma/
 ├── schema.prisma                 # User, Guest, Episode, EpisodeGuest
 └── seed.ts                       # Crea el usuario admin inicial
 deploy/
+├── PRODUCTION.md                 # Guía detallada del primer despliegue
 ├── apache-vvaley.conf            # Vhost Apache → reverse proxy a Next
-└── deploy.sh                     # Script de despliegue en EC2
-ecosystem.config.cjs              # PM2
+├── vvaley.service                # Unit systemd
+├── vvaley-sudoers                # Drop-in para deploy.sh sin password
+└── deploy.sh                     # Script de despliegue
 ```
 
 ## Desarrollo local
@@ -103,48 +105,53 @@ CREATE USER vvaley WITH PASSWORD 'CHANGE_ME';
 CREATE DATABASE vvaley OWNER vvaley;
 SQL
 
-# 2. PM2 global
-sudo npm i -g pm2 pnpm
+# 2. pnpm global
+sudo npm i -g pnpm
 
 # 3. Clonar
-cd /var/www
-sudo git clone <repo-url> vvaley
-sudo chown -R $USER:$USER vvaley
+cd /home/ubuntu/web
+git clone <repo-url> vvaley
 cd vvaley
 git checkout main
 
 # 4. .env de producción
 cp .env.example .env
 # edita DATABASE_URL, AUTH_SECRET (¡regenéralo!), NEXTAUTH_URL (dominio real)
+chmod 600 .env
 
-# 5. Primer build + arranque
+# 5. Primer build
 pnpm install --frozen-lockfile
 pnpm prisma migrate deploy
 pnpm prisma:seed
 pnpm build
-pm2 start ecosystem.config.cjs
-pm2 save
-pm2 startup        # sigue las instrucciones que imprime
 
-# 6. Apache: vhost + módulos
+# 6. Servicio systemd + sudoers para deploy sin password
+sudo cp deploy/vvaley.service /etc/systemd/system/vvaley.service
+sudo install -m 0440 -o root -g root deploy/vvaley-sudoers /etc/sudoers.d/vvaley
+sudo systemctl daemon-reload
+sudo systemctl enable --now vvaley
+sudo systemctl status vvaley
+
+# 7. Apache: vhost + módulos
 sudo cp deploy/apache-vvaley.conf /etc/apache2/sites-available/vvaley.conf
 sudo a2enmod proxy proxy_http headers rewrite ssl
 sudo a2dissite 000-default
 sudo a2ensite vvaley
 sudo systemctl reload apache2
 
-# 7. HTTPS
+# 8. HTTPS
 sudo certbot --apache -d valiravalley.com -d www.valiravalley.com
 ```
 
 A partir de aquí, **cada despliegue** es:
 
 ```bash
-# en el server, dentro de /var/www/vvaley
+# en el server, dentro de /home/ubuntu/web/vvaley
 bash deploy/deploy.sh
 ```
 
-`deploy.sh` hace `git reset --hard origin/main`, `pnpm install`, `prisma migrate deploy`, `pnpm build` y `pm2 reload vvaley`.
+`deploy.sh` hace `git reset --hard origin/main`, `pnpm install`,
+`prisma migrate deploy`, `pnpm build` y `sudo systemctl restart vvaley`.
 
 ## Roadmap
 

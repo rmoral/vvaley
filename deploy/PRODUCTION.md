@@ -1,8 +1,8 @@
 # Despliegue en producción
 
 Guía paso a paso para llevar el proyecto a un servidor Ubuntu con
-Apache + PostgreSQL + Node + PM2. Pensada para el primer despliegue;
-los siguientes son una sola línea (`bash deploy/deploy.sh`).
+Apache + PostgreSQL + Node + systemd. Pensada para el primer
+despliegue; los siguientes son una sola línea (`bash deploy/deploy.sh`).
 
 **Arquitectura:**
 
@@ -19,9 +19,9 @@ los siguientes son una sola línea (`bash deploy/deploy.sh`).
 └──────┬────────────────────┘
        │ 127.0.0.1:3000
 ┌──────▼────────────────────┐
-│  Node + Next 15 (PM2)     │
+│  Node + Next 15           │
+│  systemd: vvaley.service  │
 │  · /home/ubuntu/web/vvaley│
-│  · ecosystem.config.cjs   │
 └──────┬────────────────────┘
        │ localhost:5432
 ┌──────▼────────────────────┐
@@ -68,11 +68,11 @@ sudo apt install -y nodejs
 node -v && npm -v   # esperado: v22.x, npm 10.x
 ```
 
-### 1.2 · pnpm y PM2 globales
+### 1.2 · pnpm global
 
 ```bash
-sudo npm install -g pnpm pm2
-pnpm -v && pm2 -v
+sudo npm install -g pnpm
+pnpm -v
 ```
 
 ### 1.3 · Apache: módulos necesarios
@@ -124,7 +124,6 @@ cd /home/ubuntu/web
 git clone https://github.com/rmoral/vvaley.git vvaley
 cd vvaley
 git checkout main
-mkdir -p logs   # los usa ecosystem.config.cjs para los logs de PM2
 ```
 
 Si el repo es privado: configura un deploy key en GitHub o usa HTTPS
@@ -176,18 +175,33 @@ pnpm build
 El build debe terminar en verde y listar todas las rutas (home,
 podcast, blog, noticias, eventos, admin/*, api/*).
 
-### Arranca PM2 y persiste
+### Instalar el servicio systemd
+
+El unit file vive en `deploy/vvaley.service`. Lo copias a
+`/etc/systemd/system/`, recargas y habilitas:
 
 ```bash
-pm2 start ecosystem.config.cjs
-pm2 save
-pm2 startup systemd            # imprime un comando con sudo — cópialo y ejecútalo
-# después del comando que te imprime:
-pm2 save
-pm2 list                        # debes ver "vvaley" online
+sudo cp deploy/vvaley.service /etc/systemd/system/vvaley.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now vvaley
+sudo systemctl status vvaley --no-pager
 ```
 
-Smoke test local en el server (apunta a 127.0.0.1:3000, no a Apache aún):
+`status` debe mostrar `active (running)` y un PID. Si no, mira el log
+con `journalctl -u vvaley -n 50`.
+
+### Permitir despliegues sin password (sudoers drop-in)
+
+`deploy.sh` hace `sudo systemctl restart vvaley`. Para que no pida
+contraseña:
+
+```bash
+sudo install -m 0440 -o root -g root \
+  deploy/vvaley-sudoers /etc/sudoers.d/vvaley
+sudo visudo -cf /etc/sudoers.d/vvaley   # debe imprimir "parsed OK"
+```
+
+### Smoke test local en el server (Apache aún no toca)
 
 ```bash
 curl -s -o /dev/null -w "home: %{http_code}\n" http://127.0.0.1:3000/
@@ -370,8 +384,11 @@ bash deploy/deploy.sh
 ```
 
 `deploy.sh` hace `git reset --hard origin/main` → `pnpm install` →
-`prisma migrate deploy` → `pnpm build` → `pm2 reload vvaley --update-env`.
-Sin downtime perceptible.
+`prisma migrate deploy` → `pnpm build` → `sudo systemctl restart vvaley`.
+Hay un blip de ~1-2 segundos durante el restart (systemd no hace
+zero-downtime nativo). Si necesitas rolling/zero-downtime, lo más
+limpio sería poner dos sockets detrás de Apache, pero para el tráfico
+actual es innecesario.
 
 Atajo desde tu máquina:
 
@@ -385,9 +402,12 @@ ssh ubuntu@18.217.132.43 "cd /home/ubuntu/web/vvaley && bash deploy/deploy.sh"
 
 | Tarea | Comando |
 |---|---|
-| Logs de la app en vivo | `pm2 logs vvaley` |
-| Estado del proceso | `pm2 list` o `pm2 show vvaley` |
-| Reiniciar (si algo se cuelga) | `pm2 restart vvaley` |
+| Logs en vivo | `journalctl -u vvaley -f` |
+| Logs de la última hora | `journalctl -u vvaley --since "1 hour ago"` |
+| Logs de hoy | `journalctl -u vvaley --since today` |
+| Estado del servicio | `sudo systemctl status vvaley` |
+| Reiniciar (si algo se cuelga) | `sudo systemctl restart vvaley` |
+| Recargar tras cambio en `.env` | `sudo systemctl restart vvaley` (no hay reload "soft" para Node) |
 | Ver últimos errores Apache | `sudo tail -f /var/log/apache2/valiravalley_error.log` |
 | Acceder a la BD | `PGPASSWORD=… psql -h localhost -U vvaley -d vvaley` |
 | Backup manual de BD | `pg_dump postgresql://vvaley:$DB_PASSWORD@localhost/vvaley > backup-$(date +%F).sql` |
@@ -399,12 +419,15 @@ ssh ubuntu@18.217.132.43 "cd /home/ubuntu/web/vvaley && bash deploy/deploy.sh"
 
 | Síntoma | Diagnóstico |
 |---|---|
-| 502 Bad Gateway | PM2 caído. `pm2 logs vvaley` y `pm2 restart vvaley`. |
+| 502 Bad Gateway | El servicio está caído. `sudo systemctl status vvaley` y `journalctl -u vvaley -n 100`. |
+| `vvaley.service` en `failed`/`activating (auto-restart)` | Mira `journalctl -u vvaley -n 200`. Casi siempre: `.env` mal formado, puerto 3000 ocupado o falta `pnpm build`. |
 | 404 en todas las rutas | Apache aún sirve `/var/www/html/vvaley` (DocumentRoot no quitado del `:443`). |
 | Login admin: "Configuration" o redirect loop | `NEXTAUTH_URL` no es `https://valiravalley.com` o falta `RequestHeader X-Forwarded-Proto`. |
-| Home OK pero `/podcast` da error de DB | `pnpm prisma migrate deploy` no se ejecutó. Hazlo y `pm2 reload vvaley`. |
-| Email de confirmación no llega | Sin `RESEND_API_KEY` el email se imprime al log: `pm2 logs vvaley` y copia el enlace. Para enviar real, da de alta el dominio en Resend, mete la API key en `.env` y `pm2 reload vvaley --update-env`. |
+| Home OK pero `/podcast` da error de DB | `pnpm prisma migrate deploy` no se ejecutó. Hazlo y `sudo systemctl restart vvaley`. |
+| Cambias `.env` y no se aplica | systemd cachea el `EnvironmentFile` al arrancar. `sudo systemctl restart vvaley`. |
+| Email de confirmación no llega | Sin `RESEND_API_KEY` el email se imprime al log: `journalctl -u vvaley -f` y copia el enlace. Para enviar real: da de alta el dominio en Resend, mete `RESEND_API_KEY` en `.env` y `sudo systemctl restart vvaley`. |
 | `pnpm build` falla por memoria | EC2 t2/t3.micro tiene poca RAM. `NODE_OPTIONS=--max-old-space-size=1024 pnpm build`, o haz el build localmente y rsynchea `.next/`. |
+| `deploy.sh` pide contraseña en el restart | No has instalado el sudoers drop-in (paso 5). Hazlo y reintenta. |
 
 ### Rollback rápido si el deploy rompe algo
 
@@ -414,9 +437,51 @@ git log --oneline -5             # apunta el SHA del commit anterior
 git reset --hard <SHA_ANTERIOR>
 pnpm install --frozen-lockfile
 pnpm build
-pm2 reload vvaley --update-env
+sudo systemctl restart vvaley
 ```
 
 Migraciones Prisma **no se revierten automáticamente**. Si una
 migración rompe la BD: restaura desde un backup `pg_dump` o revisa
 `prisma/migrations/` y aplica un fix manual con `psql`.
+
+---
+
+## Apéndice · Migrar de PM2 a systemd
+
+Si ya tienes una instalación previa con PM2 y quieres pasarla a
+systemd sin perder un solo deploy:
+
+```bash
+# 1. Para PM2 y desinscribe la app
+pm2 delete vvaley 2>/dev/null || true
+pm2 save --force
+
+# 2. Quita el servicio systemd que PM2 había instalado
+pm2 unstartup
+# pm2 imprime un comando `sudo env PATH=… pm2 unstartup …` — ejecútalo
+sudo systemctl disable pm2-ubuntu 2>/dev/null || true
+sudo systemctl stop pm2-ubuntu    2>/dev/null || true
+
+# 3. Apaga el daemon de PM2
+pm2 kill
+
+# 4. (Opcional) desinstala PM2
+sudo npm uninstall -g pm2
+
+# 5. Instala el unit de vvaley
+cd /home/ubuntu/web/vvaley
+git pull origin main              # trae deploy/vvaley.service
+sudo cp deploy/vvaley.service /etc/systemd/system/vvaley.service
+sudo install -m 0440 -o root -g root \
+  deploy/vvaley-sudoers /etc/sudoers.d/vvaley
+sudo systemctl daemon-reload
+sudo systemctl enable --now vvaley
+sudo systemctl status vvaley --no-pager
+journalctl -u vvaley -n 30
+```
+
+Verifica que todo sigue respondiendo:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:3000/
+```

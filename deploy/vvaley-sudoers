@@ -1,0 +1,9 @@
+# Drop-in for /etc/sudoers.d/vvaley (mode 0440).
+# Lets the `ubuntu` user manage the vvaley systemd unit without typing
+# the sudo password — required for unattended deploys (deploy.sh).
+#
+# Install:
+#   sudo install -m 0440 -o root -g root deploy/vvaley-sudoers /etc/sudoers.d/vvaley
+#   sudo visudo -cf /etc/sudoers.d/vvaley   # validate syntax
+
+ubuntu ALL=(root) NOPASSWD: /bin/systemctl restart vvaley, /bin/systemctl reload vvaley, /bin/systemctl status vvaley, /bin/systemctl start vvaley, /bin/systemctl stop vvaley

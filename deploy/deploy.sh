@@ -19,12 +19,8 @@ pnpm prisma migrate deploy
 echo "▸ Building Next.js..."
 pnpm build
 
-echo "▸ Reloading PM2..."
-if pm2 describe vvaley >/dev/null 2>&1; then
-  pm2 reload vvaley --update-env
-else
-  pm2 start ecosystem.config.cjs
-fi
-pm2 save
+echo "▸ Restarting systemd service..."
+sudo systemctl restart vvaley
+sudo systemctl status vvaley --no-pager --lines=0
 
 echo "✓ Deploy complete."

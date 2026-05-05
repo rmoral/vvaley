@@ -1,0 +1,54 @@
+# /etc/systemd/system/vvaley.service
+#
+# Manage Valira Valley (Next.js) as a systemd service.
+# Install / refresh:
+#   sudo cp deploy/vvaley.service /etc/systemd/system/vvaley.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now vvaley
+#
+# Daily ops:
+#   sudo systemctl status vvaley
+#   sudo systemctl restart vvaley
+#   journalctl -u vvaley -f                 # follow logs
+#   journalctl -u vvaley --since "1h ago"   # recent logs
+
+[Unit]
+Description=Valira Valley (Next.js)
+Documentation=https://github.com/rmoral/vvaley
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/web/vvaley
+
+# Reads DATABASE_URL, AUTH_SECRET, NEXTAUTH_URL, RESEND_API_KEY, etc.
+EnvironmentFile=/home/ubuntu/web/vvaley/.env
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=HOSTNAME=127.0.0.1
+
+# Bind to localhost only — Apache reverse-proxies on :443.
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -p 3000 -H 127.0.0.1
+
+Restart=on-failure
+RestartSec=5
+
+# Logs to journald — view with `journalctl -u vvaley`.
+SyslogIdentifier=vvaley
+StandardOutput=journal
+StandardError=journal
+
+# --- Hardening ---
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
