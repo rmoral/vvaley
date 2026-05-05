@@ -90,6 +90,10 @@ Newsletter (opcional pero recomendado en producción):
 
 ## Despliegue en EC2 (Ubuntu + Apache)
 
+> Para el **primer despliegue** sigue la guía detallada en
+> [`deploy/PRODUCTION.md`](deploy/PRODUCTION.md). El resumen de abajo
+> es para referencia rápida.
+
 Una sola vez, en el servidor:
 
 ```bash
