@@ -1,0 +1,98 @@
+// Valira Valley — schema
+// Prisma + PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  role         UserRole @default(EDITOR)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ---------- Podcast ---------- //
+
+model Guest {
+  id          String         @id @default(cuid())
+  slug        String         @unique
+  fullName    String
+  headline    String?
+  company     String?
+  role        String?
+  bio         String?
+  photoUrl    String?
+  email       String?
+  website     String?
+  linkedin    String?
+  twitter     String?
+  instagram   String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  episodes    EpisodeGuest[]
+
+  @@index([fullName])
+}
+
+enum EpisodeStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum EpisodePillar {
+  ECONOMY
+  COMPANY
+  ENTREPRENEURSHIP
+  TECH
+}
+
+model Episode {
+  id            String         @id @default(cuid())
+  slug          String         @unique
+  number        Int?           @unique
+  title         String
+  subtitle      String?
+  summary       String?
+  showNotes     String?
+  pillar        EpisodePillar?
+  durationSec   Int?
+  audioUrl      String?
+  coverImageUrl String?
+  spotifyUrl    String?
+  appleUrl      String?
+  youtubeUrl    String?
+  status        EpisodeStatus  @default(DRAFT)
+  publishedAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  guests        EpisodeGuest[]
+
+  @@index([status, publishedAt])
+}
+
+model EpisodeGuest {
+  episodeId String
+  guestId   String
+  position  Int      @default(0)
+  episode   Episode  @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  guest     Guest    @relation(fields: [guestId], references: [id], onDelete: Cascade)
+
+  @@id([episodeId, guestId])
+  @@index([guestId])
+}

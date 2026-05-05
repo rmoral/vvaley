@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #f4f8f8;
+  --color-bg2: #ebf2f2;
+  --color-bg3: #c8d8da;
+  --color-river: #2e8b8f;
+  --color-river-2: #5badb0;
+  --color-stone: #8b6f5e;
+  --color-text: #142e30;
+  --color-text-2: #3a5557;
+  --color-text-3: #6a8688;
+
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slowSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.9s ease both;
+}
+.animate-fade-down {
+  animation: fadeDown 0.7s ease both;
+}
+.animate-slow-spin {
+  animation: slowSpin 50s linear infinite;
+}
+.animate-slow-spin-rev {
+  animation: slowSpin 50s linear infinite reverse;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hero-topo {
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 36px,
+    var(--color-river) 36px,
+    var(--color-river) 37px
+  );
+  mask-image: radial-gradient(
+    ellipse 80% 90% at 80% 50%,
+    black 20%,
+    transparent 70%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse 80% 90% at 80% 50%,
+    black 20%,
+    transparent 70%
+  );
+}
+
+.hero-bg {
+  background:
+    radial-gradient(
+      ellipse 65% 75% at 100% 50%,
+      rgba(91, 173, 176, 0.13) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 45% 55% at 0% 85%,
+      rgba(46, 139, 143, 0.05) 0%,
+      transparent 55%
+    ),
+    var(--color-bg);
+}

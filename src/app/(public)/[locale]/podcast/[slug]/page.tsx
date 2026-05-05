@@ -1,0 +1,101 @@
+import { notFound } from "next/navigation";
+import { setRequestLocale, getTranslations, getFormatter } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
+
+export default async function EpisodePage({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}) {
+  const { locale, slug } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("episode");
+  const fmt = await getFormatter();
+
+  const ep = await prisma.episode.findUnique({
+    where: { slug },
+    include: { guests: { orderBy: { position: "asc" }, include: { guest: true } } },
+  });
+  if (!ep || ep.status !== "PUBLISHED") notFound();
+
+  return (
+    <main className="mx-auto max-w-3xl px-6 pb-24 pt-32 md:px-16">
+      <Link
+        href="/podcast"
+        className="mb-6 inline-block text-[0.78rem] uppercase tracking-[0.1em] text-river no-underline hover:text-text"
+      >
+        ← {t("back")}
+      </Link>
+
+      {ep.number !== null && (
+        <div className="mb-2 font-display text-[2rem] font-black leading-none text-bg3">
+          {String(ep.number).padStart(2, "0")}
+        </div>
+      )}
+      <h1 className="mb-4 font-display text-[clamp(2rem,4vw,3rem)] font-black leading-[1.1] text-text">
+        {ep.title}
+      </h1>
+      {ep.subtitle && (
+        <p className="mb-6 text-[1.05rem] font-light leading-[1.6] text-text-2">
+          {ep.subtitle}
+        </p>
+      )}
+
+      <div className="mb-8 flex flex-wrap gap-x-6 gap-y-2 text-[0.78rem] text-text-3">
+        {ep.publishedAt && (
+          <span>
+            {t("publishedOn")}{" "}
+            {fmt.dateTime(ep.publishedAt, { dateStyle: "long" })}
+          </span>
+        )}
+        {ep.durationSec !== null && ep.durationSec !== undefined && (
+          <span>
+            {t("duration")}: {Math.round(ep.durationSec / 60)} min
+          </span>
+        )}
+      </div>
+
+      {ep.audioUrl && (
+        <audio controls className="mb-8 w-full" src={ep.audioUrl} />
+      )}
+
+      {ep.summary && (
+        <p className="mb-8 text-[1rem] leading-[1.75] text-text-2">{ep.summary}</p>
+      )}
+
+      {ep.showNotes && (
+        <div className="prose prose-neutral mb-12 max-w-none whitespace-pre-wrap text-[0.95rem] leading-[1.75] text-text-2">
+          {ep.showNotes}
+        </div>
+      )}
+
+      {ep.guests.length > 0 && (
+        <section className="border-t border-bg3 pt-10">
+          <h2 className="mb-6 font-display text-[1.4rem] font-bold text-text">
+            {t("guests")}
+          </h2>
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {ep.guests.map(({ guest }) => (
+              <li key={guest.id}>
+                <Link
+                  href={`/invitados/${guest.slug}`}
+                  className="block rounded-lg border border-bg3 bg-white p-4 no-underline transition-colors hover:border-river-2"
+                >
+                  <div className="font-semibold text-text">{guest.fullName}</div>
+                  {(guest.role || guest.company) && (
+                    <div className="text-[0.82rem] text-text-3">
+                      {[guest.role, guest.company].filter(Boolean).join(" · ")}
+                    </div>
+                  )}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </main>
+  );
+}
