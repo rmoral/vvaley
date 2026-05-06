@@ -1,7 +1,15 @@
 import Link from "next/link";
 import { signOut } from "@/auth";
 
-const navItems = [
+type NavItem = {
+  href: string;
+  label: string;
+  exact?: boolean;
+  /** Restrict this entry to the ADMIN role. */
+  adminOnly?: boolean;
+};
+
+const navItems: NavItem[] = [
   { href: "/admin", label: "Inicio", exact: true },
   { href: "/admin/invitados", label: "Invitados" },
   { href: "/admin/episodios", label: "Episodios" },
@@ -9,15 +17,27 @@ const navItems = [
   { href: "/admin/noticias", label: "Noticias" },
   { href: "/admin/eventos", label: "Eventos" },
   { href: "/admin/newsletter", label: "Newsletter" },
+  { href: "/admin/usuarios", label: "Usuarios", adminOnly: true },
 ];
+
+const roleLabel: Record<string, string> = {
+  ADMIN: "Administrador",
+  EDITOR: "Editor",
+};
 
 export function AdminShell({
   children,
   userName,
+  userRole,
 }: {
   children: React.ReactNode;
   userName?: string | null;
+  /** "ADMIN" | "EDITOR" — accepted as a plain string so callers don't need to import the enum. */
+  userRole?: string | null;
 }) {
+  const isAdmin = userRole === "ADMIN";
+  const visible = navItems.filter((it) => !it.adminOnly || isAdmin);
+
   return (
     <div className="flex min-h-screen">
       <aside className="hidden w-60 flex-shrink-0 flex-col gap-2 border-r border-bg3 bg-white px-5 py-8 md:flex">
@@ -32,7 +52,7 @@ export function AdminShell({
         </Link>
 
         <nav className="flex flex-col gap-1">
-          {navItems.map((it) => (
+          {visible.map((it) => (
             <Link
               key={it.href}
               href={it.href}
@@ -44,7 +64,14 @@ export function AdminShell({
         </nav>
 
         <div className="mt-auto pt-6 text-[0.78rem] text-text-3">
-          {userName && <div className="mb-2 font-medium text-text-2">{userName}</div>}
+          {userName && (
+            <div className="mb-1 font-medium text-text-2">{userName}</div>
+          )}
+          {userRole && (
+            <div className="mb-2 text-[0.7rem] uppercase tracking-[0.1em] text-text-3">
+              {roleLabel[userRole] ?? userRole}
+            </div>
+          )}
           <form
             action={async () => {
               "use server";

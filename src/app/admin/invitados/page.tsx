@@ -79,7 +79,7 @@ export default async function GuestListPage({
   ) as Partial<Record<GuestStatus, number>>;
 
   return (
-    <AdminShell userName={session.user.name ?? session.user.email}>
+    <AdminShell userName={session.user.name ?? session.user.email} userRole={session.user.role}>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-[1.8rem] font-bold text-text">

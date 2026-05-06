@@ -37,7 +37,7 @@ export default async function EditNewsPage({
     "(Sin titular)";
 
   return (
-    <AdminShell userName={session.user.name ?? session.user.email}>
+    <AdminShell userName={session.user.name ?? session.user.email} userRole={session.user.role}>
       <Link
         href="/admin/noticias"
         className="mb-4 inline-block text-[0.78rem] uppercase tracking-[0.1em] text-river no-underline hover:text-text"

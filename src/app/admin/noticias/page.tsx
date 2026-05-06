@@ -42,7 +42,7 @@ export default async function NewsListAdminPage({
   });
 
   return (
-    <AdminShell userName={session.user.name ?? session.user.email}>
+    <AdminShell userName={session.user.name ?? session.user.email} userRole={session.user.role}>
       <div className="mb-8 flex items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-[1.8rem] font-bold text-text">

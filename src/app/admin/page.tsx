@@ -38,7 +38,7 @@ export default async function AdminDashboardPage() {
   ]);
 
   return (
-    <AdminShell userName={session.user.name ?? session.user.email}>
+    <AdminShell userName={session.user.name ?? session.user.email} userRole={session.user.role}>
       <header className="mb-10">
         <h1 className="mb-2 font-display text-[1.8rem] font-bold text-text">
           Panel
