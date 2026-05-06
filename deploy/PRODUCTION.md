@@ -431,7 +431,7 @@ ssh ubuntu@18.217.132.43 "cd /home/ubuntu/web/vvaley && bash deploy/deploy.sh"
 | Home OK pero `/podcast` da error de DB | `pnpm prisma migrate deploy` no se ejecutó. Hazlo y `sudo systemctl restart vvaley`. |
 | Cambias `.env` y no se aplica | systemd cachea el `EnvironmentFile` al arrancar. `sudo systemctl restart vvaley`. |
 | Email de confirmación no llega | Sin `RESEND_API_KEY` el email se imprime al log: `journalctl -u vvaley -f` y copia el enlace. Para enviar real: da de alta el dominio en Resend, mete `RESEND_API_KEY` en `.env` y `sudo systemctl restart vvaley`. |
-| `pnpm build` falla por memoria | EC2 t2/t3.micro tiene poca RAM. `NODE_OPTIONS=--max-old-space-size=1024 pnpm build`, o haz el build localmente y rsynchea `.next/`. |
+| `pnpm build` se cuelga sin error | EC2 micro/small se queda sin RAM. Crea swap (`sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile && echo '/swapfile none swap sw 0 0' \| sudo tee -a /etc/fstab`) y reintenta. `deploy.sh` ya tira con `NODE_OPTIONS=--max-old-space-size=1024` por defecto. Alternativa: build localmente y `rsync` el `.next/`. |
 | `deploy.sh` pide contraseña en el restart | No has instalado el sudoers drop-in (paso 5). Hazlo y reintenta. |
 
 ### Rollback rápido si el deploy rompe algo

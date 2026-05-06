@@ -17,7 +17,11 @@ echo "▸ Applying database migrations..."
 pnpm prisma migrate deploy
 
 echo "▸ Building Next.js..."
-pnpm build
+# Cap Node's heap so the build doesn't OOM on small EC2 instances
+# (t2/t3.micro has 1 GB of RAM; even with swap the build can balloon
+# while compiling [locale] in 4 languages plus React 19's RSC output).
+# Override with NODE_OPTIONS in the environment if needed.
+NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=1024}" pnpm build
 
 echo "▸ Restarting systemd service..."
 sudo systemctl restart vvaley
