@@ -3,6 +3,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { NewsletterInline } from "@/components/public/NewsletterInline";
+import { GuestSocialLinks } from "@/components/public/GuestSocialLinks";
 
 export const dynamic = "force-dynamic";
 
@@ -33,23 +34,52 @@ export default async function GuestPage({
   return (
     <main className="mx-auto max-w-3xl px-6 pb-24 pt-32 md:px-16">
       <Link
-        href="/podcast"
+        href="/invitados"
         className="mb-6 inline-block text-[0.78rem] uppercase tracking-[0.1em] text-river no-underline hover:text-text"
       >
         ← {t("back")}
       </Link>
 
-      <h1 className="mb-2 font-display text-[clamp(2rem,4vw,3rem)] font-black leading-[1.1] text-text">
-        {guest.fullName}
-      </h1>
-      {(guest.role || guest.company) && (
-        <p className="mb-4 text-[1.05rem] font-light text-text-2">
-          {[guest.role, guest.company].filter(Boolean).join(" · ")}
-        </p>
-      )}
-      {guest.headline && (
-        <p className="mb-6 text-[0.95rem] italic text-river">{guest.headline}</p>
-      )}
+      <header className="flex flex-col gap-6 md:flex-row md:items-start">
+        {guest.photoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={guest.photoUrl}
+            alt={guest.fullName}
+            className="h-32 w-32 flex-shrink-0 rounded-full border border-bg3 object-cover md:h-44 md:w-44"
+          />
+        ) : (
+          <div
+            aria-hidden
+            className="flex h-32 w-32 flex-shrink-0 items-center justify-center rounded-full border border-bg3 bg-bg2 font-display text-[2.4rem] font-bold text-river md:h-44 md:w-44 md:text-[3rem]"
+          >
+            {guest.fullName
+              .split(/\s+/)
+              .slice(0, 2)
+              .map((p) => p[0]?.toUpperCase() ?? "")
+              .join("")}
+          </div>
+        )}
+
+        <div className="flex-1">
+          <h1 className="mb-2 font-display text-[clamp(2rem,4vw,3rem)] font-black leading-[1.1] text-text">
+            {guest.fullName}
+          </h1>
+          {(guest.role || guest.company) && (
+            <p className="mb-3 text-[1.05rem] font-light text-text-2">
+              {[guest.role, guest.company].filter(Boolean).join(" · ")}
+            </p>
+          )}
+          {guest.headline && (
+            <p className="mb-2 text-[0.95rem] italic text-river">
+              {guest.headline}
+            </p>
+          )}
+        </div>
+      </header>
+
+      <GuestSocialLinks guest={guest} variant="detail" />
+
       {guest.bio && (
         <p className="mb-10 whitespace-pre-wrap text-[1rem] leading-[1.75] text-text-2">
           {guest.bio}

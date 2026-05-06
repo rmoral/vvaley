@@ -1,6 +1,7 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
+import { GuestSocialLinks } from "@/components/public/GuestSocialLinks";
 
 export const dynamic = "force-dynamic";
 
@@ -37,11 +38,18 @@ export default async function GuestsListPage({
       )}
 
       <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {guests.map((g) => (
-          <li key={g.id}>
+        {guests.map((g) => {
+          const hasSocials = Boolean(
+            g.website || g.linkedin || g.twitter || g.instagram || g.email,
+          );
+          return (
+          <li
+            key={g.id}
+            className="group flex h-full flex-col rounded-lg border border-bg3 bg-white transition-all hover:-translate-y-1 hover:border-river-2"
+          >
             <Link
               href={`/invitados/${g.slug}`}
-              className="group flex h-full flex-col gap-3 rounded-lg border border-bg3 bg-white p-5 no-underline transition-all hover:-translate-y-1 hover:border-river-2"
+              className="flex flex-1 flex-col gap-3 p-5 no-underline"
             >
               {g.photoUrl ? (
                 <div
@@ -77,8 +85,14 @@ export default async function GuestsListPage({
                   : t("noEpisodesYet")}
               </div>
             </Link>
+            {hasSocials && (
+              <div className="border-t border-bg3 px-5 py-3">
+                <GuestSocialLinks guest={g} variant="compact" />
+              </div>
+            )}
           </li>
-        ))}
+          );
+        })}
       </ul>
     </main>
   );
