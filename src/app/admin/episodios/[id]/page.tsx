@@ -60,7 +60,6 @@ export default async function EditEpisodePage({
         <div className="flex flex-wrap gap-4 text-[0.78rem]">
           {episode.recordingAt && (
             <>
-              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
               <a
                 href={`/api/admin/episodes/${episode.id}/calendar.ics`}
                 className="font-semibold text-river no-underline hover:text-text"

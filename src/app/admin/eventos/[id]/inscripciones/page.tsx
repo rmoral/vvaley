@@ -73,7 +73,6 @@ export default async function EventRegistrationsPage({
             {event.capacity ? `· aforo ${event.capacity}` : ""}
           </p>
         </div>
-        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a
           href={`/api/admin/events/${event.id}/registrations/export`}
           className="rounded-md border border-bg3 bg-white px-4 py-2 text-[0.85rem] font-semibold text-text-2 no-underline transition-colors hover:border-river hover:text-river"

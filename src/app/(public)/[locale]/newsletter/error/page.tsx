@@ -1,6 +1,7 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 
+export const dynamic = "force-dynamic";
 export default async function NewsletterErrorPage({
   params,
 }: {
@@ -9,7 +10,6 @@ export default async function NewsletterErrorPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("newsletterPages");
-
   return (
     <main className="mx-auto max-w-xl px-6 pb-24 pt-40 text-center md:px-16">
       <div className="mb-3 text-[0.74rem] font-semibold uppercase tracking-[0.2em] text-text-3">

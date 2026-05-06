@@ -33,9 +33,11 @@ export const metadata: Metadata = {
     "Podcast sobre empresa, economía, emprendimiento y tecnología desde Andorra.",
 };
 
-export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }));
-}
+// Render every locale on demand. Skip generateStaticParams so the build
+// doesn't prerender the [locale] tree for each language — that's where
+// memory peaked enough to OOM small EC2 instances. The /[locale] segment
+// is still validated at runtime by isAppLocale() below.
+export const dynamic = "force-dynamic";
 
 export default async function PublicLocaleLayout({
   children,

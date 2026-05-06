@@ -2,6 +2,12 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { RevealMount } from "@/components/public/Reveal";
 
+// Render on demand instead of prerendering at build time. The home is
+// content-driven (intl messages + a few static blocks), and prerendering
+// it for every locale at build time peaks memory enough to OOM small
+// EC2 instances. Apache + the layout's caching headers handle the rest.
+export const dynamic = "force-dynamic";
+
 export default async function HomePage({
   params,
 }: {
