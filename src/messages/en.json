@@ -74,6 +74,24 @@
       "tech_desc": "Practical tools, digital strategy and training for non-technical audiences.",
       "tech_badge": "Cross-cutting in every episode"
     },
+    "explore": {
+      "tag": "Explore",
+      "title_1": "Beyond the podcast,",
+      "title_2": "the whole ecosystem",
+      "sub": "Guests, written content and events that extend every conversation past the episode.",
+      "guests_title": "Guests",
+      "guests_desc": "The voices that have come through the podcast: entrepreneurs, executives and innovators.",
+      "guests_cta": "Browse guests",
+      "blog_title": "Blog",
+      "blog_desc": "Notes, analysis and case studies on business, economy, entrepreneurship and AI.",
+      "blog_cta": "Read the blog",
+      "news_title": "News",
+      "news_desc": "What's happening around Valira Valley and Andorra's innovation ecosystem.",
+      "news_cta": "Read news",
+      "events_title": "Events",
+      "events_desc": "Meet-ups, workshops and live shows for the entrepreneurial community.",
+      "events_cta": "See events"
+    },
     "podcast": {
       "tag": "The Podcast",
       "title_1": "Formats for",

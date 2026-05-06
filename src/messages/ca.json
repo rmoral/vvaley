@@ -74,6 +74,24 @@
       "tech_desc": "Eines pràctiques, estratègia digital i formació per a no tècnics.",
       "tech_badge": "Transversal en tots els episodis"
     },
+    "explore": {
+      "tag": "Explora",
+      "title_1": "Més enllà del podcast,",
+      "title_2": "tot l'ecosistema",
+      "sub": "Convidats, contingut escrit i esdeveniments que estenen cada conversa més enllà de l'episodi.",
+      "guests_title": "Convidats",
+      "guests_desc": "Les veus que han passat pel podcast: emprenedors, directius i innovadors.",
+      "guests_cta": "Veure convidats",
+      "blog_title": "Blog",
+      "blog_desc": "Reflexions, anàlisis i casos sobre empresa, economia, emprenedoria i IA.",
+      "blog_cta": "Llegir el blog",
+      "news_title": "Notícies",
+      "news_desc": "El que passa al voltant de Valira Valley i de l'ecosistema andorrà d'innovació.",
+      "news_cta": "Veure notícies",
+      "events_title": "Esdeveniments",
+      "events_desc": "Trobades, tallers i directes per a la comunitat emprenedora.",
+      "events_cta": "Veure esdeveniments"
+    },
     "podcast": {
       "tag": "El Podcast",
       "title_1": "Formats per a",

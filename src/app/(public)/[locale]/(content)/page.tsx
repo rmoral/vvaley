@@ -170,6 +170,51 @@ export default async function HomePage({
 
       <Divider />
 
+      {/* Explore: navigation cards to the four content sections */}
+      <section id="explora" className="bg-white px-6 py-20 md:px-16">
+        <SectionTag>{t("explore.tag")}</SectionTag>
+        <h2 className="reveal mb-4 font-display text-[clamp(1.8rem,3vw,2.6rem)] font-bold leading-[1.15] text-text">
+          {t("explore.title_1")}
+          <br />
+          {t("explore.title_2")}
+        </h2>
+        <p className="reveal max-w-[500px] text-[0.97rem] font-light leading-[1.75] text-text-2">
+          {t("explore.sub")}
+        </p>
+        <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <ExploreCard
+            href="/invitados"
+            icon="🎤"
+            title={t("explore.guests_title")}
+            desc={t("explore.guests_desc")}
+            cta={t("explore.guests_cta")}
+          />
+          <ExploreCard
+            href="/blog"
+            icon="✍️"
+            title={t("explore.blog_title")}
+            desc={t("explore.blog_desc")}
+            cta={t("explore.blog_cta")}
+          />
+          <ExploreCard
+            href="/noticias"
+            icon="📰"
+            title={t("explore.news_title")}
+            desc={t("explore.news_desc")}
+            cta={t("explore.news_cta")}
+          />
+          <ExploreCard
+            href="/eventos"
+            icon="📅"
+            title={t("explore.events_title")}
+            desc={t("explore.events_desc")}
+            cta={t("explore.events_cta")}
+          />
+        </div>
+      </section>
+
+      <Divider />
+
       {/* Ecosystem */}
       <section id="ecosistema" className="px-6 py-20 md:px-16">
         <SectionTag>{t("ecosystem.tag")}</SectionTag>
@@ -411,6 +456,36 @@ function PlatformCard({
         <div className="text-[0.76rem] leading-[1.5] text-text-3">{role}</div>
       </div>
     </div>
+  );
+}
+
+function ExploreCard({
+  href,
+  icon,
+  title,
+  desc,
+  cta,
+}: {
+  href: string;
+  icon: string;
+  title: string;
+  desc: string;
+  cta: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="reveal group flex h-full flex-col gap-3 rounded-lg border border-bg3 bg-white p-6 no-underline transition-all hover:-translate-y-1 hover:border-river-2 hover:shadow-[0_4px_20px_rgba(46,139,143,0.08)]"
+    >
+      <div className="text-2xl">{icon}</div>
+      <div className="font-display text-[1.15rem] font-bold leading-tight text-text group-hover:text-river">
+        {title}
+      </div>
+      <p className="text-[0.85rem] leading-[1.55] text-text-2">{desc}</p>
+      <span className="mt-auto pt-2 text-[0.74rem] font-semibold uppercase tracking-[0.1em] text-river">
+        {cta} →
+      </span>
+    </Link>
   );
 }
 

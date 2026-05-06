@@ -74,6 +74,24 @@
       "tech_desc": "Herramientas prácticas, estrategia digital y formación para no técnicos.",
       "tech_badge": "Transversal en todos los episodios"
     },
+    "explore": {
+      "tag": "Explora",
+      "title_1": "Más allá del podcast,",
+      "title_2": "todo el ecosistema",
+      "sub": "Invitados, contenido escrito y eventos que extienden cada conversación más allá del episodio.",
+      "guests_title": "Invitados",
+      "guests_desc": "Las voces que han pasado por el podcast: emprendedores, directivos e innovadores.",
+      "guests_cta": "Ver invitados",
+      "blog_title": "Blog",
+      "blog_desc": "Reflexiones, análisis y casos sobre empresa, economía, emprendimiento e IA.",
+      "blog_cta": "Leer el blog",
+      "news_title": "Noticias",
+      "news_desc": "Lo que pasa en torno a Valira Valley y al ecosistema andorrano de innovación.",
+      "news_cta": "Ver noticias",
+      "events_title": "Eventos",
+      "events_desc": "Encuentros, talleres y directos para la comunidad emprendedora.",
+      "events_cta": "Ver eventos"
+    },
     "podcast": {
       "tag": "El Podcast",
       "title_1": "Formatos para",
