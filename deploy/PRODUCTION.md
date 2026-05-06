@@ -273,15 +273,20 @@ Mantén las líneas `SSLEngine`, `SSLCertificateFile`,
     ServerAlias www.valiravalley.com
     ServerAdmin admin@valiravalley.com
 
-    # ─── Reverse proxy a Node (PM2) ───
+    # ─── Reverse proxy a Node ───
     ProxyPreserveHost On
     ProxyRequests     Off
     ProxyPass        / http://127.0.0.1:3015/ retry=1 acquire=3000 timeout=600 Keepalive=On
     ProxyPassReverse / http://127.0.0.1:3015/
 
-    # Para que Auth.js / Next sepan que están detrás de HTTPS
-    RequestHeader set X-Forwarded-Proto "https"
-    RequestHeader set X-Forwarded-Port  "443"
+    # NOTA: no añadas `RequestHeader set X-Forwarded-Proto "https"`. El
+    # middleware de Next 15 hace un self-fetch interno con ese header
+    # como protocolo, ending up en `https://localhost:3015/...` — pero
+    # el puerto local sólo habla HTTP, así que el self-fetch revienta
+    # con EPROTO y Apache devuelve 500. Auth.js obtiene la URL pública
+    # de NEXTAUTH_URL / PUBLIC_SITE_URL del `.env`, y la flag Secure
+    # de las cookies se decide a partir de esa URL — no necesita el
+    # header de proxy.
 
     # Redirigir www → apex
     RewriteEngine On
