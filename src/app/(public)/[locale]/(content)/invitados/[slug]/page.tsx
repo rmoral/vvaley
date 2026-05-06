@@ -24,7 +24,7 @@ export default async function GuestPage({
       },
     },
   });
-  if (!guest) notFound();
+  if (!guest || !guest.isPublic) notFound();
 
   const publishedEpisodes = guest.episodes.filter(
     (eg) => eg.episode.status === "PUBLISHED",

@@ -1,4 +1,4 @@
-import type { Guest } from "@prisma/client";
+import { GuestStatus, type Guest } from "@prisma/client";
 
 type Props = {
   guest?: Guest | null;
@@ -6,6 +6,16 @@ type Props = {
   deleteAction?: (formData: FormData) => Promise<void>;
   saved?: boolean;
 };
+
+const statusLabel: Record<GuestStatus, string> = {
+  PROPOSED: "Propuesto",
+  CONFIRMED: "Confirmado",
+  RECORDED: "Ya grabado",
+  DECLINED: "Rechazado",
+};
+
+const toLocalInput = (d: Date | null | undefined) =>
+  d ? new Date(d).toISOString().slice(0, 16) : "";
 
 export function GuestForm({ guest, action, deleteAction, saved }: Props) {
   return (
@@ -52,6 +62,41 @@ export function GuestForm({ guest, action, deleteAction, saved }: Props) {
       </div>
 
       <div className="space-y-5">
+        <Card title="Estado">
+          <Select
+            label="Estado del invitado"
+            name="status"
+            defaultValue={guest?.status ?? GuestStatus.PROPOSED}
+            options={Object.entries(statusLabel).map(([value, label]) => ({
+              value,
+              label,
+            }))}
+          />
+          <Field
+            label="Fecha prevista"
+            name="scheduledAt"
+            type="datetime-local"
+            defaultValue={toLocalInput(guest?.scheduledAt)}
+            help="Cuándo viene a grabar. Se rellena automáticamente al crear/confirmar un episodio."
+          />
+          <label className="flex items-start gap-2 text-[0.85rem] text-text-2">
+            <input
+              type="checkbox"
+              name="isPublic"
+              defaultChecked={guest?.isPublic ?? true}
+              className="mt-0.5"
+            />
+            <span>
+              <strong className="block text-text">Mostrar en la web pública</strong>
+              <span className="text-[0.78rem] text-text-3">
+                Si está marcado, aparece en /invitados/&lt;slug&gt; y en las
+                fichas de episodios. Desmárcalo para mantener la ficha
+                interna sin exponerla.
+              </span>
+            </span>
+          </label>
+        </Card>
+
         <Card title="Foto">
           <Field
             label="URL de la foto"
@@ -163,6 +208,35 @@ function Textarea({
         defaultValue={defaultValue}
         className="rounded-md border border-bg3 bg-bg px-3 py-2 text-[0.92rem] text-text outline-none transition-colors focus:border-river"
       />
+    </label>
+  );
+}
+
+function Select({
+  label,
+  name,
+  defaultValue,
+  options,
+}: {
+  label: string;
+  name: string;
+  defaultValue?: string;
+  options: { value: string; label: string }[];
+}) {
+  return (
+    <label className="flex flex-col gap-1 text-[0.78rem] font-medium text-text-2">
+      {label}
+      <select
+        name={name}
+        defaultValue={defaultValue}
+        className="rounded-md border border-bg3 bg-bg px-3 py-2 text-[0.92rem] text-text outline-none transition-colors focus:border-river"
+      >
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
     </label>
   );
 }

@@ -2,11 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { EpisodePillar, EpisodeStatus } from "@prisma/client";
+import { EpisodePillar, EpisodeStatus, GuestStatus } from "@prisma/client";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
+import { sendEpisodeInvites } from "@/lib/calendar-invites";
 
 const trim = (v: FormDataEntryValue | null) => {
   const s = typeof v === "string" ? v.trim() : "";
@@ -42,6 +43,8 @@ const episodeSchema = z.object({
   appleUrl: z.string().url().optional().nullable().or(z.literal("").transform(() => null)),
   youtubeUrl: z.string().url().optional().nullable().or(z.literal("").transform(() => null)),
   status: z.nativeEnum(EpisodeStatus),
+  recordingAt: z.date().nullable(),
+  recordingUrl: z.string().url().optional().nullable().or(z.literal("").transform(() => null)),
   publishedAt: z.date().nullable(),
   guestIds: z.array(z.string()).default([]),
 });
@@ -74,6 +77,8 @@ function parseForm(formData: FormData) {
     appleUrl: trim(formData.get("appleUrl")),
     youtubeUrl: trim(formData.get("youtubeUrl")),
     status: statusRaw as EpisodeStatus,
+    recordingAt: dateOrNull(formData.get("recordingAt")),
+    recordingUrl: trim(formData.get("recordingUrl")),
     publishedAt: dateOrNull(formData.get("publishedAt")),
     guestIds,
   });
@@ -92,6 +97,55 @@ async function uniqueSlug(base: string, ignoreId?: string) {
     slug = `${base}-${n}`;
   }
   return slug;
+}
+
+const inviteRelevantStatus: ReadonlySet<EpisodeStatus> = new Set([
+  EpisodeStatus.SCHEDULED,
+  EpisodeStatus.PUBLISHED,
+]);
+
+/**
+ * Decide whether the calendar invite should fire after a save.
+ * Sends when there's a recording date, the episode status is at least
+ * SCHEDULED, the episode has guests with email, and either the invite
+ * was never sent or the date changed since it was last sent.
+ */
+function shouldSendInvite(
+  next: { recordingAt: Date | null; status: EpisodeStatus },
+  previous: { recordingAt: Date | null; inviteSentAt: Date | null } | null,
+): boolean {
+  if (!next.recordingAt) return false;
+  if (!inviteRelevantStatus.has(next.status)) return false;
+  if (!previous) return true;
+  if (!previous.inviteSentAt) return true;
+  return previous.recordingAt?.getTime() !== next.recordingAt.getTime();
+}
+
+async function maybeSendInvites(episodeId: string) {
+  const episode = await prisma.episode.findUnique({
+    where: { id: episodeId },
+    include: {
+      guests: { orderBy: { position: "asc" }, include: { guest: true } },
+    },
+  });
+  if (!episode) return;
+  const result = await sendEpisodeInvites(episode);
+  if (result.sent > 0) {
+    await prisma.episode.update({
+      where: { id: episodeId },
+      data: { inviteSentAt: new Date() },
+    });
+    // Bump the guests we just emailed to CONFIRMED if they were proposed.
+    const guestIds = episode.guests
+      .filter(({ guest }) => guest.email && guest.status === GuestStatus.PROPOSED)
+      .map(({ guest }) => guest.id);
+    if (guestIds.length > 0) {
+      await prisma.guest.updateMany({
+        where: { id: { in: guestIds } },
+        data: { status: GuestStatus.CONFIRMED, scheduledAt: episode.recordingAt },
+      });
+    }
+  }
 }
 
 export async function createEpisode(formData: FormData) {
@@ -116,6 +170,8 @@ export async function createEpisode(formData: FormData) {
       appleUrl: data.appleUrl,
       youtubeUrl: data.youtubeUrl,
       status: data.status,
+      recordingAt: data.recordingAt,
+      recordingUrl: data.recordingUrl,
       publishedAt:
         data.publishedAt ??
         (data.status === EpisodeStatus.PUBLISHED ? new Date() : null),
@@ -128,6 +184,10 @@ export async function createEpisode(formData: FormData) {
     },
   });
 
+  if (shouldSendInvite({ recordingAt: data.recordingAt, status: data.status }, null)) {
+    await maybeSendInvites(ep.id);
+  }
+
   revalidatePath("/admin/episodios");
   revalidatePath("/podcast", "page");
   redirect(`/admin/episodios/${ep.id}?saved=1`);
@@ -138,6 +198,11 @@ export async function updateEpisode(id: string, formData: FormData) {
   const data = parseForm(formData);
   const baseSlug = data.slug ? slugify(data.slug) : slugify(data.title);
   const slug = await uniqueSlug(baseSlug, id);
+
+  const previous = await prisma.episode.findUnique({
+    where: { id },
+    select: { recordingAt: true, inviteSentAt: true },
+  });
 
   await prisma.$transaction([
     prisma.episodeGuest.deleteMany({ where: { episodeId: id } }),
@@ -158,6 +223,8 @@ export async function updateEpisode(id: string, formData: FormData) {
         appleUrl: data.appleUrl,
         youtubeUrl: data.youtubeUrl,
         status: data.status,
+        recordingAt: data.recordingAt,
+        recordingUrl: data.recordingUrl,
         publishedAt:
           data.publishedAt ??
           (data.status === EpisodeStatus.PUBLISHED ? new Date() : null),
@@ -171,6 +238,15 @@ export async function updateEpisode(id: string, formData: FormData) {
     }),
   ]);
 
+  if (
+    shouldSendInvite(
+      { recordingAt: data.recordingAt, status: data.status },
+      previous,
+    )
+  ) {
+    await maybeSendInvites(id);
+  }
+
   revalidatePath("/admin/episodios");
   revalidatePath(`/admin/episodios/${id}`);
   revalidatePath("/podcast", "page");
@@ -182,4 +258,11 @@ export async function deleteEpisode(id: string) {
   await prisma.episode.delete({ where: { id } });
   revalidatePath("/admin/episodios");
   redirect("/admin/episodios");
+}
+
+/** Manual trigger from the admin UI. Lets the editor force a resend. */
+export async function resendEpisodeInvites(id: string) {
+  await requireAdmin();
+  await maybeSendInvites(id);
+  revalidatePath(`/admin/episodios/${id}`);
 }

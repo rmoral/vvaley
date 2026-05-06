@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { GuestStatus } from "@prisma/client";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -10,6 +11,13 @@ import { slugify } from "@/lib/slug";
 const trim = (v: FormDataEntryValue | null) => {
   const s = typeof v === "string" ? v.trim() : "";
   return s.length === 0 ? null : s;
+};
+
+const dateOrNull = (v: FormDataEntryValue | null) => {
+  const s = trim(v);
+  if (s === null) return null;
+  const d = new Date(s);
+  return Number.isNaN(d.getTime()) ? null : d;
 };
 
 const guestSchema = z.object({
@@ -25,6 +33,9 @@ const guestSchema = z.object({
   linkedin: z.string().optional().nullable(),
   twitter: z.string().optional().nullable(),
   instagram: z.string().optional().nullable(),
+  isPublic: z.boolean(),
+  status: z.nativeEnum(GuestStatus),
+  scheduledAt: z.date().nullable(),
 });
 
 async function requireAdmin() {
@@ -34,6 +45,7 @@ async function requireAdmin() {
 }
 
 function parseForm(formData: FormData) {
+  const statusRaw = trim(formData.get("status")) ?? GuestStatus.PROPOSED;
   return guestSchema.parse({
     fullName: trim(formData.get("fullName")) ?? "",
     slug: trim(formData.get("slug")),
@@ -47,6 +59,9 @@ function parseForm(formData: FormData) {
     linkedin: trim(formData.get("linkedin")),
     twitter: trim(formData.get("twitter")),
     instagram: trim(formData.get("instagram")),
+    isPublic: formData.get("isPublic") === "on",
+    status: statusRaw as GuestStatus,
+    scheduledAt: dateOrNull(formData.get("scheduledAt")),
   });
 }
 
@@ -85,6 +100,9 @@ export async function createGuest(formData: FormData) {
       linkedin: data.linkedin,
       twitter: data.twitter,
       instagram: data.instagram,
+      isPublic: data.isPublic,
+      status: data.status,
+      scheduledAt: data.scheduledAt,
     },
   });
 
@@ -113,6 +131,9 @@ export async function updateGuest(id: string, formData: FormData) {
       linkedin: data.linkedin,
       twitter: data.twitter,
       instagram: data.instagram,
+      isPublic: data.isPublic,
+      status: data.status,
+      scheduledAt: data.scheduledAt,
     },
   });
 

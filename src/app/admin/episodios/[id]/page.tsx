@@ -4,7 +4,11 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { EpisodeForm } from "@/components/admin/EpisodeForm";
-import { updateEpisode, deleteEpisode } from "@/app/admin/_actions/episodes";
+import {
+  updateEpisode,
+  deleteEpisode,
+  resendEpisodeInvites,
+} from "@/app/admin/_actions/episodes";
 
 export default async function EditEpisodePage({
   params,
@@ -36,6 +40,10 @@ export default async function EditEpisodePage({
     "use server";
     await deleteEpisode(id);
   };
+  const resend = async () => {
+    "use server";
+    await resendEpisodeInvites(id);
+  };
 
   return (
     <AdminShell userName={session.user.name ?? session.user.email}>
@@ -45,19 +53,40 @@ export default async function EditEpisodePage({
       >
         ← Episodios
       </Link>
-      <header className="mb-8 flex items-baseline justify-between gap-4">
+      <header className="mb-8 flex flex-wrap items-baseline justify-between gap-4">
         <h1 className="font-display text-[1.8rem] font-bold text-text">
           {episode.title}
         </h1>
-        {episode.status === "PUBLISHED" && (
-          <Link
-            href={`/podcast/${episode.slug}`}
-            target="_blank"
-            className="text-[0.78rem] font-semibold text-river no-underline hover:text-text"
-          >
-            Ver en la web ↗
-          </Link>
-        )}
+        <div className="flex flex-wrap gap-4 text-[0.78rem]">
+          {episode.recordingAt && (
+            <>
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+              <a
+                href={`/api/admin/episodes/${episode.id}/calendar.ics`}
+                className="font-semibold text-river no-underline hover:text-text"
+              >
+                Descargar .ics ↓
+              </a>
+              <form action={resend} className="inline">
+                <button
+                  type="submit"
+                  className="text-[0.78rem] font-semibold text-river no-underline hover:text-text"
+                >
+                  Reenviar invitación a invitados ↻
+                </button>
+              </form>
+            </>
+          )}
+          {episode.status === "PUBLISHED" && (
+            <Link
+              href={`/podcast/${episode.slug}`}
+              target="_blank"
+              className="font-semibold text-river no-underline hover:text-text"
+            >
+              Ver en la web ↗
+            </Link>
+          )}
+        </div>
       </header>
       <EpisodeForm
         episode={episode}

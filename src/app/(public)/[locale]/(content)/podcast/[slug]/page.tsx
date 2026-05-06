@@ -73,27 +73,29 @@ export default async function EpisodePage({
         </div>
       )}
 
-      {ep.guests.length > 0 && (
+      {ep.guests.filter(({ guest }) => guest.isPublic).length > 0 && (
         <section className="border-t border-bg3 pt-10">
           <h2 className="mb-6 font-display text-[1.4rem] font-bold text-text">
             {t("guests")}
           </h2>
           <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {ep.guests.map(({ guest }) => (
-              <li key={guest.id}>
-                <Link
-                  href={`/invitados/${guest.slug}`}
-                  className="block rounded-lg border border-bg3 bg-white p-4 no-underline transition-colors hover:border-river-2"
-                >
-                  <div className="font-semibold text-text">{guest.fullName}</div>
-                  {(guest.role || guest.company) && (
-                    <div className="text-[0.82rem] text-text-3">
-                      {[guest.role, guest.company].filter(Boolean).join(" · ")}
-                    </div>
-                  )}
-                </Link>
-              </li>
-            ))}
+            {ep.guests
+              .filter(({ guest }) => guest.isPublic)
+              .map(({ guest }) => (
+                <li key={guest.id}>
+                  <Link
+                    href={`/invitados/${guest.slug}`}
+                    className="block rounded-lg border border-bg3 bg-white p-4 no-underline transition-colors hover:border-river-2"
+                  >
+                    <div className="font-semibold text-text">{guest.fullName}</div>
+                    {(guest.role || guest.company) && (
+                      <div className="text-[0.82rem] text-text-3">
+                        {[guest.role, guest.company].filter(Boolean).join(" · ")}
+                      </div>
+                    )}
+                  </Link>
+                </li>
+              ))}
           </ul>
         </section>
       )}

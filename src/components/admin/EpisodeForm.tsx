@@ -35,6 +35,9 @@ export function EpisodeForm({
   const publishedAtValue = episode?.publishedAt
     ? new Date(episode.publishedAt).toISOString().slice(0, 16)
     : "";
+  const recordingAtValue = episode?.recordingAt
+    ? new Date(episode.recordingAt).toISOString().slice(0, 16)
+    : "";
   const durationMin =
     episode?.durationSec != null ? Math.round(episode.durationSec / 60) : "";
 
@@ -174,6 +177,33 @@ export function EpisodeForm({
       </div>
 
       <div className="space-y-5">
+        <Card title="Grabación">
+          <Field
+            label="Fecha de grabación"
+            name="recordingAt"
+            type="datetime-local"
+            defaultValue={recordingAtValue}
+            help="En cuanto se rellena (con estado SCHEDULED o PUBLISHED) se envía un evento de calendario .ics a los invitados con email."
+          />
+          <Field
+            label="URL de la sala (opcional)"
+            name="recordingUrl"
+            type="url"
+            defaultValue={episode?.recordingUrl ?? ""}
+            placeholder="https://meet.google.com/..."
+            help="Se incluye en el evento de calendario y en el email."
+          />
+          {episode?.inviteSentAt && (
+            <div className="rounded-md border border-[rgba(46,139,143,0.25)] bg-[rgba(46,139,143,0.05)] px-3 py-2 text-[0.78rem] text-river">
+              ✓ Invitaciones enviadas el{" "}
+              {new Intl.DateTimeFormat("es", {
+                dateStyle: "medium",
+                timeStyle: "short",
+              }).format(episode.inviteSentAt)}
+            </div>
+          )}
+        </Card>
+
         <Card title="Publicación">
           <Select
             label="Estado"

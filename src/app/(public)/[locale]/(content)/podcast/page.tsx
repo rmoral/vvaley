@@ -59,10 +59,13 @@ export default async function PodcastListPage({
                   {ep.summary}
                 </p>
               )}
-              {ep.guests.length > 0 && (
+              {ep.guests.some((g) => g.guest.isPublic) && (
                 <div className="text-[0.74rem] text-text-3">
                   {t("guests")}:{" "}
-                  {ep.guests.map((g) => g.guest.fullName).join(", ")}
+                  {ep.guests
+                    .filter((g) => g.guest.isPublic)
+                    .map((g) => g.guest.fullName)
+                    .join(", ")}
                 </div>
               )}
             </Link>

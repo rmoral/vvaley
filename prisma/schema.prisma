@@ -30,6 +30,13 @@ model User {
 
 // ---------- Podcast ---------- //
 
+enum GuestStatus {
+  PROPOSED
+  CONFIRMED
+  RECORDED
+  DECLINED
+}
+
 model Guest {
   id          String         @id @default(cuid())
   slug        String         @unique
@@ -44,11 +51,15 @@ model Guest {
   linkedin    String?
   twitter     String?
   instagram   String?
+  isPublic    Boolean        @default(true)
+  status      GuestStatus    @default(PROPOSED)
+  scheduledAt DateTime?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   episodes    EpisodeGuest[]
 
   @@index([fullName])
+  @@index([status, scheduledAt])
 }
 
 enum EpisodeStatus {
@@ -66,27 +77,31 @@ enum EpisodePillar {
 }
 
 model Episode {
-  id            String         @id @default(cuid())
-  slug          String         @unique
-  number        Int?           @unique
-  title         String
-  subtitle      String?
-  summary       String?
-  showNotes     String?
-  pillar        EpisodePillar?
-  durationSec   Int?
-  audioUrl      String?
-  coverImageUrl String?
-  spotifyUrl    String?
-  appleUrl      String?
-  youtubeUrl    String?
-  status        EpisodeStatus  @default(DRAFT)
-  publishedAt   DateTime?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  guests        EpisodeGuest[]
+  id              String         @id @default(cuid())
+  slug            String         @unique
+  number          Int?           @unique
+  title           String
+  subtitle        String?
+  summary         String?
+  showNotes       String?
+  pillar          EpisodePillar?
+  durationSec     Int?
+  audioUrl        String?
+  coverImageUrl   String?
+  spotifyUrl      String?
+  appleUrl        String?
+  youtubeUrl      String?
+  status          EpisodeStatus  @default(DRAFT)
+  recordingAt     DateTime?
+  recordingUrl    String?
+  inviteSentAt    DateTime?
+  publishedAt     DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  guests          EpisodeGuest[]
 
   @@index([status, publishedAt])
+  @@index([recordingAt])
 }
 
 model EpisodeGuest {
