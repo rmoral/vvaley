@@ -3,11 +3,19 @@
     "naming": "El Nom",
     "pillars": "Pilars",
     "podcast": "Podcast",
+    "guests": "Convidats",
     "blog": "Blog",
     "news": "Notícies",
     "events": "Esdeveniments",
     "strategy": "Estratègia",
     "subscribe": "Subscriu-te"
+  },
+  "guestsList": {
+    "title": "Convidats",
+    "sub": "Veus que passen per Valira Valley: emprenedors, directius i innovadors que comparteixen el que els funciona.",
+    "empty": "Encara no hi ha convidats per mostrar.",
+    "episodeCount": "{count, plural, one {# episodi} other {# episodis}}",
+    "noEpisodesYet": "Pròximament"
   },
   "home": {
     "hero": {

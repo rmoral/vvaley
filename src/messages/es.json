@@ -3,11 +3,19 @@
     "naming": "El Nombre",
     "pillars": "Pilares",
     "podcast": "Podcast",
+    "guests": "Invitados",
     "blog": "Blog",
     "news": "Noticias",
     "events": "Eventos",
     "strategy": "Estrategia",
     "subscribe": "Suscríbete"
+  },
+  "guestsList": {
+    "title": "Invitados",
+    "sub": "Voces que pasan por Valira Valley: emprendedores, directivos e innovadores que comparten lo que les funciona.",
+    "empty": "Aún no hay invitados para mostrar.",
+    "episodeCount": "{count, plural, one {# episodio} other {# episodios}}",
+    "noEpisodesYet": "Próximamente"
   },
   "home": {
     "hero": {

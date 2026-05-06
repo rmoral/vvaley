@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { PostStatus, type Post, type PostTranslation } from "@prisma/client";
 import { routing, type AppLocale } from "@/i18n/routing";
+import { ImageUploader } from "./ImageUploader";
+import { MarkdownEditor } from "./MarkdownEditor";
 
 const localeLabel: Record<AppLocale, string> = {
   es: "Español",
@@ -86,11 +88,12 @@ export function PostForm({ post, action, deleteAction, saved, error }: Props) {
                   name={`summary_${loc}`}
                   defaultValue={tr?.summary ?? ""}
                 />
-                <Textarea
+                <MarkdownEditor
                   label="Cuerpo (Markdown)"
                   name={`body_${loc}`}
                   rows={16}
                   defaultValue={tr?.body ?? ""}
+                  hidden={!isActive}
                 />
               </div>
             );
@@ -122,12 +125,11 @@ export function PostForm({ post, action, deleteAction, saved, error }: Props) {
             defaultValue={post?.slug ?? ""}
             placeholder="se-genera-desde-el-titulo"
           />
-          <Field
-            label="URL de la portada"
+          <ImageUploader
+            label="Portada"
             name="coverImageUrl"
-            type="url"
             defaultValue={post?.coverImageUrl ?? ""}
-            placeholder="https://"
+            help="Sube una imagen o pega una URL externa."
           />
         </Card>
 
@@ -208,30 +210,6 @@ function Field({
         className="rounded-md border border-bg3 bg-bg px-3 py-2 text-[0.92rem] text-text outline-none transition-colors focus:border-river"
       />
       {help && <span className="text-[0.74rem] font-normal text-text-3">{help}</span>}
-    </label>
-  );
-}
-
-function Textarea({
-  label,
-  name,
-  rows = 5,
-  defaultValue,
-}: {
-  label: string;
-  name: string;
-  rows?: number;
-  defaultValue?: string;
-}) {
-  return (
-    <label className="flex flex-col gap-1 text-[0.78rem] font-medium text-text-2">
-      {label}
-      <textarea
-        name={name}
-        rows={rows}
-        defaultValue={defaultValue}
-        className="rounded-md border border-bg3 bg-bg px-3 py-2 font-mono text-[0.88rem] text-text outline-none transition-colors focus:border-river"
-      />
     </label>
   );
 }

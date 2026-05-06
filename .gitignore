@@ -22,3 +22,8 @@ next-env.d.ts
 *.tsbuildinfo
 
 prisma/migrations/dev.db*
+
+# User-uploaded media (post covers, inline images, etc.). Survives deploys
+# because git pull leaves untracked files alone, but never goes to git.
+public/uploads/*
+!public/uploads/.gitkeep

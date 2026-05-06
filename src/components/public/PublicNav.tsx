@@ -25,6 +25,14 @@ export function PublicNav({ locale }: { locale: AppLocale }) {
         </li>
         <li>
           <Link
+            href="/invitados"
+            className="text-[0.82rem] font-medium uppercase tracking-[0.07em] text-text-3 no-underline transition-colors hover:text-river"
+          >
+            {t("guests")}
+          </Link>
+        </li>
+        <li>
+          <Link
             href="/blog"
             className="text-[0.82rem] font-medium uppercase tracking-[0.07em] text-text-3 no-underline transition-colors hover:text-river"
           >

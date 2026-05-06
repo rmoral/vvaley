@@ -3,11 +3,19 @@
     "naming": "The Name",
     "pillars": "Pillars",
     "podcast": "Podcast",
+    "guests": "Guests",
     "blog": "Blog",
     "news": "News",
     "events": "Events",
     "strategy": "Strategy",
     "subscribe": "Subscribe"
+  },
+  "guestsList": {
+    "title": "Guests",
+    "sub": "Voices that come through Valira Valley: entrepreneurs, executives and innovators sharing what really works.",
+    "empty": "No guests to show yet.",
+    "episodeCount": "{count, plural, one {# episode} other {# episodes}}",
+    "noEpisodesYet": "Coming soon"
   },
   "home": {
     "hero": {
