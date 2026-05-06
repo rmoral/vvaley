@@ -1,8 +1,5 @@
-import createMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "./i18n/routing";
-
-const intlMiddleware = createMiddleware(routing);
 
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -12,13 +9,11 @@ export default function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Skip the intl middleware when the URL already carries a locale prefix.
-  // Otherwise next-intl issues an internal rewrite to the same URL, which
-  // Next.js 15 resolves via a loopback self-fetch — and that breaks behind
-  // a TLS-terminating proxy (EPROTO) or just deadlocks on itself
-  // (ECONNRESET on http://localhost:PORT/<locale>). The page tree at
-  // app/[locale]/* receives `params.locale` directly, so setRequestLocale()
-  // in the layouts has everything it needs.
+  // Already-localised paths render directly via app/[locale]/* —
+  // setRequestLocale() in those layouts reads the locale from `params`,
+  // so next-intl's "set locale" rewrite is redundant here. Skipping it
+  // avoids Next 15 turning that no-op rewrite into a loopback self-fetch
+  // (EPROTO behind a TLS-terminating proxy, ECONNRESET locally).
   const hasLocalePrefix = routing.locales.some(
     (locale) =>
       pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
@@ -27,9 +22,15 @@ export default function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Unprefixed paths still go through next-intl: "/" → 307 to /es,
-  // unknown paths → not-found via the [locale] segment.
-  return intlMiddleware(request);
+  // Unprefixed path: redirect to the default locale. We build the redirect
+  // URL from request.nextUrl (which honours the Host header preserved by
+  // Apache via ProxyPreserveHost), so the browser follows it on the public
+  // domain instead of being sent to Node's internal listening address.
+  const url = request.nextUrl.clone();
+  url.pathname = pathname === "/"
+    ? `/${routing.defaultLocale}`
+    : `/${routing.defaultLocale}${pathname}`;
+  return NextResponse.redirect(url, 307);
 }
 
 export const config = {
