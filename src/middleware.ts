@@ -22,14 +22,34 @@ export default function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Unprefixed path: redirect to the default locale. We build the redirect
-  // URL from request.nextUrl (which honours the Host header preserved by
-  // Apache via ProxyPreserveHost), so the browser follows it on the public
-  // domain instead of being sent to Node's internal listening address.
+  // Unprefixed path: redirect to the default locale. We build the URL
+  // from the Host header rather than request.nextUrl, because Next 15's
+  // middleware sets request.nextUrl.host to Node's internal bind address
+  // (localhost:PORT) instead of the public host that Apache preserves.
+  // Falling back to nextUrl for purely local requests where Host is
+  // missing keeps `pnpm dev` happy.
+  const path =
+    pathname === "/"
+      ? `/${routing.defaultLocale}`
+      : `/${routing.defaultLocale}${pathname}`;
+  const search = request.nextUrl.search;
+
+  const headerHost = request.headers.get("host");
+  if (headerHost) {
+    const isLocal =
+      headerHost.startsWith("localhost") ||
+      headerHost.startsWith("127.") ||
+      headerHost === "::1";
+    const proto =
+      request.headers.get("x-forwarded-proto") ?? (isLocal ? "http" : "https");
+    return NextResponse.redirect(
+      `${proto}://${headerHost}${path}${search}`,
+      307,
+    );
+  }
+
   const url = request.nextUrl.clone();
-  url.pathname = pathname === "/"
-    ? `/${routing.defaultLocale}`
-    : `/${routing.defaultLocale}${pathname}`;
+  url.pathname = path;
   return NextResponse.redirect(url, 307);
 }
 
