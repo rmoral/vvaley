@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
@@ -5,9 +6,48 @@ import { prisma } from "@/lib/prisma";
 import { pickTranslation } from "@/lib/translations";
 import { renderMarkdown } from "@/lib/markdown";
 import { NewsletterInline } from "@/components/public/NewsletterInline";
+import { JsonLd } from "@/components/public/JsonLd";
+import { localizedUrls, ogLocale } from "@/lib/seo";
 import type { AppLocale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const post = await prisma.post.findUnique({
+    where: { slug },
+    include: { translations: true },
+  });
+  if (!post || post.status !== "PUBLISHED") return {};
+  const tr = pickTranslation(post, locale as AppLocale);
+  if (!tr) return {};
+  const urls = localizedUrls(`/blog/${slug}`, locale as AppLocale);
+  return {
+    title: tr.title,
+    description: tr.summary ?? undefined,
+    alternates: urls,
+    openGraph: {
+      type: "article",
+      url: urls.canonical,
+      title: tr.title,
+      description: tr.summary ?? undefined,
+      images: post.coverImageUrl ? [post.coverImageUrl] : undefined,
+      locale: ogLocale(locale as AppLocale),
+      publishedTime: post.publishedAt?.toISOString(),
+      modifiedTime: post.updatedAt.toISOString(),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: tr.title,
+      description: tr.summary ?? undefined,
+      images: post.coverImageUrl ? [post.coverImageUrl] : undefined,
+    },
+  };
+}
 
 export default async function BlogPostPage({
   params,
@@ -29,6 +69,24 @@ export default async function BlogPostPage({
 
   const html = renderMarkdown(tr.body);
   const isFallback = tr.locale !== locale;
+  const url = localizedUrls(`/blog/${slug}`, locale as AppLocale).canonical;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "@id": url,
+    url,
+    headline: tr.title,
+    description: tr.summary ?? undefined,
+    image: post.coverImageUrl ?? undefined,
+    datePublished: post.publishedAt?.toISOString(),
+    dateModified: post.updatedAt.toISOString(),
+    inLanguage: tr.locale,
+    author: post.author?.name
+      ? { "@type": "Person", name: post.author.name }
+      : { "@type": "Organization", name: "Valira Valley" },
+    publisher: { "@type": "Organization", name: "Valira Valley" },
+    mainEntityOfPage: url,
+  };
 
   return (
     <main className="mx-auto max-w-3xl px-6 pb-24 pt-32 md:px-16">
@@ -78,6 +136,7 @@ export default async function BlogPostPage({
           {t("by")} <span className="font-medium text-text-2">{post.author.name}</span>
         </p>
       )}
+      <JsonLd data={jsonLd} />
     </main>
   );
 }

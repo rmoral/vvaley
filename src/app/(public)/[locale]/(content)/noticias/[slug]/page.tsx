@@ -1,12 +1,51 @@
+import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { pickTranslation } from "@/lib/translations";
 import { renderMarkdown } from "@/lib/markdown";
+import { JsonLd } from "@/components/public/JsonLd";
+import { localizedUrls, ogLocale } from "@/lib/seo";
 import type { AppLocale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const news = await prisma.news.findUnique({
+    where: { slug },
+    include: { translations: true },
+  });
+  if (!news || news.status !== "PUBLISHED" || news.externalUrl) return {};
+  const tr = pickTranslation(news, locale as AppLocale);
+  if (!tr) return {};
+  const urls = localizedUrls(`/noticias/${slug}`, locale as AppLocale);
+  return {
+    title: tr.title,
+    description: tr.summary ?? undefined,
+    alternates: urls,
+    openGraph: {
+      type: "article",
+      url: urls.canonical,
+      title: tr.title,
+      description: tr.summary ?? undefined,
+      images: news.coverImageUrl ? [news.coverImageUrl] : undefined,
+      locale: ogLocale(locale as AppLocale),
+      publishedTime: news.publishedAt?.toISOString(),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: tr.title,
+      description: tr.summary ?? undefined,
+      images: news.coverImageUrl ? [news.coverImageUrl] : undefined,
+    },
+  };
+}
 
 export default async function NewsDetailPage({
   params,
@@ -35,6 +74,20 @@ export default async function NewsDetailPage({
 
   const html = tr.body ? renderMarkdown(tr.body) : "";
   const isFallback = tr.locale !== locale;
+  const url = localizedUrls(`/noticias/${slug}`, locale as AppLocale).canonical;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    "@id": url,
+    url,
+    headline: tr.title,
+    description: tr.summary ?? undefined,
+    image: news.coverImageUrl ?? undefined,
+    datePublished: news.publishedAt?.toISOString(),
+    dateModified: news.updatedAt.toISOString(),
+    inLanguage: tr.locale,
+    publisher: { "@type": "Organization", name: "Valira Valley" },
+  };
 
   return (
     <main className="mx-auto max-w-3xl px-6 pb-24 pt-32 md:px-16">
@@ -84,6 +137,7 @@ export default async function NewsDetailPage({
           <p className="text-[0.95rem] text-text-3">{t("no_body")}</p>
         )
       )}
+      <JsonLd data={jsonLd} />
     </main>
   );
 }

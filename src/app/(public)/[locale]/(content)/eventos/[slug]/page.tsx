@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
@@ -6,9 +7,46 @@ import { pickTranslation } from "@/lib/translations";
 import { renderMarkdown } from "@/lib/markdown";
 import { registrationGate } from "@/lib/event-registration";
 import { EventRegistrationForm } from "@/components/public/EventRegistrationForm";
+import { JsonLd } from "@/components/public/JsonLd";
+import { localizedUrls, ogLocale } from "@/lib/seo";
 import type { AppLocale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const event = await prisma.event.findUnique({
+    where: { slug },
+    include: { translations: true },
+  });
+  if (!event || (event.status !== "PUBLISHED" && event.status !== "COMPLETED")) return {};
+  const tr = pickTranslation(event, locale as AppLocale);
+  if (!tr) return {};
+  const urls = localizedUrls(`/eventos/${slug}`, locale as AppLocale);
+  return {
+    title: tr.title,
+    description: tr.summary ?? undefined,
+    alternates: urls,
+    openGraph: {
+      type: "article",
+      url: urls.canonical,
+      title: tr.title,
+      description: tr.summary ?? undefined,
+      images: event.coverImageUrl ? [event.coverImageUrl] : undefined,
+      locale: ogLocale(locale as AppLocale),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: tr.title,
+      description: tr.summary ?? undefined,
+      images: event.coverImageUrl ? [event.coverImageUrl] : undefined,
+    },
+  };
+}
 
 export default async function EventDetailPage({
   params,
@@ -35,6 +73,37 @@ export default async function EventDetailPage({
 
   const html = tr.description ? renderMarkdown(tr.description) : "";
   const isFallback = tr.locale !== locale;
+  const url = localizedUrls(`/eventos/${slug}`, locale as AppLocale).canonical;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    "@id": url,
+    url,
+    name: tr.title,
+    description: tr.summary ?? undefined,
+    image: event.coverImageUrl ?? undefined,
+    startDate: event.startsAt.toISOString(),
+    endDate: event.endsAt?.toISOString(),
+    eventStatus: "https://schema.org/EventScheduled",
+    eventAttendanceMode:
+      event.locationType === "ONLINE"
+        ? "https://schema.org/OnlineEventAttendanceMode"
+        : event.locationType === "HYBRID"
+          ? "https://schema.org/MixedEventAttendanceMode"
+          : "https://schema.org/OfflineEventAttendanceMode",
+    location:
+      event.locationType === "ONLINE"
+        ? {
+            "@type": "VirtualLocation",
+            url: event.onlineUrl ?? url,
+          }
+        : {
+            "@type": "Place",
+            name: event.venueName ?? "Andorra",
+            address: event.venueAddress ?? undefined,
+          },
+    organizer: { "@type": "Organization", name: "Valira Valley" },
+  };
 
   const gate = registrationGate(event);
   const seatsLeft =
@@ -125,6 +194,7 @@ export default async function EventDetailPage({
           </div>
         )}
       </section>
+      <JsonLd data={jsonLd} />
     </main>
   );
 }

@@ -1,10 +1,48 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations, getFormatter } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { NewsletterInline } from "@/components/public/NewsletterInline";
+import { JsonLd } from "@/components/public/JsonLd";
+import { localizedUrls, ogLocale } from "@/lib/seo";
+import type { AppLocale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const ep = await prisma.episode.findUnique({
+    where: { slug },
+    select: { title: true, summary: true, coverImageUrl: true, status: true, publishedAt: true },
+  });
+  if (!ep || ep.status !== "PUBLISHED") return {};
+  const urls = localizedUrls(`/podcast/${slug}`, locale as AppLocale);
+  return {
+    title: ep.title,
+    description: ep.summary ?? undefined,
+    alternates: urls,
+    openGraph: {
+      type: "article",
+      url: urls.canonical,
+      title: ep.title,
+      description: ep.summary ?? undefined,
+      images: ep.coverImageUrl ? [ep.coverImageUrl] : undefined,
+      locale: ogLocale(locale as AppLocale),
+      publishedTime: ep.publishedAt?.toISOString(),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: ep.title,
+      description: ep.summary ?? undefined,
+      images: ep.coverImageUrl ? [ep.coverImageUrl] : undefined,
+    },
+  };
+}
 
 export default async function EpisodePage({
   params,
@@ -21,6 +59,35 @@ export default async function EpisodePage({
     include: { guests: { orderBy: { position: "asc" }, include: { guest: true } } },
   });
   if (!ep || ep.status !== "PUBLISHED") notFound();
+
+  const url = localizedUrls(`/podcast/${slug}`, locale as AppLocale).canonical;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "PodcastEpisode",
+    "@id": url,
+    url,
+    name: ep.title,
+    description: ep.summary ?? undefined,
+    datePublished: ep.publishedAt?.toISOString(),
+    image: ep.coverImageUrl ?? undefined,
+    associatedMedia: ep.audioUrl
+      ? { "@type": "MediaObject", contentUrl: ep.audioUrl, encodingFormat: "audio/mpeg" }
+      : undefined,
+    timeRequired: ep.durationSec
+      ? `PT${Math.round(ep.durationSec / 60)}M`
+      : undefined,
+    partOfSeries: { "@type": "PodcastSeries", name: "Valira Valley" },
+    actor: ep.guests
+      .filter(({ guest }) => guest.isPublic)
+      .map(({ guest }) => ({
+        "@type": "Person",
+        name: guest.fullName,
+        jobTitle: guest.role ?? undefined,
+        worksFor: guest.company
+          ? { "@type": "Organization", name: guest.company }
+          : undefined,
+      })),
+  };
 
   return (
     <main className="mx-auto max-w-3xl px-6 pb-24 pt-32 md:px-16">
@@ -101,6 +168,7 @@ export default async function EpisodePage({
       )}
 
       <NewsletterInline source={`episode:${ep.slug}`} variant="episode" />
+      <JsonLd data={jsonLd} />
     </main>
   );
 }

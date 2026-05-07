@@ -1,11 +1,49 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { NewsletterInline } from "@/components/public/NewsletterInline";
 import { GuestSocialLinks } from "@/components/public/GuestSocialLinks";
+import { JsonLd } from "@/components/public/JsonLd";
+import { localizedUrls, ogLocale } from "@/lib/seo";
+import type { AppLocale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const guest = await prisma.guest.findUnique({ where: { slug } });
+  if (!guest || !guest.isPublic) return {};
+  const urls = localizedUrls(`/invitados/${slug}`, locale as AppLocale);
+  const description =
+    guest.headline ??
+    [guest.role, guest.company].filter(Boolean).join(" · ") ??
+    undefined;
+  return {
+    title: guest.fullName,
+    description,
+    alternates: urls,
+    openGraph: {
+      type: "profile",
+      url: urls.canonical,
+      title: guest.fullName,
+      description,
+      images: guest.photoUrl ? [guest.photoUrl] : undefined,
+      locale: ogLocale(locale as AppLocale),
+    },
+    twitter: {
+      card: "summary",
+      title: guest.fullName,
+      description,
+      images: guest.photoUrl ? [guest.photoUrl] : undefined,
+    },
+  };
+}
 
 export default async function GuestPage({
   params,
@@ -30,6 +68,25 @@ export default async function GuestPage({
   const publishedEpisodes = guest.episodes.filter(
     (eg) => eg.episode.status === "PUBLISHED",
   );
+
+  const url = localizedUrls(`/invitados/${slug}`, locale as AppLocale).canonical;
+  const sameAs = [guest.website, guest.linkedin, guest.twitter, guest.instagram]
+    .filter((v): v is string => Boolean(v));
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "@id": url,
+    url,
+    name: guest.fullName,
+    jobTitle: guest.role ?? undefined,
+    description: guest.headline ?? guest.bio ?? undefined,
+    image: guest.photoUrl ?? undefined,
+    email: guest.email ?? undefined,
+    worksFor: guest.company
+      ? { "@type": "Organization", name: guest.company }
+      : undefined,
+    sameAs: sameAs.length > 0 ? sameAs : undefined,
+  };
 
   return (
     <main className="mx-auto max-w-3xl px-6 pb-24 pt-32 md:px-16">
@@ -114,6 +171,7 @@ export default async function GuestPage({
       </section>
 
       <NewsletterInline source={`guest:${guest.slug}`} />
+      <JsonLd data={jsonLd} />
     </main>
   );
 }
