@@ -10,10 +10,17 @@ async function loginAction(formData: FormData) {
   const password = String(formData.get("password") ?? "");
 
   try {
+    // Let Auth.js do the credentials check + cookie set, but disable its
+    // own redirect. Auth.js v5 builds the redirect target against an
+    // absolute URL it derives from request.nextUrl, which under Next 15
+    // behind a reverse proxy can resolve to the bind address (localhost)
+    // instead of the public host. Doing redirect() ourselves with a
+    // relative path is bullet-proof: the browser resolves it against
+    // the current page (https://valiravalley.com/admin/login).
     await signIn("credentials", {
       email,
       password,
-      redirectTo: "/admin",
+      redirect: false,
     });
   } catch (err) {
     if (err instanceof AuthError) {
@@ -21,6 +28,7 @@ async function loginAction(formData: FormData) {
     }
     throw err;
   }
+  redirect("/admin");
 }
 
 export default async function LoginPage({
