@@ -9,6 +9,8 @@ import { PROVIDER_LABELS } from "@/lib/social/registry";
 import {
   publishNow,
   deletePublication,
+  schedulePublication,
+  cancelSchedule,
 } from "@/app/admin/_actions/social";
 
 const statusClass: Record<SocialPublicationStatus, string> = {
@@ -24,11 +26,16 @@ export default async function PublicationPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ saved?: string; published?: string; error?: string }>;
+  searchParams: Promise<{
+    saved?: string;
+    published?: string;
+    scheduled?: string;
+    error?: string;
+  }>;
 }) {
   const { user } = await requireSession();
   const { id } = await params;
-  const { saved, published, error } = await searchParams;
+  const { saved, published, scheduled, error } = await searchParams;
 
   const publication = await prisma.socialPublication.findUnique({
     where: { id },
@@ -48,6 +55,11 @@ export default async function PublicationPage({
   const publish = async () => {
     "use server";
     await publishNow(id);
+  };
+  const schedule = schedulePublication.bind(null, id);
+  const unschedule = async () => {
+    "use server";
+    await cancelSchedule(id);
   };
 
   // No editing for already-sent publications.
@@ -82,11 +94,43 @@ export default async function PublicationPage({
           Publicación procesada.
         </div>
       )}
+      {scheduled && (
+        <div className="mb-4 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-[0.85rem] text-green-700">
+          Programada. El worker la enviará a la hora indicada.
+        </div>
+      )}
       {error && (
         <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[0.85rem] text-red-700">
           {error === "already_published"
             ? "Esta publicación ya se publicó."
-            : `Error: ${error}`}
+            : error === "missing_date"
+              ? "Indica una fecha y hora para programar."
+              : error === "date_in_past"
+                ? "La fecha tiene que estar en el futuro."
+                : `Error: ${error}`}
+        </div>
+      )}
+
+      {publication.status === "SCHEDULED" && publication.scheduledAt && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-[0.85rem] text-amber-800">
+          <span>
+            ⏰ Programada para{" "}
+            <strong>
+              {new Intl.DateTimeFormat("es", {
+                dateStyle: "full",
+                timeStyle: "short",
+              }).format(publication.scheduledAt)}
+            </strong>
+            .
+          </span>
+          <form action={unschedule}>
+            <button
+              type="submit"
+              className="rounded-md border border-amber-300 bg-white px-3 py-1 text-[0.78rem] font-semibold text-amber-800 transition-colors hover:border-amber-500"
+            >
+              Cancelar programación
+            </button>
+          </form>
         </div>
       )}
 
@@ -98,6 +142,7 @@ export default async function PublicationPage({
           sourceUrl: publication.sourceUrl,
           mediaUrls: publication.mediaUrls,
           accountIds: publication.targets.map((t) => t.accountId),
+          scheduledAt: publication.scheduledAt,
         }}
         action={async () => {
           "use server";
@@ -149,7 +194,7 @@ export default async function PublicationPage({
         </ul>
       </section>
 
-      <div className="mt-6 flex flex-wrap gap-3">
+      <div className="mt-6 flex flex-wrap items-end gap-3">
         {!isPublished && (
           <form action={publish}>
             <button
@@ -157,6 +202,31 @@ export default async function PublicationPage({
               className="rounded-md bg-river px-4 py-2 text-[0.85rem] font-semibold uppercase tracking-[0.05em] text-white transition-all hover:-translate-y-0.5 hover:bg-text"
             >
               Publicar ahora
+            </button>
+          </form>
+        )}
+        {!isPublished && (
+          <form action={schedule} className="flex items-end gap-2">
+            <label className="flex flex-col gap-1 text-[0.74rem] font-medium text-text-2">
+              Programar para
+              <input
+                type="datetime-local"
+                name="scheduledAt"
+                defaultValue={
+                  publication.scheduledAt
+                    ? new Date(publication.scheduledAt)
+                        .toISOString()
+                        .slice(0, 16)
+                    : ""
+                }
+                className="rounded-md border border-bg3 bg-white px-3 py-1.5 text-[0.85rem] text-text outline-none focus:border-river"
+              />
+            </label>
+            <button
+              type="submit"
+              className="rounded-md border border-bg3 bg-white px-3 py-1.5 text-[0.85rem] font-semibold text-text-2 transition-colors hover:border-river hover:text-river"
+            >
+              Programar
             </button>
           </form>
         )}

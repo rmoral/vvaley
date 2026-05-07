@@ -11,11 +11,15 @@ type Props = {
     sourceUrl: string | null;
     mediaUrls: string[];
     accountIds: string[];
+    scheduledAt?: Date | null;
   };
   /** Disable everything except the publish button (already-saved publication). */
   readOnly?: boolean;
   action: (formData: FormData) => Promise<void>;
 };
+
+const toLocalInput = (d: Date | null | undefined) =>
+  d ? new Date(d).toISOString().slice(0, 16) : "";
 
 export function PublicationForm({ accounts, initial, readOnly, action }: Props) {
   const [body, setBody] = useState(initial?.body ?? "");
@@ -103,13 +107,32 @@ export function PublicationForm({ accounts, initial, readOnly, action }: Props) 
           )}
         </Card>
 
+        <Card title="Programación">
+          <label className="flex flex-col gap-1 text-[0.78rem] font-medium text-text-2">
+            Fecha y hora de envío (opcional)
+            <input
+              type="datetime-local"
+              name="scheduledAt"
+              defaultValue={toLocalInput(initial?.scheduledAt)}
+              disabled={readOnly}
+              className="rounded-md border border-bg3 bg-bg px-3 py-2 text-[0.92rem] text-text outline-none focus:border-river disabled:opacity-60"
+            />
+            <span className="text-[0.74rem] text-text-3">
+              Si la rellenas, la publicación pasa a <strong>Programada</strong> y
+              el worker la envía cuando llegue la hora. Si la dejas en blanco,
+              se queda como borrador y la envías a mano con &quot;Publicar
+              ahora&quot;.
+            </span>
+          </label>
+        </Card>
+
         <Card title="Acciones">
           {!readOnly && (
             <button
               type="submit"
               className="w-full rounded-md bg-river px-4 py-2.5 text-[0.88rem] font-semibold uppercase tracking-[0.05em] text-white transition-all hover:-translate-y-0.5 hover:bg-text"
             >
-              Guardar borrador
+              Guardar
             </button>
           )}
         </Card>

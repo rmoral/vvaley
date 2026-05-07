@@ -15,10 +15,18 @@ import {
   newNonce,
   setOAuthState,
 } from "@/lib/social/oauth-state";
+import { processPublication } from "@/lib/social/process";
 
 const trim = (v: FormDataEntryValue | null) => {
   const s = typeof v === "string" ? v.trim() : "";
   return s.length === 0 ? null : s;
+};
+
+const dateOrNull = (v: FormDataEntryValue | null) => {
+  const s = trim(v);
+  if (s === null) return null;
+  const d = new Date(s);
+  return Number.isNaN(d.getTime()) ? null : d;
 };
 
 /**
@@ -74,6 +82,7 @@ const publicationSchema = z.object({
     .or(z.literal("").transform(() => null)),
   mediaUrls: z.array(z.string().url()),
   accountIds: z.array(z.string()).min(1, "Elige al menos una cuenta."),
+  scheduledAt: z.date().nullable(),
 });
 
 function parseForm(formData: FormData) {
@@ -89,6 +98,7 @@ function parseForm(formData: FormData) {
     sourceUrl: trim(formData.get("sourceUrl")),
     mediaUrls,
     accountIds,
+    scheduledAt: dateOrNull(formData.get("scheduledAt")),
   });
 }
 
@@ -108,6 +118,12 @@ export async function createPublication(formData: FormData) {
       sourceUrl: data.sourceUrl,
       mediaUrls: data.mediaUrls,
       authorId: user.id,
+      // Pre-set the schedule if the editor picked a future date.
+      status:
+        data.scheduledAt && data.scheduledAt.getTime() > Date.now()
+          ? SocialPublicationStatus.SCHEDULED
+          : SocialPublicationStatus.DRAFT,
+      scheduledAt: data.scheduledAt,
       targets: {
         create: accounts.map((a) => ({
           accountId: a.id,
@@ -128,16 +144,45 @@ export async function deletePublication(id: string) {
 }
 
 /**
- * Publish to every active target sequentially. Updates per-target
- * status/externalId so partial failures (LinkedIn ✓ but X ✗) keep their
- * own state.
+ * Publish to every active target right now (delegates to the shared
+ * processPublication helper so the cron worker behaves the same).
  */
 export async function publishNow(id: string) {
   await requireSession();
 
+  const existing = await prisma.socialPublication.findUnique({
+    where: { id },
+    select: { status: true },
+  });
+  if (!existing) redirect("/admin/social/publicaciones?error=not_found");
+  if (existing.status === SocialPublicationStatus.PUBLISHED) {
+    redirect(`/admin/social/publicaciones/${id}?error=already_published`);
+  }
+
+  await processPublication(id);
+
+  revalidatePath("/admin/social/publicaciones");
+  revalidatePath(`/admin/social/publicaciones/${id}`);
+  redirect(`/admin/social/publicaciones/${id}?published=1`);
+}
+
+/**
+ * Move the publication from DRAFT/SCHEDULED to SCHEDULED with a new date.
+ * The cron worker will pick it up when scheduledAt <= now.
+ */
+export async function schedulePublication(id: string, formData: FormData) {
+  await requireSession();
+  const scheduledAt = dateOrNull(formData.get("scheduledAt"));
+  if (!scheduledAt) {
+    redirect(`/admin/social/publicaciones/${id}?error=missing_date`);
+  }
+  if (scheduledAt.getTime() <= Date.now()) {
+    redirect(`/admin/social/publicaciones/${id}?error=date_in_past`);
+  }
+
   const publication = await prisma.socialPublication.findUnique({
     where: { id },
-    include: { targets: { include: { account: true } } },
+    select: { status: true },
   });
   if (!publication) redirect("/admin/social/publicaciones?error=not_found");
   if (publication.status === SocialPublicationStatus.PUBLISHED) {
@@ -146,82 +191,22 @@ export async function publishNow(id: string) {
 
   await prisma.socialPublication.update({
     where: { id },
-    data: { status: SocialPublicationStatus.PUBLISHING },
-  });
-
-  let allOk = true;
-  for (const target of publication.targets) {
-    if (!target.account.isActive) {
-      await prisma.socialPublicationTarget.update({
-        where: {
-          publicationId_accountId: {
-            publicationId: id,
-            accountId: target.accountId,
-          },
-        },
-        data: {
-          status: SocialPublicationStatus.FAILED,
-          attempts: { increment: 1 },
-          lastError: "account_inactive",
-        },
-      });
-      allOk = false;
-      continue;
-    }
-
-    const impl = getProvider(target.account.provider);
-    const result = await impl.publish(target.account, {
-      body: publication.body,
-      mediaUrls: publication.mediaUrls,
-      sourceUrl: publication.sourceUrl,
-    });
-
-    if (result.ok) {
-      await prisma.socialPublicationTarget.update({
-        where: {
-          publicationId_accountId: {
-            publicationId: id,
-            accountId: target.accountId,
-          },
-        },
-        data: {
-          status: SocialPublicationStatus.PUBLISHED,
-          externalId: result.externalId,
-          externalUrl: result.externalUrl,
-          attempts: { increment: 1 },
-          publishedAt: new Date(),
-          lastError: null,
-        },
-      });
-    } else {
-      allOk = false;
-      await prisma.socialPublicationTarget.update({
-        where: {
-          publicationId_accountId: {
-            publicationId: id,
-            accountId: target.accountId,
-          },
-        },
-        data: {
-          status: SocialPublicationStatus.FAILED,
-          attempts: { increment: 1 },
-          lastError: result.error.slice(0, 1000),
-        },
-      });
-    }
-  }
-
-  await prisma.socialPublication.update({
-    where: { id },
     data: {
-      status: allOk
-        ? SocialPublicationStatus.PUBLISHED
-        : SocialPublicationStatus.FAILED,
-      publishedAt: allOk ? new Date() : null,
+      status: SocialPublicationStatus.SCHEDULED,
+      scheduledAt,
     },
   });
 
   revalidatePath("/admin/social/publicaciones");
   revalidatePath(`/admin/social/publicaciones/${id}`);
-  redirect(`/admin/social/publicaciones/${id}?published=1`);
+  redirect(`/admin/social/publicaciones/${id}?scheduled=1`);
+}
+
+export async function cancelSchedule(id: string) {
+  await requireSession();
+  await prisma.socialPublication.update({
+    where: { id },
+    data: { status: SocialPublicationStatus.DRAFT, scheduledAt: null },
+  });
+  revalidatePath(`/admin/social/publicaciones/${id}`);
 }

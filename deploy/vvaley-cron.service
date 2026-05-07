@@ -1,0 +1,28 @@
+# /etc/systemd/system/vvaley-cron.service
+#
+# One-shot service that pokes the social-publishing queue endpoint. The
+# companion timer (vvaley-cron.timer) fires this every minute. The
+# endpoint is auth-gated by CRON_SECRET (read from /home/ubuntu/web/vvaley/.env)
+# so we don't have to expose a public route.
+#
+# Install:
+#   sudo cp deploy/vvaley-cron.service /etc/systemd/system/
+#   sudo cp deploy/vvaley-cron.timer   /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now vvaley-cron.timer
+
+[Unit]
+Description=Valira Valley · poll the social publishing queue
+After=network.target vvaley.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+EnvironmentFile=/home/ubuntu/web/vvaley/.env
+# Hit the loopback so we don't depend on Apache being healthy.
+ExecStart=/usr/bin/curl -fsS --max-time 30 \
+  -H "Authorization: Bearer ${CRON_SECRET}" \
+  http://127.0.0.1:3015/api/admin/social/process-queue
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=vvaley-cron

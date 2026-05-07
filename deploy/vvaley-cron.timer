@@ -1,0 +1,17 @@
+# /etc/systemd/system/vvaley-cron.timer
+#
+# Fires vvaley-cron.service once a minute. See the service file for
+# install instructions.
+
+[Unit]
+Description=Valira Valley · run the social publishing queue every minute
+
+[Timer]
+# First run 30s after boot, then every minute.
+OnBootSec=30s
+OnUnitActiveSec=1min
+AccuracySec=10s
+Persistent=true
+
+[Install]
+WantedBy=timers.target
