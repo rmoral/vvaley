@@ -17,6 +17,7 @@ const navItems: NavItem[] = [
   { href: "/admin/noticias", label: "Noticias" },
   { href: "/admin/eventos", label: "Eventos" },
   { href: "/admin/newsletter", label: "Newsletter" },
+  { href: "/admin/campanas", label: "Campañas" },
   { href: "/admin/usuarios", label: "Usuarios", adminOnly: true },
 ];
 
