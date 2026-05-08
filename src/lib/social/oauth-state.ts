@@ -12,6 +12,8 @@ type StatePayload = {
   nonce: string;
   /** Where to send the editor after the callback succeeds. */
   returnTo: string;
+  /** Provider-private data (e.g. PKCE verifier) handed back to exchangeCode. */
+  extras?: Record<string, string>;
 };
 
 export async function setOAuthState(payload: StatePayload): Promise<string> {

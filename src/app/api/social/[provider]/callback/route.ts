@@ -54,6 +54,7 @@ export async function GET(
     const account = await impl.exchangeCode({
       code,
       redirectUri: callbackUrl(provider),
+      extras: state.extras,
     });
 
     await prisma.socialAccount.upsert({

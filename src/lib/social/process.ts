@@ -1,6 +1,36 @@
+import type { SocialAccount } from "@prisma/client";
 import { SocialPublicationStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getProvider } from "./registry";
+import type { SocialProviderImpl } from "./types";
+
+/**
+ * If the account's access token is about to expire and the provider knows
+ * how to refresh, swap it before the publish call. Failures are swallowed
+ * so the publish attempt still surfaces a meaningful error.
+ */
+async function ensureFreshToken(
+  account: SocialAccount,
+  impl: SocialProviderImpl,
+): Promise<SocialAccount> {
+  if (!account.expiresAt) return account;
+  const remaining = account.expiresAt.getTime() - Date.now();
+  if (remaining > 60_000) return account;
+  if (!account.refreshToken || !impl.refreshAccessToken) return account;
+  try {
+    const fresh = await impl.refreshAccessToken(account.refreshToken);
+    return await prisma.socialAccount.update({
+      where: { id: account.id },
+      data: {
+        accessToken: fresh.accessToken,
+        refreshToken: fresh.refreshToken ?? account.refreshToken,
+        expiresAt: fresh.expiresAt,
+      },
+    });
+  } catch {
+    return account;
+  }
+}
 
 /**
  * Pushes a single SocialPublication to every active target. Updates
@@ -56,7 +86,8 @@ export async function processPublication(id: string): Promise<{
     }
 
     const impl = getProvider(target.account.provider);
-    const result = await impl.publish(target.account, {
+    const fresh = await ensureFreshToken(target.account, impl);
+    const result = await impl.publish(fresh, {
       body: publication.body,
       mediaUrls: publication.mediaUrls,
       sourceUrl: publication.sourceUrl,

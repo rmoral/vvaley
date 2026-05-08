@@ -1,5 +1,6 @@
 import type { SocialAccount } from "@prisma/client";
 import type {
+  AuthorizationStart,
   ConnectedAccount,
   PublishInput,
   PublishResult,
@@ -25,7 +26,7 @@ export const linkedinProvider: SocialProviderImpl = {
     return Boolean(clientId() && clientSecret());
   },
 
-  buildAuthorizationUrl({ state, redirectUri }) {
+  buildAuthorizationUrl({ state, redirectUri }): AuthorizationStart {
     const cid = clientId();
     if (!cid) throw new Error("LINKEDIN_CLIENT_ID not configured");
     const params = new URLSearchParams({
@@ -35,7 +36,7 @@ export const linkedinProvider: SocialProviderImpl = {
       state,
       scope: SCOPES.join(" "),
     });
-    return `${AUTHORIZE_URL}?${params.toString()}`;
+    return { url: `${AUTHORIZE_URL}?${params.toString()}` };
   },
 
   async exchangeCode({ code, redirectUri }): Promise<ConnectedAccount> {

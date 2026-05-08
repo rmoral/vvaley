@@ -22,14 +22,28 @@ export type PublishResult =
   | { ok: true; externalId: string; externalUrl: string | null }
   | { ok: false; error: string };
 
+/**
+ * Returned by `buildAuthorizationUrl`. `extras` is provider-private data
+ * that the OAuth callback hands back to `exchangeCode` (e.g. the PKCE
+ * `code_verifier`). Stored alongside the state nonce in the cookie.
+ */
+export type AuthorizationStart = {
+  url: string;
+  extras?: Record<string, string>;
+};
+
 export interface SocialProviderImpl {
   readonly id: Provider;
   /** Build the URL the editor should be redirected to to start OAuth. */
-  buildAuthorizationUrl(args: { state: string; redirectUri: string }): string;
+  buildAuthorizationUrl(args: {
+    state: string;
+    redirectUri: string;
+  }): AuthorizationStart;
   /** Exchange the code we receive on the callback for tokens + profile. */
   exchangeCode(args: {
     code: string;
     redirectUri: string;
+    extras?: Record<string, string>;
   }): Promise<ConnectedAccount>;
   /** Optional: refresh the token before publish if expired. */
   refreshAccessToken?(refreshToken: string): Promise<{

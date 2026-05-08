@@ -42,18 +42,19 @@ export async function startConnect(provider: SocialProvider) {
   }
 
   const nonce = newNonce();
-  await setOAuthState({
-    provider,
-    nonce,
-    returnTo: "/admin/social",
-  });
-
-  const url = impl.buildAuthorizationUrl({
+  const start = impl.buildAuthorizationUrl({
     state: nonce,
     redirectUri: callbackUrl(provider),
   });
 
-  redirect(url);
+  await setOAuthState({
+    provider,
+    nonce,
+    returnTo: "/admin/social",
+    extras: start.extras,
+  });
+
+  redirect(start.url);
 }
 
 export async function disconnectAccount(id: string) {
