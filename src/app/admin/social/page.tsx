@@ -38,8 +38,8 @@ export default async function SocialOverviewPage({
             Redes sociales
           </h1>
           <p className="text-[0.9rem] text-text-2">
-            Conecta cuentas y publica desde un único sitio. La publicación
-            programada y X / Instagram / TikTok llegan en próximas iteraciones.
+            Conecta cuentas de LinkedIn, X, Instagram y TikTok, y publica
+            (al instante o programado) desde un único sitio.
           </p>
         </div>
         <Link
