@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { signOut } from "@/auth";
 
 type NavItem = {
@@ -77,7 +78,13 @@ export function AdminShell({
           <form
             action={async () => {
               "use server";
-              await signOut({ redirectTo: "/admin/login" });
+              // Mirror the sign-in fix: Auth.js v5 builds the redirect
+              // against an absolute URL derived from request.nextUrl,
+              // which behind the TLS-terminating proxy resolves to the
+              // bind address (localhost). Do the redirect ourselves with
+              // a relative path so the browser keeps the public origin.
+              await signOut({ redirect: false });
+              redirect("/admin/login");
             }}
           >
             <button
