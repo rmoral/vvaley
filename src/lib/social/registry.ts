@@ -1,6 +1,7 @@
 import type { SocialProvider as Provider } from "@prisma/client";
 import { linkedinProvider } from "./linkedin";
 import { xProvider } from "./x";
+import { instagramProvider } from "./instagram";
 import type { SocialProviderImpl } from "./types";
 
 /**
@@ -25,7 +26,6 @@ function stubProvider(id: Provider): SocialProviderImpl {
   };
 }
 
-const instagramProvider: SocialProviderImpl = stubProvider("INSTAGRAM");
 const tiktokProvider: SocialProviderImpl = stubProvider("TIKTOK");
 
 export const PROVIDERS: Record<Provider, SocialProviderImpl> = {
