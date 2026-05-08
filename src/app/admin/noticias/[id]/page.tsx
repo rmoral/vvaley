@@ -21,7 +21,10 @@ export default async function EditNewsPage({
 
   const news = await prisma.news.findUnique({
     where: { id },
-    include: { translations: true },
+    include: {
+      translations: true,
+      tags: { include: { tag: true } },
+    },
   });
   if (!news) notFound();
 

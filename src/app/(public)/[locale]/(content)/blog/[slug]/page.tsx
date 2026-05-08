@@ -7,6 +7,7 @@ import { pickTranslation } from "@/lib/translations";
 import { renderMarkdown } from "@/lib/markdown";
 import { NewsletterInline } from "@/components/public/NewsletterInline";
 import { JsonLd } from "@/components/public/JsonLd";
+import { TagChips } from "@/components/public/TagChips";
 import { localizedUrls, ogLocale } from "@/lib/seo";
 import type { AppLocale } from "@/i18n/routing";
 
@@ -60,7 +61,11 @@ export default async function BlogPostPage({
 
   const post = await prisma.post.findUnique({
     where: { slug },
-    include: { translations: true, author: { select: { name: true } } },
+    include: {
+      translations: true,
+      author: { select: { name: true } },
+      tags: { include: { tag: true } },
+    },
   });
   if (!post || post.status !== "PUBLISHED") notFound();
 
@@ -128,6 +133,12 @@ export default async function BlogPostPage({
         className="prose prose-neutral max-w-none text-[1rem] leading-[1.75] text-text-2 [&_a]:text-river [&_a:hover]:text-text [&_h2]:mt-10 [&_h2]:mb-3 [&_h2]:font-display [&_h2]:text-[1.5rem] [&_h2]:font-bold [&_h2]:text-text [&_h3]:mt-8 [&_h3]:mb-2 [&_h3]:font-display [&_h3]:text-[1.2rem] [&_h3]:font-semibold [&_h3]:text-text [&_p]:mb-4 [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:mb-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_blockquote]:my-4 [&_blockquote]:border-l-2 [&_blockquote]:border-river [&_blockquote]:pl-4 [&_blockquote]:italic [&_code]:rounded [&_code]:bg-bg2 [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-[0.92em]"
         dangerouslySetInnerHTML={{ __html: html }}
       />
+
+      {post.tags.length > 0 && (
+        <div className="mt-10">
+          <TagChips tags={post.tags.map((pt) => pt.tag)} />
+        </div>
+      )}
 
       <NewsletterInline source={`blog:${post.slug}`} variant="blog" />
 

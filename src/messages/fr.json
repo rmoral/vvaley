@@ -245,6 +245,12 @@
     "fallback_notice": "Cet article n'est pas encore disponible dans votre langue. Nous vous le montrons dans sa version originale.",
     "no_body": "Cette actualité ne contient qu'un résumé."
   },
+  "tagPage": {
+    "eyebrow": "Étiquette",
+    "posts": "Articles",
+    "news": "Actualités",
+    "empty": "Pas encore de contenu pour cette étiquette."
+  },
   "eventsList": {
     "title": "Événements",
     "sub": "Rencontres, ateliers et lives de l'écosystème Valira Valley.",

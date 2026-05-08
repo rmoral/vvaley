@@ -2,6 +2,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { pickTranslation } from "@/lib/translations";
+import { TagChips } from "@/components/public/TagChips";
 import type { AppLocale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +19,11 @@ export default async function BlogListPage({
   const posts = await prisma.post.findMany({
     where: { status: "PUBLISHED" },
     orderBy: { publishedAt: "desc" },
-    include: { translations: true, author: { select: { name: true } } },
+    include: {
+      translations: true,
+      author: { select: { name: true } },
+      tags: { include: { tag: true } },
+    },
   });
 
   return (
@@ -65,6 +70,13 @@ export default async function BlogListPage({
                   <p className="text-[0.9rem] leading-[1.6] text-text-2 line-clamp-3">
                     {tr.summary}
                   </p>
+                )}
+                {post.tags.length > 0 && (
+                  <TagChips
+                    tags={post.tags.map((pt) => pt.tag)}
+                    size="sm"
+                    linked={false}
+                  />
                 )}
                 {post.author?.name && (
                   <div className="mt-auto text-[0.78rem] text-text-3">

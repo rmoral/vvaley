@@ -7,6 +7,7 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
+import { parseTagNames, upsertTagsByName } from "@/lib/tags";
 import { routing } from "@/i18n/routing";
 
 const trim = (v: FormDataEntryValue | null) => {
@@ -39,6 +40,7 @@ const postSchema = z.object({
     .or(z.literal("").transform(() => null)),
   publishedAt: z.date().nullable(),
   translations: z.array(translationSchema),
+  tagNames: z.array(z.string()),
 });
 
 async function requireAdmin() {
@@ -62,6 +64,7 @@ function parseForm(formData: FormData) {
     coverImageUrl: trim(formData.get("coverImageUrl")),
     publishedAt: dateOrNull(formData.get("publishedAt")),
     translations,
+    tagNames: parseTagNames(trim(formData.get("tags"))),
   });
 }
 
@@ -118,6 +121,8 @@ export async function createPost(formData: FormData) {
     data.publishedAt ??
     (data.status === PostStatus.PUBLISHED ? new Date() : null);
 
+  const tagIds = await upsertTagsByName(data.tagNames);
+
   const post = await prisma.post.create({
     data: {
       slug,
@@ -126,6 +131,7 @@ export async function createPost(formData: FormData) {
       publishedAt,
       authorId: session.user.id,
       translations: { create: persisted },
+      tags: { create: tagIds.map((tagId) => ({ tagId })) },
     },
   });
 
@@ -150,8 +156,11 @@ export async function updatePost(id: string, formData: FormData) {
     data.publishedAt ??
     (data.status === PostStatus.PUBLISHED ? new Date() : null);
 
+  const tagIds = await upsertTagsByName(data.tagNames);
+
   await prisma.$transaction([
     prisma.postTranslation.deleteMany({ where: { postId: id } }),
+    prisma.postTag.deleteMany({ where: { postId: id } }),
     prisma.post.update({
       where: { id },
       data: {
@@ -160,6 +169,7 @@ export async function updatePost(id: string, formData: FormData) {
         coverImageUrl: data.coverImageUrl,
         publishedAt,
         translations: { create: persisted },
+        tags: { create: tagIds.map((tagId) => ({ tagId })) },
       },
     }),
   ]);

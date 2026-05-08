@@ -7,6 +7,7 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
+import { parseTagNames, upsertTagsByName } from "@/lib/tags";
 import { routing } from "@/i18n/routing";
 
 const trim = (v: FormDataEntryValue | null) => {
@@ -45,6 +46,7 @@ const newsSchema = z.object({
     .or(z.literal("").transform(() => null)),
   publishedAt: z.date().nullable(),
   translations: z.array(translationSchema),
+  tagNames: z.array(z.string()),
 });
 
 async function requireAdmin() {
@@ -69,6 +71,7 @@ function parseForm(formData: FormData) {
     externalUrl: trim(formData.get("externalUrl")),
     publishedAt: dateOrNull(formData.get("publishedAt")),
     translations,
+    tagNames: parseTagNames(trim(formData.get("tags"))),
   });
 }
 
@@ -125,6 +128,8 @@ export async function createNews(formData: FormData) {
     data.publishedAt ??
     (data.status === NewsStatus.PUBLISHED ? new Date() : null);
 
+  const tagIds = await upsertTagsByName(data.tagNames);
+
   const news = await prisma.news.create({
     data: {
       slug,
@@ -134,6 +139,7 @@ export async function createNews(formData: FormData) {
       publishedAt,
       authorId: session.user.id,
       translations: { create: persisted },
+      tags: { create: tagIds.map((tagId) => ({ tagId })) },
     },
   });
 
@@ -158,8 +164,11 @@ export async function updateNews(id: string, formData: FormData) {
     data.publishedAt ??
     (data.status === NewsStatus.PUBLISHED ? new Date() : null);
 
+  const tagIds = await upsertTagsByName(data.tagNames);
+
   await prisma.$transaction([
     prisma.newsTranslation.deleteMany({ where: { newsId: id } }),
+    prisma.newsTag.deleteMany({ where: { newsId: id } }),
     prisma.news.update({
       where: { id },
       data: {
@@ -169,6 +178,7 @@ export async function updateNews(id: string, formData: FormData) {
         externalUrl: data.externalUrl,
         publishedAt,
         translations: { create: persisted },
+        tags: { create: tagIds.map((tagId) => ({ tagId })) },
       },
     }),
   ]);

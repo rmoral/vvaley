@@ -1,8 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { PostStatus, type Post, type PostTranslation } from "@prisma/client";
+import {
+  PostStatus,
+  type Post,
+  type PostTag,
+  type PostTranslation,
+  type Tag,
+} from "@prisma/client";
 import { routing, type AppLocale } from "@/i18n/routing";
+import { tagsToString } from "@/lib/tags";
 import { ImageUploader } from "./ImageUploader";
 import { MarkdownEditor } from "./MarkdownEditor";
 
@@ -21,7 +28,12 @@ const statusLabel: Record<PostStatus, string> = {
 };
 
 type Props = {
-  post?: (Post & { translations: PostTranslation[] }) | null;
+  post?:
+    | (Post & {
+        translations: PostTranslation[];
+        tags: (PostTag & { tag: Tag })[];
+      })
+    | null;
   action: (formData: FormData) => Promise<void>;
   deleteAction?: (formData: FormData) => Promise<void>;
   saved?: boolean;
@@ -130,6 +142,13 @@ export function PostForm({ post, action, deleteAction, saved, error }: Props) {
             name="coverImageUrl"
             defaultValue={post?.coverImageUrl ?? ""}
             help="Sube una imagen o pega una URL externa."
+          />
+          <Field
+            label="Etiquetas"
+            name="tags"
+            defaultValue={tagsToString(post?.tags.map((t) => t.tag) ?? [])}
+            placeholder="ia, andorra, startups"
+            help="Lista separada por comas. Se crean automáticamente."
           />
         </Card>
 

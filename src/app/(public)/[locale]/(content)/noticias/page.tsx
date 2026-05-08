@@ -2,6 +2,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { pickTranslation } from "@/lib/translations";
+import { TagChips } from "@/components/public/TagChips";
 import type { AppLocale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +19,10 @@ export default async function NewsListPage({
   const items = await prisma.news.findMany({
     where: { status: "PUBLISHED" },
     orderBy: { publishedAt: "desc" },
-    include: { translations: true },
+    include: {
+      translations: true,
+      tags: { include: { tag: true } },
+    },
   });
 
   return (
@@ -84,6 +88,15 @@ export default async function NewsListPage({
                     <p className="mt-1 text-[0.92rem] leading-[1.6] text-text-2">
                       {tr.summary}
                     </p>
+                  )}
+                  {news.tags.length > 0 && (
+                    <div className="mt-2">
+                      <TagChips
+                        tags={news.tags.map((nt) => nt.tag)}
+                        size="sm"
+                        linked={false}
+                      />
+                    </div>
                   )}
                 </div>
               </Wrapper>

@@ -189,6 +189,7 @@ model Post {
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
   translations  PostTranslation[]
+  tags          PostTag[]
 
   @@index([status, publishedAt])
 }
@@ -228,6 +229,7 @@ model News {
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
   translations  NewsTranslation[]
+  tags          NewsTag[]
 
   @@index([status, publishedAt])
 }
@@ -408,4 +410,39 @@ model SocialPublicationTarget {
 
   @@id([publicationId, accountId])
   @@index([accountId])
+}
+
+// ---------- Tags ---------- //
+
+model Tag {
+  id          String    @id @default(cuid())
+  /// URL-safe identifier ("ia-andorra"). Unique.
+  slug        String    @unique
+  /// Default human-readable name.
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  posts       PostTag[]
+  news        NewsTag[]
+}
+
+model PostTag {
+  postId String
+  tagId  String
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+  @@index([tagId])
+}
+
+model NewsTag {
+  newsId String
+  tagId  String
+  news   News @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([newsId, tagId])
+  @@index([tagId])
 }

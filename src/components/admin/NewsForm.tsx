@@ -1,8 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { NewsStatus, type News, type NewsTranslation } from "@prisma/client";
+import {
+  NewsStatus,
+  type News,
+  type NewsTag,
+  type NewsTranslation,
+  type Tag,
+} from "@prisma/client";
 import { routing, type AppLocale } from "@/i18n/routing";
+import { tagsToString } from "@/lib/tags";
 
 const localeLabel: Record<AppLocale, string> = {
   es: "Español",
@@ -19,7 +26,12 @@ const statusLabel: Record<NewsStatus, string> = {
 };
 
 type Props = {
-  news?: (News & { translations: NewsTranslation[] }) | null;
+  news?:
+    | (News & {
+        translations: NewsTranslation[];
+        tags: (NewsTag & { tag: Tag })[];
+      })
+    | null;
   action: (formData: FormData) => Promise<void>;
   deleteAction?: (formData: FormData) => Promise<void>;
   saved?: boolean;
@@ -137,6 +149,13 @@ export function NewsForm({ news, action, deleteAction, saved, error }: Props) {
             type="url"
             defaultValue={news?.coverImageUrl ?? ""}
             placeholder="https://"
+          />
+          <Field
+            label="Etiquetas"
+            name="tags"
+            defaultValue={tagsToString(news?.tags.map((t) => t.tag) ?? [])}
+            placeholder="ia, andorra, startups"
+            help="Lista separada por comas. Se crean automáticamente."
           />
         </Card>
 

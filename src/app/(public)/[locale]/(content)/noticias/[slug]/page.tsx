@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { pickTranslation } from "@/lib/translations";
 import { renderMarkdown } from "@/lib/markdown";
 import { JsonLd } from "@/components/public/JsonLd";
+import { TagChips } from "@/components/public/TagChips";
 import { localizedUrls, ogLocale } from "@/lib/seo";
 import type { AppLocale } from "@/i18n/routing";
 
@@ -58,7 +59,10 @@ export default async function NewsDetailPage({
 
   const news = await prisma.news.findUnique({
     where: { slug },
-    include: { translations: true },
+    include: {
+      translations: true,
+      tags: { include: { tag: true } },
+    },
   });
   if (!news || news.status !== "PUBLISHED") notFound();
 
@@ -136,6 +140,12 @@ export default async function NewsDetailPage({
         tr.summary === null && (
           <p className="text-[0.95rem] text-text-3">{t("no_body")}</p>
         )
+      )}
+
+      {news.tags.length > 0 && (
+        <div className="mt-10">
+          <TagChips tags={news.tags.map((nt) => nt.tag)} />
+        </div>
       )}
       <JsonLd data={jsonLd} />
     </main>

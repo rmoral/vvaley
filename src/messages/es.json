@@ -245,6 +245,12 @@
     "fallback_notice": "Esta noticia aún no está disponible en tu idioma. Te la mostramos en su versión original.",
     "no_body": "Esta noticia sólo tiene resumen."
   },
+  "tagPage": {
+    "eyebrow": "Etiqueta",
+    "posts": "Artículos",
+    "news": "Noticias",
+    "empty": "Aún no hay contenido con esta etiqueta."
+  },
   "eventsList": {
     "title": "Eventos",
     "sub": "Encuentros, talleres y directos del ecosistema Valira Valley.",

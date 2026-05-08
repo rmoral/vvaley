@@ -21,7 +21,10 @@ export default async function EditPostPage({
 
   const post = await prisma.post.findUnique({
     where: { id },
-    include: { translations: true },
+    include: {
+      translations: true,
+      tags: { include: { tag: true } },
+    },
   });
   if (!post) notFound();
 
