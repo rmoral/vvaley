@@ -11,6 +11,7 @@ function isAppLocale(value: string): value is AppLocale {
   return (routing.locales as readonly string[]).includes(value);
 }
 import "../../../styles/globals.css";
+import { Analytics } from "@/components/public/Analytics";
 import { PublicNav } from "@/components/public/PublicNav";
 import { PublicFooter } from "@/components/public/PublicFooter";
 
@@ -85,6 +86,7 @@ export default async function PublicLocaleLayout({
           {children}
           <PublicFooter />
         </NextIntlClientProvider>
+        <Analytics />
       </body>
     </html>
   );
