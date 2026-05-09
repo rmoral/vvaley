@@ -10,7 +10,20 @@
     "strategy": "Estrategia",
     "monetization": "Monetización",
     "about": "Sobre",
-    "subscribe": "Suscríbete"
+    "subscribe": "Suscríbete",
+    "search": "Buscar"
+  },
+  "search": {
+    "title": "Buscar",
+    "sub": "Encuentra episodios, posts, noticias e invitados a partir de cualquier palabra.",
+    "placeholder": "Buscar por palabra clave…",
+    "submit": "Buscar",
+    "empty_query": "Escribe arriba para empezar.",
+    "no_results": "No hay resultados para «{q}». Prueba con otras palabras.",
+    "section_episodes": "Episodios",
+    "section_posts": "Blog",
+    "section_news": "Noticias",
+    "section_guests": "Invitados"
   },
   "guestsList": {
     "title": "Invitados",

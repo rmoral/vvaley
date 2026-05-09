@@ -10,7 +10,20 @@
     "strategy": "Estratègia",
     "monetization": "Monetització",
     "about": "Sobre",
-    "subscribe": "Subscriu-te"
+    "subscribe": "Subscriu-te",
+    "search": "Cercar"
+  },
+  "search": {
+    "title": "Cercar",
+    "sub": "Troba episodis, posts, notícies i convidats a partir de qualsevol paraula.",
+    "placeholder": "Cercar per paraula clau…",
+    "submit": "Cercar",
+    "empty_query": "Escriu a dalt per començar.",
+    "no_results": "No hi ha resultats per a «{q}». Prova amb altres paraules.",
+    "section_episodes": "Episodis",
+    "section_posts": "Blog",
+    "section_news": "Notícies",
+    "section_guests": "Convidats"
   },
   "guestsList": {
     "title": "Convidats",

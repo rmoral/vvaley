@@ -94,6 +94,28 @@ export function PublicNav({ locale }: { locale: AppLocale }) {
       </ul>
 
       <div className="flex items-center gap-3">
+        <Link
+          href="/buscar"
+          aria-label={t("search")}
+          title={t("search")}
+          className="flex h-8 w-8 items-center justify-center rounded-full border border-bg3 text-text-3 no-underline transition-colors hover:border-river hover:text-river"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+          </svg>
+        </Link>
         <LocaleSwitcher current={locale} />
         <Link
           href="/#newsletter"

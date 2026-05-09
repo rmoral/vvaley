@@ -10,7 +10,20 @@
     "strategy": "Strategy",
     "monetization": "Monetisation",
     "about": "About",
-    "subscribe": "Subscribe"
+    "subscribe": "Subscribe",
+    "search": "Search"
+  },
+  "search": {
+    "title": "Search",
+    "sub": "Find episodes, posts, news and guests by any keyword.",
+    "placeholder": "Search by keyword…",
+    "submit": "Search",
+    "empty_query": "Type above to get started.",
+    "no_results": "No results for “{q}”. Try different words.",
+    "section_episodes": "Episodes",
+    "section_posts": "Blog",
+    "section_news": "News",
+    "section_guests": "Guests"
   },
   "guestsList": {
     "title": "Guests",
