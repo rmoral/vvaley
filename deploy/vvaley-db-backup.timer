@@ -1,0 +1,13 @@
+[Unit]
+Description=Valira Valley — Postgres daily backup (timer)
+
+[Timer]
+# Every night at 03:30 UTC. Persistent so a missed run after reboot
+# fires once on next boot instead of being silently skipped.
+OnCalendar=*-*-* 03:30:00 UTC
+Persistent=true
+RandomizedDelaySec=10m
+Unit=vvaley-db-backup.service
+
+[Install]
+WantedBy=timers.target
