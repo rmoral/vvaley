@@ -236,6 +236,12 @@
     "by": "Per",
     "fallback_notice": "Aquest article encara no està disponible en el teu idioma. Te'l mostrem en la seva versió original."
   },
+  "newsletterArchive": {
+    "title": "Arxiu de la newsletter",
+    "sub": "Cada edició que hem enviat, ordenada per data. Si t'agrada el que veus, subscriu-te a baix.",
+    "empty": "Encara no hem enviat cap edició pública.",
+    "back": "Tornar a l'arxiu"
+  },
   "newsletterPages": {
     "confirmed_eyebrow": "Subscripció confirmada",
     "confirmed_title": "Llest! Ja hi ets.",

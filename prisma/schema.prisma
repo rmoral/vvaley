@@ -161,12 +161,16 @@ model Campaign {
   delivered       Int            @default(0)
   failed          Int            @default(0)
   sentAt          DateTime?
+  /// When true, surfaced under /newsletter/archivo once SENT. Editors can
+  /// keep internal-only campaigns out of the public list by toggling it off.
+  isPublic        Boolean        @default(true)
   authorId        String?
   author          User?          @relation(fields: [authorId], references: [id])
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
   @@index([status, sentAt])
+  @@index([isPublic, sentAt])
 }
 
 // ---------- Blog ---------- //

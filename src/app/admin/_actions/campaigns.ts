@@ -20,6 +20,7 @@ const campaignSchema = z.object({
   preheader: z.string().nullable(),
   bodyMarkdown: z.string().min(1, "El cuerpo no puede estar vacío."),
   audienceLocale: z.string().nullable(),
+  isPublic: z.boolean(),
 });
 
 function parseForm(formData: FormData) {
@@ -35,6 +36,7 @@ function parseForm(formData: FormData) {
     preheader: trim(formData.get("preheader")),
     bodyMarkdown: trim(formData.get("bodyMarkdown")) ?? "",
     audienceLocale,
+    isPublic: formData.get("isPublic") === "on",
   });
 }
 
@@ -48,6 +50,7 @@ export async function createCampaign(formData: FormData) {
       preheader: data.preheader,
       bodyMarkdown: data.bodyMarkdown,
       audienceLocale: data.audienceLocale,
+      isPublic: data.isPublic,
       authorId: user.id,
     },
   });
@@ -73,6 +76,7 @@ export async function updateCampaign(id: string, formData: FormData) {
       preheader: data.preheader,
       bodyMarkdown: data.bodyMarkdown,
       audienceLocale: data.audienceLocale,
+      isPublic: data.isPublic,
     },
   });
 

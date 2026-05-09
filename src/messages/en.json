@@ -236,6 +236,12 @@
     "by": "By",
     "fallback_notice": "This article isn't available in your language yet. We're showing you the original version."
   },
+  "newsletterArchive": {
+    "title": "Newsletter archive",
+    "sub": "Every issue we've sent, in order. Like what you see? Subscribe below.",
+    "empty": "We haven't sent any public issue yet.",
+    "back": "Back to the archive"
+  },
   "newsletterPages": {
     "confirmed_eyebrow": "Subscription confirmed",
     "confirmed_title": "You're in.",

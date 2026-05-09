@@ -236,6 +236,12 @@
     "by": "Par",
     "fallback_notice": "Cet article n'est pas encore disponible dans votre langue. Nous vous le montrons dans sa version originale."
   },
+  "newsletterArchive": {
+    "title": "Archives de la newsletter",
+    "sub": "Toutes les éditions que nous avons envoyées, par date. Si ça vous plaît, abonnez-vous ci-dessous.",
+    "empty": "Aucune édition publique pour l'instant.",
+    "back": "Retour aux archives"
+  },
   "newsletterPages": {
     "confirmed_eyebrow": "Abonnement confirmé",
     "confirmed_title": "C'est bon, vous êtes inscrit.",

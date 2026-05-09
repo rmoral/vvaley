@@ -108,6 +108,20 @@ export function CampaignForm({
             <strong className="text-text">{audienceSize}</strong>{" "}
             {audienceSize === 1 ? "suscriptor" : "suscriptores"} confirmados.
           </div>
+          <label className="flex items-start gap-2 text-[0.82rem] text-text-2">
+            <input
+              type="checkbox"
+              name="isPublic"
+              defaultChecked={campaign?.isPublic ?? true}
+              className="mt-1 h-4 w-4 accent-river"
+            />
+            <span>
+              Publicar en el archivo público una vez enviada.
+              <span className="block text-[0.74rem] text-text-3">
+                Desmarca para campañas internas.
+              </span>
+            </span>
+          </label>
         </Card>
 
         <Card title="Estado">
