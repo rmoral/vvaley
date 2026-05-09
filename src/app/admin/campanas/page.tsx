@@ -38,12 +38,20 @@ export default async function CampaignsListPage() {
             envío cuando estés listo.
           </p>
         </div>
-        <Link
-          href="/admin/campanas/nueva"
-          className="rounded-md bg-river px-4 py-2 text-[0.85rem] font-semibold text-white no-underline transition-all hover:-translate-y-0.5 hover:bg-text"
-        >
-          + Nueva campaña
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/admin/campanas/nueva-asistida"
+            className="rounded-md border border-river bg-white px-4 py-2 text-[0.85rem] font-semibold text-river no-underline transition-all hover:-translate-y-0.5 hover:bg-river hover:text-white"
+          >
+            + Desde contenido
+          </Link>
+          <Link
+            href="/admin/campanas/nueva"
+            className="rounded-md bg-river px-4 py-2 text-[0.85rem] font-semibold text-white no-underline transition-all hover:-translate-y-0.5 hover:bg-text"
+          >
+            + Nueva campaña
+          </Link>
+        </div>
       </div>
 
       <div className="overflow-hidden rounded-lg border border-bg3 bg-white">
