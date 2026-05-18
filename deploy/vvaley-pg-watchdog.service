@@ -1,0 +1,13 @@
+[Unit]
+Description=Valira Valley — vigilancia Postgres + restart automático
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/vvaley-pg-watchdog
+# El restart de vvaley necesita root; el start del cluster también.
+User=root
+Group=root
+# Si el script termina con error de "Postgres sigue caído", no marca el
+# timer como degradado para que siga reintentando cada minuto.
+SuccessExitStatus=0 1

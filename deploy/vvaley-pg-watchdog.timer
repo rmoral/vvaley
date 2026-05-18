@@ -1,0 +1,11 @@
+[Unit]
+Description=Valira Valley — vigilancia Postgres (timer cada minuto)
+
+[Timer]
+# Primera comprobación 1 min tras el boot, luego cada minuto.
+OnBootSec=1min
+OnUnitActiveSec=1min
+Unit=vvaley-pg-watchdog.service
+
+[Install]
+WantedBy=timers.target
