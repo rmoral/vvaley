@@ -1,0 +1,13 @@
+# pnpm settings for this project (moved out of package.json in pnpm 11).
+# Docs: https://pnpm.io/settings
+
+# Whitelist of dependencies allowed to run install-time scripts. Without
+# this, pnpm 10.4+ blocks all postinstalls and exits with
+# ERR_PNPM_IGNORED_BUILDS, which breaks `pnpm install` in CI/prod.
+onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - esbuild
+  - prisma
+  - sharp
+  - unrs-resolver
