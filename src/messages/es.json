@@ -345,6 +345,7 @@
     "message": "Cuéntanos",
     "message_ph": "Unas líneas sobre tu situación, tu empresa y qué esperas de nosotros.",
     "submit": "Enviar mensaje",
+    "sending": "Enviando…",
     "success_title": "Mensaje recibido",
     "success_body": "Gracias por escribir. Te respondemos en un máximo de dos días laborables.",
     "error_generic": "No hemos podido enviar el mensaje. Inténtalo de nuevo en unos minutos.",

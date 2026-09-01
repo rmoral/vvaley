@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
 import { JsonLd } from "@/components/public/JsonLd";
+import { ProcessStep } from "@/components/public/ProcessStep";
+import { ServiceCard } from "@/components/public/ServiceCard";
+import { RevealMount } from "@/components/public/RevealMount";
+import { Button } from "@/components/ui/Button";
+import { Divider } from "@/components/ui/Divider";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { SectionLabel } from "@/components/ui/SectionLabel";
 import { localizedUrls, ogLocale } from "@/lib/seo";
 import { getSiteUrl } from "@/lib/site-url";
 import type { AppLocale } from "@/i18n/routing";
@@ -79,141 +85,83 @@ export default async function ServicesPage({
   };
 
   return (
-    <main className="pt-32">
-      {/* Intro */}
-      <section className="mx-auto max-w-4xl px-6 pb-16 md:px-16">
-        <SectionTag>{t("tag")}</SectionTag>
-        <h1 className="mb-6 font-display text-[clamp(2.2rem,4.5vw,3.4rem)] font-black leading-[1.08] text-text">
-          {t("title_1")}
-          <br />
-          <span className="italic text-river">{t("title_2")}</span>
-        </h1>
-        <p className="max-w-[640px] text-[1.08rem] font-light leading-[1.75] text-text-2">
-          {t("lead")}
-        </p>
-      </section>
+    <main>
+      <RevealMount />
 
-      <Divider />
+      {/* Cabecera invertida: es la puerta de entrada comercial, y usa el
+          mismo estrato oscuro que el teaser B2B de la home para que las
+          dos zonas de negocio se lean como una sola. */}
+      <header className="grain relative overflow-hidden bg-ink px-6 pb-16 pt-32 md:px-16">
+        <div
+          aria-hidden
+          className="topo-rings pointer-events-none absolute -inset-y-1/3 left-[35%] -right-[10%]"
+        />
+        <div className="relative mx-auto max-w-5xl">
+          <Eyebrow invert>{t("tag")}</Eyebrow>
+          <h1 className="mt-6 font-display text-page font-black text-white text-pretty">
+            {t("title_1")}{" "}
+            <em className="font-bold italic text-river-2">{t("title_2")}</em>
+          </h1>
+          <p className="vv-reveal mt-6 max-w-[640px] text-[1.08rem] font-light leading-[1.75] text-ink-2">
+            {t("lead")}
+          </p>
+        </div>
+      </header>
 
-      {/* Services */}
-      <section className="bg-white px-6 py-20 md:px-16">
-        <div className="mx-auto flex max-w-5xl flex-col gap-6">
+      {/* Servicios */}
+      <section className="px-6 py-20 md:px-16">
+        <div className="vv-seq mx-auto flex max-w-5xl flex-col gap-6">
           {services.map((s, i) => (
-            <article
+            <ServiceCard
               key={s.title}
-              className="grid grid-cols-1 gap-8 rounded-lg border border-bg3 bg-bg p-8 md:grid-cols-[1.2fr_1fr] md:p-10"
-            >
-              <div>
-                <div className="mb-4 font-display text-[1.1rem] font-black leading-none text-bg3">
-                  {String(i + 1).padStart(2, "0")}
-                </div>
-                <h2 className="mb-3 font-display text-[1.5rem] font-bold leading-tight text-text">
-                  {s.title}
-                </h2>
-                <p className="mb-5 text-[0.97rem] leading-[1.7] text-text-2">
-                  {s.desc}
-                </p>
-                <div className="rounded-md border border-[rgba(46,139,143,0.25)] bg-[rgba(46,139,143,0.05)] p-4">
-                  <div className="mb-1 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-river">
-                    {t("for_label")}
-                  </div>
-                  <p className="text-[0.87rem] leading-[1.6] text-text-2">
-                    {s.forWho}
-                  </p>
-                </div>
-              </div>
-              <div>
-                <div className="mb-3 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-text-2">
-                  {t("includes_label")}
-                </div>
-                <ul className="flex flex-col gap-2.5">
-                  {s.bullets.map((b) => (
-                    <li
-                      key={b}
-                      className="grid grid-cols-[14px_1fr] items-start gap-3 text-[0.89rem] leading-[1.6] text-text-2"
-                    >
-                      <span aria-hidden className="mt-[7px] block h-1.5 w-1.5 rounded-full bg-river" />
-                      <span>{b}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </article>
+              num={String(i + 1).padStart(2, "0")}
+              title={s.title}
+              desc={s.desc}
+              forWho={s.forWho}
+              bullets={s.bullets}
+              forLabel={t("for_label")}
+              includesLabel={t("includes_label")}
+            />
           ))}
         </div>
       </section>
 
       <Divider />
 
-      {/* Process */}
-      <section className="px-6 py-20 md:px-16">
+      {/* Proceso */}
+      <section className="bg-bg2 px-6 py-20 md:px-16">
         <div className="mx-auto max-w-5xl">
-          <SectionTag>{t("process_tag")}</SectionTag>
-          <h2 className="mb-10 font-display text-[clamp(1.7rem,3vw,2.4rem)] font-bold leading-[1.15] text-text">
+          <SectionLabel>{t("process_tag")}</SectionLabel>
+          <h2 className="vv-reveal mt-6 mb-10 font-display text-section font-bold text-text text-pretty">
             {t("process_title")}
           </h2>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            <Step num="1" title={t("p1_title")} desc={t("p1_desc")} />
-            <Step num="2" title={t("p2_title")} desc={t("p2_desc")} />
-            <Step num="3" title={t("p3_title")} desc={t("p3_desc")} />
-            <Step num="4" title={t("p4_title")} desc={t("p4_desc")} />
+          <div className="vv-seq grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <ProcessStep num="1" title={t("p1_title")} desc={t("p1_desc")} />
+            <ProcessStep num="2" title={t("p2_title")} desc={t("p2_desc")} />
+            <ProcessStep num="3" title={t("p3_title")} desc={t("p3_desc")} />
+            <ProcessStep num="4" title={t("p4_title")} desc={t("p4_desc")} />
           </div>
         </div>
       </section>
 
+      <Divider />
+
       {/* CTA */}
-      <section className="bg-white px-6 py-20 md:px-16">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="mb-3 font-display text-[clamp(1.7rem,3vw,2.4rem)] font-bold leading-[1.15] text-text">
+      <section className="px-6 py-20 md:px-16">
+        <div className="vv-reveal mx-auto max-w-3xl text-center">
+          <h2 className="mb-3 font-display text-section font-bold text-text text-pretty">
             {t("cta_title")}
           </h2>
           <p className="mb-8 text-[1rem] font-light leading-[1.7] text-text-2">
             {t("cta_sub")}
           </p>
-          <Link
-            href="/contacto?motivo=servicios"
-            className="inline-block rounded-[3px] bg-river px-8 py-[0.9rem] text-[0.88rem] font-semibold uppercase tracking-[0.05em] text-white no-underline transition-all hover:-translate-y-0.5 hover:bg-text"
-          >
+          <Button href="/contacto?motivo=servicios" fullWidthMobile>
             {t("cta_button")}
-          </Link>
+          </Button>
         </div>
       </section>
 
       <JsonLd data={jsonLd} />
     </main>
-  );
-}
-
-/* ---------- inline subcomponents ---------- */
-
-function SectionTag({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="mb-5 inline-block rounded-[2px] border border-[rgba(46,139,143,0.25)] bg-[rgba(46,139,143,0.04)] px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-river">
-      {children}
-    </div>
-  );
-}
-
-function Divider() {
-  return <div className="mx-6 h-px bg-bg3 md:mx-16" />;
-}
-
-function Step({
-  num,
-  title,
-  desc,
-}: {
-  num: string;
-  title: string;
-  desc: string;
-}) {
-  return (
-    <div className="rounded-lg border border-bg3 bg-white p-7">
-      <div className="mb-4 flex h-8 w-8 items-center justify-center rounded-full border border-[rgba(46,139,143,0.3)] bg-[rgba(46,139,143,0.06)] font-display text-[0.9rem] font-bold text-river">
-        {num}
-      </div>
-      <div className="mb-2 text-[0.95rem] font-semibold text-text">{title}</div>
-      <p className="text-[0.83rem] leading-[1.65] text-text-2">{desc}</p>
-    </div>
   );
 }

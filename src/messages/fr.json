@@ -345,6 +345,7 @@
     "message": "Votre message",
     "message_ph": "Quelques lignes sur votre situation, votre entreprise et ce que vous attendez de nous.",
     "submit": "Envoyer le message",
+    "sending": "Envoi…",
     "success_title": "Message reçu",
     "success_body": "Merci de votre message. Nous répondons sous deux jours ouvrés.",
     "error_generic": "Nous n'avons pas pu envoyer votre message. Réessayez dans quelques minutes.",

@@ -345,6 +345,7 @@
     "message": "Tell us more",
     "message_ph": "A few lines about your situation, your company and what you expect from us.",
     "submit": "Send message",
+    "sending": "Sending…",
     "success_title": "Message received",
     "success_body": "Thanks for writing. We will reply within two working days.",
     "error_generic": "We could not send your message. Please try again in a few minutes.",

@@ -345,6 +345,7 @@
     "message": "Explica'ns",
     "message_ph": "Unes línies sobre la teva situació, la teva empresa i què esperes de nosaltres.",
     "submit": "Enviar missatge",
+    "sending": "Enviant…",
     "success_title": "Missatge rebut",
     "success_body": "Gràcies per escriure. Et responem en un màxim de dos dies laborables.",
     "error_generic": "No hem pogut enviar el missatge. Torna-ho a provar d'aquí a uns minuts.",
