@@ -67,11 +67,18 @@
   --ease-inout-soft: cubic-bezier(0.4, 0, 0.2, 1);
 
   /* ---- NUEVO · punto de ruptura de la barra de navegación ----
-     Genera las variantes menu: y max-menu:. No usamos lg: (1024px) porque
-     medido con los seis ítems del menú, catalán desborda 21px y francés
-     13px justo a 1024. A 1080 ya caben los cuatro idiomas; 1120 deja
-     margen para traducciones algo más largas sin volver a romperse. */
-  --breakpoint-menu: 1120px;
+     Genera las variantes menu: y max-menu:. Ancho mínimo real que necesita
+     la barra completa (logo + 6 ítems + lupa + idiomas + CTA), medido con
+     el logo sin partir:
+
+         EN 1096px · ES 1162px · FR 1205px · CA 1230px
+
+     Por eso no vale lg: (1024) ni xl: (1280) por casualidad: 1280 es el
+     primer escalón donde entra el peor caso (catalán) con holgura. Por
+     debajo, hamburguesa. Si algún día se quiere el menú horizontal antes,
+     la palanca es acortar las etiquetas largas de CA y FR
+     («Esdeveniments», «Événements»), no bajar este número. */
+  --breakpoint-menu: 1280px;
 }
 
 /* Duraciones y stagger: no van en @theme porque no generan utilidades,

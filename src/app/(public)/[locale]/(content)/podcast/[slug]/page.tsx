@@ -112,7 +112,7 @@ export default async function EpisodePage({
         </p>
       )}
 
-      <div className="mb-8 flex flex-wrap gap-x-6 gap-y-2 text-[0.78rem] text-text-3">
+      <div className="mb-8 flex flex-wrap gap-x-6 gap-y-2 text-[0.78rem] text-text-2">
         {ep.publishedAt && (
           <span>
             {t("publishedOn")}{" "}
@@ -156,7 +156,7 @@ export default async function EpisodePage({
                   >
                     <div className="font-semibold text-text">{guest.fullName}</div>
                     {(guest.role || guest.company) && (
-                      <div className="text-[0.82rem] text-text-3">
+                      <div className="text-[0.82rem] text-text-2">
                         {[guest.role, guest.company].filter(Boolean).join(" · ")}
                       </div>
                     )}

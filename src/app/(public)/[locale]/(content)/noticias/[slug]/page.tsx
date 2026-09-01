@@ -138,7 +138,7 @@ export default async function NewsDetailPage({
         />
       ) : (
         tr.summary === null && (
-          <p className="text-[0.95rem] text-text-3">{t("no_body")}</p>
+          <p className="text-[0.95rem] text-text-2">{t("no_body")}</p>
         )
       )}
 

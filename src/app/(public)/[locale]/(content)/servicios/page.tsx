@@ -123,7 +123,7 @@ export default async function ServicesPage({
                 </div>
               </div>
               <div>
-                <div className="mb-3 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-text-3">
+                <div className="mb-3 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-text-2">
                   {t("includes_label")}
                 </div>
                 <ul className="flex flex-col gap-2.5">

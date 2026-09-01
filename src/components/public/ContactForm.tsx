@@ -192,7 +192,7 @@ export function ContactForm({ initialTopic }: { initialTopic?: string }) {
         >
           {t("submit")}
         </button>
-        <p className="max-w-[380px] text-[0.76rem] leading-[1.5] text-text-3">
+        <p className="max-w-[380px] text-[0.76rem] leading-[1.5] text-text-2">
           {t("privacy")}
         </p>
       </div>

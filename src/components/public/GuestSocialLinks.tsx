@@ -83,7 +83,7 @@ export function GuestSocialLinks({
   return (
     <div className={wrapperByVariant[variant]}>
       {variant === "detail" && (
-        <span className="mr-2 text-[0.74rem] uppercase tracking-[0.12em] text-text-3">
+        <span className="mr-2 text-[0.74rem] uppercase tracking-[0.12em] text-text-2">
           Encuéntrale en
         </span>
       )}

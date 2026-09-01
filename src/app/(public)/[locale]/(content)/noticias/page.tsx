@@ -35,7 +35,7 @@ export default async function NewsListPage({
       </p>
 
       {items.length === 0 && (
-        <div className="rounded-lg border border-bg3 bg-white px-6 py-16 text-center text-text-3">
+        <div className="rounded-lg border border-bg3 bg-white px-6 py-16 text-center text-text-2">
           {t("empty")}
         </div>
       )}
@@ -81,7 +81,7 @@ export default async function NewsListPage({
                   <h2 className="font-display text-[1.2rem] font-bold leading-tight text-text group-hover:text-river">
                     {tr.title}
                     {news.externalUrl && (
-                      <span className="ml-2 text-[0.85rem] text-text-3">↗</span>
+                      <span className="ml-2 text-[0.85rem] text-text-2">↗</span>
                     )}
                   </h2>
                   {tr.summary && (

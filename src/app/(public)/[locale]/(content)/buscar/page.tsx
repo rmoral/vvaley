@@ -68,9 +68,9 @@ export default async function SearchPage({
       </form>
 
       {!query ? (
-        <p className="text-[0.95rem] text-text-3">{t("empty_query")}</p>
+        <p className="text-[0.95rem] text-text-2">{t("empty_query")}</p>
       ) : results.total === 0 ? (
-        <p className="text-[0.95rem] text-text-3">
+        <p className="text-[0.95rem] text-text-2">
           {t("no_results", { q: query })}
         </p>
       ) : (
@@ -93,7 +93,7 @@ export default async function SearchPage({
                         </p>
                       )}
                       {e.publishedAt && (
-                        <div className="mt-2 text-[0.74rem] uppercase tracking-[0.1em] text-text-3">
+                        <div className="mt-2 text-[0.74rem] uppercase tracking-[0.1em] text-text-2">
                           {new Intl.DateTimeFormat(locale, {
                             dateStyle: "medium",
                           }).format(e.publishedAt)}
@@ -124,7 +124,7 @@ export default async function SearchPage({
                         </p>
                       )}
                       {p.publishedAt && (
-                        <div className="mt-2 text-[0.74rem] uppercase tracking-[0.1em] text-text-3">
+                        <div className="mt-2 text-[0.74rem] uppercase tracking-[0.1em] text-text-2">
                           {new Intl.DateTimeFormat(locale, {
                             dateStyle: "medium",
                           }).format(p.publishedAt)}
@@ -146,7 +146,7 @@ export default async function SearchPage({
                       <div className="font-display text-[1.05rem] font-bold leading-tight text-text group-hover:text-river">
                         {n.title}
                         {n.externalUrl && (
-                          <span className="ml-2 text-[0.85rem] text-text-3">↗</span>
+                          <span className="ml-2 text-[0.85rem] text-text-2">↗</span>
                         )}
                       </div>
                       {n.summary && (
@@ -155,7 +155,7 @@ export default async function SearchPage({
                         </p>
                       )}
                       {n.publishedAt && (
-                        <div className="mt-2 text-[0.74rem] uppercase tracking-[0.1em] text-text-3">
+                        <div className="mt-2 text-[0.74rem] uppercase tracking-[0.1em] text-text-2">
                           {new Intl.DateTimeFormat(locale, {
                             dateStyle: "medium",
                           }).format(n.publishedAt)}
@@ -227,7 +227,7 @@ function Section({
 }) {
   return (
     <section>
-      <h2 className="mb-4 text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-text-3">
+      <h2 className="mb-4 text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-text-2">
         {title}
       </h2>
       {children}

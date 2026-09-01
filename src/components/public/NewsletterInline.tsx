@@ -70,7 +70,7 @@ export function NewsletterInline({ source, variant = "default" }: Props) {
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t("placeholder")}
               disabled={state === "loading"}
-              className="flex-1 rounded-[3px] border border-bg3 bg-white px-5 py-3 text-[0.92rem] text-text outline-none transition-colors placeholder:text-text-3 focus:border-river"
+              className="flex-1 rounded-[3px] border border-bg3 bg-white px-5 py-3 text-[0.92rem] text-text outline-none transition-colors placeholder:text-text-2 focus:border-river"
             />
             <button
               type="submit"
@@ -82,7 +82,7 @@ export function NewsletterInline({ source, variant = "default" }: Props) {
           </div>
         )}
         {!submitted && (
-          <p className="mt-3 text-[0.74rem] text-text-3">{t("trust")}</p>
+          <p className="mt-3 text-[0.74rem] text-text-2">{t("trust")}</p>
         )}
         {state === "error" && (
           <p className="mt-2 text-[0.78rem] text-red-700" role="alert">

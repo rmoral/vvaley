@@ -35,8 +35,8 @@
   "home": {
     "hero": {
       "eyebrow": "Podcast · Empresa, economia i IA · Andorra",
-      "cota": "Cota 1.023 m",
-      "archive": "De l'arxiu",
+      "cota": "Cota 01 · 1.023 m",
+      "archive": "Últim a l'arxiu",
       "title_1": "Empresa, economia i IA",
       "title_2": "per qui les aplica",
       "sub": "Cada episodi, un fundador o un directiu explica què està funcionant de debò al seu negoci. Converses sense fum, des d'Andorra i amb perspectiva internacional.",
@@ -45,8 +45,7 @@
       "tag_entrepreneurship": "Emprenedoria",
       "tag_tech": "IA aplicada",
       "cta_listen": "Escoltar el podcast",
-      "cta_services": "Serveis per a empreses",
-      "badge_sub": "Podcast<br>Andorra"
+      "cta_services": "Serveis per a empreses"
     },
     "stats": {
       "episodes_label": "Episodis",
@@ -63,8 +62,7 @@
     },
     "pillars": {
       "tag": "Què cobrim",
-      "title_1": "Quatre temes.",
-      "title_2": "Una obsessió: el que funciona.",
+      "title": "Quatre temes. Una obsessió: el que funciona.",
       "sub": "Res de tendències buides. Cada conversa busca decisions concretes, xifres reals i aprenentatges que puguis aplicar a la teva empresa aquesta mateixa setmana.",
       "economy_name": "Economia",
       "economy_desc": "Conjuntura, fiscalitat i el model econòmic andorrà, explicats per qui hi opera a dins.",
@@ -77,8 +75,7 @@
     },
     "explore": {
       "tag": "Explora",
-      "title_1": "Tot el contingut,",
-      "title_2": "en un sol lloc",
+      "title": "Tot el contingut, en un sol lloc",
       "sub": "Les veus que han passat pel micròfon, les anàlisis escrites i les trobades presencials de l'ecosistema.",
       "guests_title": "Convidats",
       "guests_desc": "Fundadors, directius i inversors que han compartit la seva experiència al podcast.",
@@ -95,8 +92,7 @@
     },
     "b2b": {
       "tag": "Per a empreses",
-      "title_1": "De l'episodi",
-      "title_2": "a la teva operació",
+      "title": "De l'episodi a la teva operació",
       "sub": "A més del podcast, acompanyem empreses que volen entendre i aplicar la intel·ligència artificial en el seu dia a dia. Sense projectes pilot eterns: casos d'ús concrets i mesurables.",
       "c1_title": "Consultoria en IA",
       "c1_desc": "Diagnòstic, full de ruta i acompanyament en l'adopció d'IA sobre processos reals de negoci.",

@@ -143,7 +143,7 @@ export default async function BlogPostPage({
       <NewsletterInline source={`blog:${post.slug}`} variant="blog" />
 
       {post.author?.name && (
-        <p className="mt-12 border-t border-bg3 pt-6 text-[0.85rem] text-text-3">
+        <p className="mt-12 border-t border-bg3 pt-6 text-[0.85rem] text-text-2">
           {t("by")} <span className="font-medium text-text-2">{post.author.name}</span>
         </p>
       )}

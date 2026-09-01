@@ -35,8 +35,8 @@
   "home": {
     "hero": {
       "eyebrow": "Podcast · Entreprise, économie et IA · Andorre",
-      "cota": "Alt. 1 023 m",
-      "archive": "Des archives",
+      "cota": "Cote 01 · 1 023 m",
+      "archive": "Dernier dans l'archive",
       "title_1": "Entreprise, économie et IA",
       "title_2": "par ceux qui les appliquent",
       "sub": "Chaque épisode, un fondateur ou un dirigeant raconte ce qui fonctionne vraiment dans son entreprise. Des conversations sans fard, depuis l'Andorre et avec une perspective internationale.",
@@ -45,8 +45,7 @@
       "tag_entrepreneurship": "Entrepreneuriat",
       "tag_tech": "IA appliquée",
       "cta_listen": "Écouter le podcast",
-      "cta_services": "Services aux entreprises",
-      "badge_sub": "Podcast<br>Andorre"
+      "cta_services": "Services aux entreprises"
     },
     "stats": {
       "episodes_label": "Épisodes",
@@ -63,8 +62,7 @@
     },
     "pillars": {
       "tag": "Ce que nous couvrons",
-      "title_1": "Quatre sujets.",
-      "title_2": "Une obsession : ce qui marche.",
+      "title": "Quatre sujets. Une obsession : ce qui marche.",
       "sub": "Pas de tendances creuses. Chaque conversation cherche des décisions concrètes, des chiffres réels et des enseignements applicables dans votre entreprise dès cette semaine.",
       "economy_name": "Économie",
       "economy_desc": "Conjoncture, fiscalité et modèle économique andorran, expliqués par ceux qui y opèrent.",
@@ -77,8 +75,7 @@
     },
     "explore": {
       "tag": "Explorer",
-      "title_1": "Tout le contenu,",
-      "title_2": "au même endroit",
+      "title": "Tout le contenu, au même endroit",
       "sub": "Les voix passées au micro, les analyses écrites et les rencontres de l'écosystème.",
       "guests_title": "Invités",
       "guests_desc": "Fondateurs, dirigeants et investisseurs qui ont partagé leur expérience dans le podcast.",
@@ -95,8 +92,7 @@
     },
     "b2b": {
       "tag": "Pour les entreprises",
-      "title_1": "De l'épisode",
-      "title_2": "à votre opération",
+      "title": "De l'épisode à votre opération",
       "sub": "Au-delà du podcast, nous accompagnons les entreprises qui veulent comprendre et appliquer l'intelligence artificielle au quotidien. Sans pilotes interminables : des cas d'usage concrets et mesurables.",
       "c1_title": "Conseil en IA",
       "c1_desc": "Diagnostic, feuille de route et accompagnement dans l'adoption de l'IA sur des processus métier réels.",

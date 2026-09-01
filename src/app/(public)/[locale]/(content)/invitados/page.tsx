@@ -32,7 +32,7 @@ export default async function GuestsListPage({
       </p>
 
       {guests.length === 0 && (
-        <div className="rounded-lg border border-bg3 bg-white px-6 py-16 text-center text-text-3">
+        <div className="rounded-lg border border-bg3 bg-white px-6 py-16 text-center text-text-2">
           {t("empty")}
         </div>
       )}
@@ -75,11 +75,11 @@ export default async function GuestsListPage({
                 </p>
               )}
               {g.headline && (
-                <p className="text-[0.82rem] italic leading-[1.5] text-text-3 line-clamp-2">
+                <p className="text-[0.82rem] italic leading-[1.5] text-text-2 line-clamp-2">
                   {g.headline}
                 </p>
               )}
-              <div className="mt-auto pt-2 text-[0.74rem] uppercase tracking-[0.1em] text-text-3">
+              <div className="mt-auto pt-2 text-[0.74rem] uppercase tracking-[0.1em] text-text-2">
                 {g._count.episodes > 0
                   ? t("episodeCount", { count: g._count.episodes })
                   : t("noEpisodesYet")}

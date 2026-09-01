@@ -48,7 +48,7 @@ export default async function EventsListPage({
       </p>
 
       {upcoming.length === 0 && past.length === 0 && (
-        <div className="rounded-lg border border-bg3 bg-white px-6 py-16 text-center text-text-3">
+        <div className="rounded-lg border border-bg3 bg-white px-6 py-16 text-center text-text-2">
           {t("empty")}
         </div>
       )}
@@ -73,7 +73,7 @@ export default async function EventsListPage({
 
       {past.length > 0 && (
         <section>
-          <h2 className="mb-6 text-[0.74rem] font-semibold uppercase tracking-[0.18em] text-text-3">
+          <h2 className="mb-6 text-[0.74rem] font-semibold uppercase tracking-[0.18em] text-text-2">
             {t("past")}
           </h2>
           <ul className="flex flex-col gap-3">
@@ -87,7 +87,7 @@ export default async function EventsListPage({
                     className="flex flex-col gap-1 rounded-lg border border-bg3 bg-bg2 p-4 no-underline transition-colors hover:border-river-2 sm:flex-row sm:items-baseline sm:gap-6"
                   >
                     <time
-                      className="shrink-0 text-[0.74rem] uppercase tracking-[0.1em] text-text-3 sm:w-32"
+                      className="shrink-0 text-[0.74rem] uppercase tracking-[0.1em] text-text-2 sm:w-32"
                       dateTime={event.startsAt.toISOString()}
                     >
                       {new Intl.DateTimeFormat(locale, {
@@ -152,7 +152,7 @@ function EventCard({
             {tr.summary}
           </p>
         )}
-        <div className="mt-auto text-[0.78rem] text-text-3">
+        <div className="mt-auto text-[0.78rem] text-text-2">
           {t(locationLabelKey)}
           {event.venueName && ` · ${event.venueName}`}
         </div>

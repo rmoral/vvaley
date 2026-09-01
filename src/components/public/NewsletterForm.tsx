@@ -24,7 +24,7 @@ export function NewsletterForm({ source = "home" }: { source?: string }) {
           onChange={(e) => setEmail(e.target.value)}
           placeholder={t("placeholder")}
           disabled={state === "loading"}
-          className="flex-1 rounded-[3px] border border-bg3 bg-bg px-5 py-3 font-sans text-[0.88rem] text-text outline-none transition-colors placeholder:text-text-3 focus:border-river"
+          className="flex-1 rounded-[3px] border border-bg3 bg-bg px-5 py-3 font-sans text-[0.88rem] text-text outline-none transition-colors placeholder:text-text-2 focus:border-river"
         />
         <button
           type="submit"

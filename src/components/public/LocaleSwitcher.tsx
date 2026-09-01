@@ -1,7 +1,7 @@
 "use client";
 // "use client" OBLIGATORIO: usa useRouter/usePathname de next-intl para
 // cambiar de locale conservando la ruta. Ya era cliente antes del rediseño.
-// Cambio del rediseño: text-text-3 → text-text-2 (el anterior daba 3.7:1).
+// Cambio del rediseño: text-text-2 → text-text-2 (el anterior daba 3.7:1).
 
 import { useTransition } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";

@@ -176,12 +176,10 @@ export default async function HomePage({
       )}
 
       {/* Editorial pillars */}
-      <section id="pilares" className="px-6 py-20 md:px-16">
+      <section id="pilares" className="bg-bg2 px-6 py-20 md:px-16">
         <SectionLabel>{t("pillars.tag")}</SectionLabel>
         <h2 className="vv-reveal mt-6 mb-4 font-display text-section font-bold text-text text-pretty">
-          {t("pillars.title_1")}
-          <br />
-          {t("pillars.title_2")}
+          {t("pillars.title")}
         </h2>
         <p className="vv-reveal max-w-[560px] text-[0.97rem] font-light leading-[1.75] text-text-2">
           {t("pillars.sub")}
@@ -200,9 +198,7 @@ export default async function HomePage({
       <section id="explora" className="bg-white px-6 py-20 md:px-16">
         <SectionLabel>{t("explore.tag")}</SectionLabel>
         <h2 className="vv-reveal mt-6 mb-4 font-display text-section font-bold text-text text-pretty">
-          {t("explore.title_1")}
-          <br />
-          {t("explore.title_2")}
+          {t("explore.title")}
         </h2>
         <p className="vv-reveal max-w-[560px] text-[0.97rem] font-light leading-[1.75] text-text-2">
           {t("explore.sub")}
@@ -218,14 +214,14 @@ export default async function HomePage({
       <Divider />
 
       {/* B2B teaser → /servicios */}
-      <section id="empresas" className="px-6 py-20 md:px-16">
-        <SectionLabel>{t("b2b.tag")}</SectionLabel>
-        <h2 className="vv-reveal mt-6 mb-4 font-display text-section font-bold text-text text-pretty">
-          {t("b2b.title_1")}
-          <br />
-          {t("b2b.title_2")}
+      <section id="empresas" className="grain relative bg-ink px-6 py-20 md:px-16">
+        <div aria-hidden className="topo-rings pointer-events-none absolute inset-0" />
+        <div className="relative">
+        <SectionLabel invert>{t("b2b.tag")}</SectionLabel>
+        <h2 className="vv-reveal mt-6 mb-4 font-display text-section font-bold text-white text-pretty">
+          {t("b2b.title")}
         </h2>
-        <p className="vv-reveal max-w-[600px] text-[0.97rem] font-light leading-[1.75] text-text-2">
+        <p className="vv-reveal max-w-[600px] text-[0.97rem] font-light leading-[1.75] text-ink-2">
           {t("b2b.sub")}
         </p>
         <div className="vv-seq mt-12 grid grid-cols-1 gap-5 md:grid-cols-3">
@@ -234,7 +230,8 @@ export default async function HomePage({
           <ServiceTeaser title={t("b2b.c3_title")} desc={t("b2b.c3_desc")} />
         </div>
         <div className="vv-reveal mt-10">
-          <Button href="/servicios">{t("b2b.cta")}</Button>
+          <Button href="/servicios" variant="invert">{t("b2b.cta")}</Button>
+        </div>
         </div>
       </section>
 
@@ -243,13 +240,15 @@ export default async function HomePage({
   );
 }
 
+// Tarjeta del teaser B2B. Vive dentro del estrato invertido, así que
+// no reutiliza ServiceCard: sus colores son los del modo oscuro.
 function ServiceTeaser({ title, desc }: { title: string; desc: string }) {
   return (
-    <div className="rounded-lg border border-bg3 bg-white p-7 transition-all duration-250 ease-out-soft hover:border-river-2 hover:shadow-lift">
-      <h3 className="mb-2 font-display text-[1.1rem] font-bold leading-tight text-text text-pretty">
+    <div className="rounded-lg border border-bg3/20 bg-white/[0.04] p-7 transition-colors duration-250 ease-out-soft hover:border-river-2/50">
+      <h3 className="mb-2 font-display text-[1.1rem] font-bold leading-tight text-white text-pretty">
         {title}
       </h3>
-      <p className="text-[0.85rem] leading-[1.65] text-text-2">{desc}</p>
+      <p className="text-[0.85rem] leading-[1.65] text-ink-2">{desc}</p>
     </div>
   );
 }

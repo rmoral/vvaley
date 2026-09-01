@@ -2,7 +2,7 @@
 // "use client" OBLIGATORIO: gestiona el estado del envío (idle/loading/ok/
 // error) con el hook useNewsletterSubscribe. Ya era cliente antes.
 // Cambios del rediseño: el estado `ok` sustituye el formulario EN SU SITIO
-// (sin salto de layout), foco teal, y text-text-3 → text-text-2.
+// (sin salto de layout), foco teal, y text-text-2 → text-text-2.
 
 import { useTranslations } from "next-intl";
 import { useNewsletterSubscribe } from "@/hooks/useNewsletterSubscribe";

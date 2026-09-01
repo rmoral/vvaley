@@ -148,7 +148,7 @@ export default async function EventDetailPage({
         <span>📍 {locationCopy}</span>
         {event.venueName && <span>{event.venueName}</span>}
         {event.venueAddress && (
-          <span className="text-text-3">{event.venueAddress}</span>
+          <span className="text-text-2">{event.venueAddress}</span>
         )}
       </div>
 
@@ -177,7 +177,7 @@ export default async function EventDetailPage({
         {gate.open ? (
           <>
             {seatsLeft != null && (
-              <p className="mb-4 text-[0.82rem] text-text-3">
+              <p className="mb-4 text-[0.82rem] text-text-2">
                 {seatsLeft === 0
                   ? t("seats_full")
                   : t("seats_left", { count: seatsLeft })}

@@ -83,7 +83,7 @@ export default async function TagPage({
 
   return (
     <main className="mx-auto max-w-5xl px-6 pb-24 pt-32 md:px-16">
-      <div className="mb-3 text-[0.74rem] uppercase tracking-[0.16em] text-text-3">
+      <div className="mb-3 text-[0.74rem] uppercase tracking-[0.16em] text-text-2">
         {t("eyebrow")}
       </div>
       <h1 className="mb-3 font-display text-[clamp(2.2rem,4vw,3.4rem)] font-black leading-[1.05] text-text">
@@ -96,7 +96,7 @@ export default async function TagPage({
       )}
 
       {empty && (
-        <div className="rounded-lg border border-bg3 bg-white px-6 py-16 text-center text-text-3">
+        <div className="rounded-lg border border-bg3 bg-white px-6 py-16 text-center text-text-2">
           {t("empty")}
         </div>
       )}
@@ -192,7 +192,7 @@ export default async function TagPage({
                       <h3 className="font-display text-[1.1rem] font-bold leading-tight text-text group-hover:text-river">
                         {tr.title}
                         {item.externalUrl && (
-                          <span className="ml-2 text-[0.85rem] text-text-3">↗</span>
+                          <span className="ml-2 text-[0.85rem] text-text-2">↗</span>
                         )}
                       </h3>
                       {tr.summary && (

@@ -12,7 +12,7 @@ export default async function NewsletterUnsubscribedPage({
   const t = await getTranslations("newsletterPages");
   return (
     <main className="mx-auto max-w-xl px-6 pb-24 pt-40 text-center md:px-16">
-      <div className="mb-3 text-[0.74rem] font-semibold uppercase tracking-[0.2em] text-text-3">
+      <div className="mb-3 text-[0.74rem] font-semibold uppercase tracking-[0.2em] text-text-2">
         {t("unsub_eyebrow")}
       </div>
       <h1 className="mb-4 font-display text-[clamp(2rem,4vw,2.8rem)] font-black leading-[1.1] text-text">

@@ -29,7 +29,7 @@ export default async function PodcastListPage({
       </p>
 
       {episodes.length === 0 && (
-        <div className="rounded-lg border border-bg3 bg-white px-6 py-16 text-center text-text-3">
+        <div className="rounded-lg border border-bg3 bg-white px-6 py-16 text-center text-text-2">
           {t("empty")}
         </div>
       )}
@@ -60,7 +60,7 @@ export default async function PodcastListPage({
                 </p>
               )}
               {ep.guests.some((g) => g.guest.isPublic) && (
-                <div className="text-[0.74rem] text-text-3">
+                <div className="text-[0.74rem] text-text-2">
                   {t("guests")}:{" "}
                   {ep.guests
                     .filter((g) => g.guest.isPublic)

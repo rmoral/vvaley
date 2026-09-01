@@ -35,7 +35,7 @@ export default async function NewsletterArchivePage({
       </p>
 
       {campaigns.length === 0 ? (
-        <div className="rounded-lg border border-bg3 bg-white px-6 py-16 text-center text-text-3">
+        <div className="rounded-lg border border-bg3 bg-white px-6 py-16 text-center text-text-2">
           {t("empty")}
         </div>
       ) : (

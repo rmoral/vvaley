@@ -23,12 +23,12 @@ export function TagChips({
           {linked ? (
             <Link
               href={`/tags/${tag.slug}`}
-              className={`${base} text-text-3 no-underline transition-colors hover:border-river hover:text-river`}
+              className={`${base} text-text-2 no-underline transition-colors hover:border-river hover:text-river`}
             >
               {tag.name}
             </Link>
           ) : (
-            <span className={`${base} text-text-3`}>{tag.name}</span>
+            <span className={`${base} text-text-2`}>{tag.name}</span>
           )}
         </li>
       ))}

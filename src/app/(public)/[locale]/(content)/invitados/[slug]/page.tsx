@@ -148,7 +148,7 @@ export default async function GuestPage({
           {t("episodes")}
         </h2>
         {publishedEpisodes.length === 0 ? (
-          <p className="text-[0.9rem] text-text-3">{t("noEpisodes")}</p>
+          <p className="text-[0.9rem] text-text-2">{t("noEpisodes")}</p>
         ) : (
           <ul className="flex flex-col gap-3">
             {publishedEpisodes.map(({ episode }) => (

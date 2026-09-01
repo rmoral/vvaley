@@ -35,8 +35,8 @@
   "home": {
     "hero": {
       "eyebrow": "Podcast · Business, economics & AI · Andorra",
-      "cota": "Elev. 1,023 m",
-      "archive": "From the archive",
+      "cota": "Elevation 01 · 1,023 m",
+      "archive": "Latest in the archive",
       "title_1": "Business, economics and AI",
       "title_2": "from the people applying them",
       "sub": "Every episode, a founder or executive explains what is actually working in their business. Straight-talking conversations from Andorra, with an international outlook.",
@@ -45,8 +45,7 @@
       "tag_entrepreneurship": "Entrepreneurship",
       "tag_tech": "Applied AI",
       "cta_listen": "Listen to the podcast",
-      "cta_services": "Services for companies",
-      "badge_sub": "Podcast<br>Andorra"
+      "cta_services": "Services for companies"
     },
     "stats": {
       "episodes_label": "Episodes",
@@ -63,8 +62,7 @@
     },
     "pillars": {
       "tag": "What we cover",
-      "title_1": "Four subjects.",
-      "title_2": "One obsession: what works.",
+      "title": "Four subjects. One obsession: what works.",
       "sub": "No empty trend-chasing. Every conversation goes after concrete decisions, real numbers and lessons you can put to work in your company this week.",
       "economy_name": "Economics",
       "economy_desc": "The economic climate, taxation and Andorra's singular model, explained by people operating inside it.",
@@ -77,8 +75,7 @@
     },
     "explore": {
       "tag": "Explore",
-      "title_1": "All the content,",
-      "title_2": "in one place",
+      "title": "All the content, in one place",
       "sub": "The voices that have been on the mic, the written analysis and the ecosystem's in-person gatherings.",
       "guests_title": "Guests",
       "guests_desc": "Founders, executives and investors who have shared their experience on the podcast.",
@@ -95,8 +92,7 @@
     },
     "b2b": {
       "tag": "For companies",
-      "title_1": "From the episode",
-      "title_2": "to your operation",
+      "title": "From the episode to your operation",
       "sub": "Beyond the podcast, we work with companies that want to understand and apply artificial intelligence day to day. No endless pilots: concrete, measurable use cases.",
       "c1_title": "AI consulting",
       "c1_desc": "Assessment, roadmap and hands-on support adopting AI across real business processes.",
