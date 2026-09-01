@@ -238,7 +238,8 @@
     "error": "No hemos podido procesar tu suscripción. Inténtalo de nuevo."
   },
   "common": {
-    "siteName": "Valira Valley"
+    "siteName": "Valira Valley",
+    "externalLink": "Se abre en otra web"
   },
   "about": {
     "meta_title": "Sobre Valira Valley",

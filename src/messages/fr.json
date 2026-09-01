@@ -238,7 +238,8 @@
     "error": "Nous n'avons pas pu traiter votre abonnement. Réessayez."
   },
   "common": {
-    "siteName": "Valira Valley"
+    "siteName": "Valira Valley",
+    "externalLink": "S'ouvre sur un autre site"
   },
   "about": {
     "meta_title": "À propos de Valira Valley",
