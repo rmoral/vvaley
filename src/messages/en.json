@@ -129,7 +129,9 @@
     "back": "Back to the podcast",
     "guests": "Guests",
     "publishedOn": "Published on",
-    "duration": "Duration"
+    "duration": "Duration",
+    "listen": "Listen to the episode",
+    "listen_on": "Listen on"
   },
   "guest": {
     "back": "Back",
@@ -239,7 +241,11 @@
   },
   "common": {
     "siteName": "Valira Valley",
-    "externalLink": "Opens on another site"
+    "externalLink": "Opens on another site",
+    "cota_01": "Elevation 01 · 1,023 m",
+    "cota_02": "Elevation 02 · 1,410 m",
+    "cota_03": "Elevation 03 · 1,890 m",
+    "cota_04": "Elevation 04 · 2,240 m"
   },
   "about": {
     "meta_title": "About Valira Valley",

@@ -21,6 +21,7 @@ export function DetailShell({
   meta,
   coverUrl,
   coverAlt = "",
+  coverTreatment = "duotone",
   notice,
   children,
   aside,
@@ -38,6 +39,8 @@ export function DetailShell({
   meta?: ReactNode;
   coverUrl?: string | null;
   coverAlt?: string;
+  /** "plate" cuando la portada es la imagen por defecto de temática. */
+  coverTreatment?: "duotone" | "plate";
   /** Aviso de traducción de respaldo (fallback_notice) u otro banner. */
   notice?: ReactNode;
   /** Cuerpo: prosa renderizada, reproductor, lo que toque. */
@@ -90,6 +93,7 @@ export function DetailShell({
           alt={coverAlt}
           priority
           variant="contour"
+          treatment={coverTreatment}
           sizes="(max-width: 768px) 100vw, 768px"
           className="mt-10 aspect-video w-full overflow-hidden rounded-lg"
         />

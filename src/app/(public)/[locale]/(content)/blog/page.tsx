@@ -1,6 +1,7 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { pickTranslation } from "@/lib/translations";
+import { resolveCover } from "@/lib/pillar-cover";
 import { ArticleCard } from "@/components/public/ArticleCard";
 import { RevealMount } from "@/components/public/RevealMount";
 import { ListHeader } from "@/components/public/ListHeader";
@@ -16,6 +17,8 @@ export default async function BlogListPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("blogList");
+  const tn = await getTranslations("nav");
+  const tc = await getTranslations("common");
 
   const posts = await prisma.post.findMany({
     where: { status: "PUBLISHED" },
@@ -31,14 +34,18 @@ export default async function BlogListPage({
     .map((post) => {
       const tr = pickTranslation(post, locale as AppLocale);
       if (!tr) return null;
+      const tags = post.tags.map((pt) => pt.tag);
+      // Escalera de portada: subida → temática del pilar → contorno.
+      const cover = resolveCover({ uploaded: post.coverImageUrl, tags });
       return {
         slug: post.slug,
         title: tr.title,
         summary: tr.summary,
-        coverImageUrl: post.coverImageUrl,
+        coverImageUrl: cover.src,
+        coverIsDefault: cover.isDefault,
         publishedAt: post.publishedAt,
         authorName: post.author?.name ?? null,
-        tags: post.tags.map((pt) => pt.tag),
+        tags,
       };
     })
     .filter((p): p is NonNullable<typeof p> => p !== null);
@@ -46,7 +53,12 @@ export default async function BlogListPage({
   return (
     <main>
       <RevealMount />
-      <ListHeader title={t("title")} sub={t("sub")} />
+      <ListHeader
+        eyebrow={tn("blog")}
+        altitude={tc("cota_02")}
+        title={t("title")}
+        sub={t("sub")}
+      />
 
       <section className="mx-auto max-w-6xl px-6 pb-24 pt-16 md:px-16">
         {items.length === 0 ? (

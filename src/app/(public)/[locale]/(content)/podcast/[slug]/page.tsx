@@ -5,10 +5,9 @@ import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { renderMarkdown } from "@/lib/markdown";
 import { DetailShell, Prose } from "@/components/public/DetailShell";
-import { EpisodePlayer } from "@/components/public/EpisodePlayer";
+import { EpisodeListen } from "@/components/public/EpisodeListen";
 import { NewsletterInline } from "@/components/public/NewsletterInline";
 import { JsonLd } from "@/components/public/JsonLd";
-import { Button } from "@/components/ui/Button";
 import { localizedUrls, ogLocale } from "@/lib/seo";
 import type { AppLocale } from "@/i18n/routing";
 
@@ -22,7 +21,7 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   const ep = await prisma.episode.findUnique({
     where: { slug },
-    select: { title: true, summary: true, coverImageUrl: true, status: true, publishedAt: true },
+    select: { title: true, summary: true, status: true, publishedAt: true },
   });
   if (!ep || ep.status !== "PUBLISHED") return {};
   const urls = localizedUrls(`/podcast/${slug}`, locale as AppLocale);
@@ -35,7 +34,6 @@ export async function generateMetadata({
       url: urls.canonical,
       title: ep.title,
       description: ep.summary ?? undefined,
-      images: ep.coverImageUrl ? [ep.coverImageUrl] : undefined,
       locale: ogLocale(locale as AppLocale),
       publishedTime: ep.publishedAt?.toISOString(),
     },
@@ -43,7 +41,6 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: ep.title,
       description: ep.summary ?? undefined,
-      images: ep.coverImageUrl ? [ep.coverImageUrl] : undefined,
     },
   };
 }
@@ -56,7 +53,6 @@ export default async function EpisodePage({
   const { locale, slug } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("episode");
-  const tl = await getTranslations("podcastList");
   const fmt = await getFormatter();
 
   const ep = await prisma.episode.findUnique({
@@ -98,14 +94,11 @@ export default async function EpisodePage({
   const duration =
     ep.durationSec != null ? `${Math.round(ep.durationSec / 60)} min` : undefined;
 
-  // Plataformas externas. Son marcas, no se traducen. Se usan como respaldo
-  // cuando el episodio no tiene audio propio subido, y como complemento
-  // cuando sí lo tiene.
-  const platforms = [
-    { href: ep.spotifyUrl, label: "Spotify" },
-    { href: ep.appleUrl, label: "Apple Podcasts" },
-    { href: ep.youtubeUrl, label: "YouTube" },
-  ].filter((p): p is { href: string; label: string } => Boolean(p.href));
+  // <EpisodeListen> ya lleva la duración en su cabecera, y devuelve null si no
+  // hay ni audio ni plataformas. Solo entonces la duración vuelve al encabezado.
+  const hasListen = Boolean(
+    ep.audioUrl || ep.spotifyUrl || ep.appleUrl || ep.youtubeUrl,
+  );
 
   return (
     <DetailShell
@@ -122,9 +115,7 @@ export default async function EpisodePage({
               {t("publishedOn")} {fmt.dateTime(ep.publishedAt, { dateStyle: "long" })}
             </span>
           ) : null}
-          {/* Con audio propio la duración la lleva el reproductor: aquí se
-              omite para no decirla dos veces en la misma pantalla. */}
-          {duration && !ep.audioUrl ? (
+          {duration && !hasListen ? (
             <span>
               {t("duration")}: {duration}
             </span>
@@ -164,11 +155,14 @@ export default async function EpisodePage({
         </>
       }
     >
-      <ListenBlock
+      <EpisodeListen
         audioUrl={ep.audioUrl}
-        label={tl("listen")}
+        spotifyUrl={ep.spotifyUrl}
+        appleUrl={ep.appleUrl}
+        youtubeUrl={ep.youtubeUrl}
+        label={t("listen")}
         duration={duration}
-        platforms={platforms}
+        platformsLabel={t("listen_on")}
       />
 
       {ep.summary ? (
@@ -181,50 +175,5 @@ export default async function EpisodePage({
         </div>
       ) : null}
     </DetailShell>
-  );
-}
-
-// Reproductor + plataformas. Con audio propio manda <EpisodePlayer> y las
-// plataformas quedan como fila secundaria debajo. Sin audio, las plataformas
-// heredan la caja para que el bloque de escucha no desaparezca.
-function ListenBlock({
-  audioUrl,
-  label,
-  duration,
-  platforms,
-}: {
-  audioUrl: string | null;
-  label: string;
-  duration?: string;
-  platforms: { href: string; label: string }[];
-}) {
-  if (!audioUrl && platforms.length === 0) return null;
-
-  const links = (
-    <div className="flex flex-wrap gap-3">
-      {platforms.map((p) => (
-        <Button key={p.href} href={p.href} variant="secondary" size="sm">
-          {p.label}
-        </Button>
-      ))}
-    </div>
-  );
-
-  if (!audioUrl) {
-    return (
-      <div className="rounded-lg border border-bg3 bg-white p-5">
-        <p className="mb-3 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-river">
-          {label}
-        </p>
-        {links}
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-4">
-      <EpisodePlayer src={audioUrl} label={label} duration={duration} />
-      {platforms.length > 0 ? links : null}
-    </div>
   );
 }

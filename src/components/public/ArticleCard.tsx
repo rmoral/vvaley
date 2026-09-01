@@ -17,6 +17,8 @@ export function ArticleCard({
     title: string;
     summary?: string | null;
     coverImageUrl?: string | null;
+    /** true cuando coverImageUrl es la portada por defecto de temática. */
+    coverIsDefault?: boolean;
     publishedAt?: Date | null;
     authorName?: string | null;
     tags?: { slug: string; name: string }[];
@@ -36,6 +38,7 @@ export function ArticleCard({
         alt=""
         priority={priority}
         variant="contour"
+        treatment={post.coverIsDefault ? "plate" : "duotone"}
         className="aspect-video w-full"
       />
 

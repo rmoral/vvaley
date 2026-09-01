@@ -14,6 +14,8 @@ export default async function PodcastListPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("podcastList");
+  const tn = await getTranslations("nav");
+  const tc = await getTranslations("common");
 
   const episodes = await prisma.episode.findMany({
     where: { status: "PUBLISHED" },
@@ -29,7 +31,12 @@ export default async function PodcastListPage({
   return (
     <main>
       <RevealMount />
-      <ListHeader title={t("title")} sub={t("sub")} />
+      <ListHeader
+        eyebrow={tn("podcast")}
+        altitude={tc("cota_01")}
+        title={t("title")}
+        sub={t("sub")}
+      />
 
       <section className="mx-auto max-w-6xl px-6 pb-24 pt-16 md:px-16">
         {episodes.length === 0 ? (

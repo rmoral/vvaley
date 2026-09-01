@@ -4,6 +4,7 @@ import { setRequestLocale, getTranslations, getFormatter } from "next-intl/serve
 import { prisma } from "@/lib/prisma";
 import { pickTranslation } from "@/lib/translations";
 import { renderMarkdown } from "@/lib/markdown";
+import { resolveCover } from "@/lib/pillar-cover";
 import { DetailShell, Prose } from "@/components/public/DetailShell";
 import { NewsletterInline } from "@/components/public/NewsletterInline";
 import { JsonLd } from "@/components/public/JsonLd";
@@ -36,7 +37,6 @@ export async function generateMetadata({
       url: urls.canonical,
       title: tr.title,
       description: tr.summary ?? undefined,
-      images: post.coverImageUrl ? [post.coverImageUrl] : undefined,
       locale: ogLocale(locale as AppLocale),
       publishedTime: post.publishedAt?.toISOString(),
       modifiedTime: post.updatedAt.toISOString(),
@@ -45,7 +45,6 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: tr.title,
       description: tr.summary ?? undefined,
-      images: post.coverImageUrl ? [post.coverImageUrl] : undefined,
     },
   };
 }
@@ -74,6 +73,10 @@ export default async function BlogPostPage({
   if (!tr) notFound();
 
   const html = renderMarkdown(tr.body);
+  const cover = resolveCover({
+    uploaded: post.coverImageUrl,
+    tags: post.tags.map((pt) => pt.tag),
+  });
   const isFallback = tr.locale !== locale;
   const url = localizedUrls(`/blog/${slug}`, locale as AppLocale).canonical;
   const jsonLd = {
@@ -105,7 +108,8 @@ export default async function BlogPostPage({
       }
       title={tr.title}
       subtitle={tr.summary}
-      coverUrl={post.coverImageUrl ?? undefined}
+      coverUrl={cover.src ?? undefined}
+      coverTreatment={cover.isDefault ? "plate" : "duotone"}
       notice={isFallback ? t("fallback_notice") : undefined}
       aside={
         post.tags.length > 0 || post.author?.name ? (

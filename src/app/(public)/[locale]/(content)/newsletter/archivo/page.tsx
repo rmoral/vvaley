@@ -30,7 +30,7 @@ export default async function NewsletterArchivePage({
   return (
     <main>
       <RevealMount />
-      <ListHeader title={t("title")} sub={t("sub")} />
+      <ListHeader title={t("title")} sub={t("sub")} dense width="4xl" />
 
       <section className="mx-auto max-w-4xl px-6 pb-24 pt-16 md:px-16">
         {campaigns.length === 0 ? (

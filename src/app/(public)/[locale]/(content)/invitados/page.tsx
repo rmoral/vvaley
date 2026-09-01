@@ -15,6 +15,8 @@ export default async function GuestsListPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("guestsList");
+  const tn = await getTranslations("nav");
+  const tc = await getTranslations("common");
 
   const guests = await prisma.guest.findMany({
     where: { isPublic: true },
@@ -29,7 +31,12 @@ export default async function GuestsListPage({
   return (
     <main>
       <RevealMount />
-      <ListHeader title={t("title")} sub={t("sub")} />
+      <ListHeader
+        eyebrow={tn("guests")}
+        altitude={tc("cota_03")}
+        title={t("title")}
+        sub={t("sub")}
+      />
 
       <section className="mx-auto max-w-6xl px-6 pb-24 pt-16 md:px-16">
         {guests.length === 0 ? (

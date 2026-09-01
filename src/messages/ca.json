@@ -129,7 +129,9 @@
     "back": "Tornar al podcast",
     "guests": "Convidats",
     "publishedOn": "Publicat el",
-    "duration": "Durada"
+    "duration": "Durada",
+    "listen": "Escoltar l’episodi",
+    "listen_on": "Escolta’l a"
   },
   "guest": {
     "back": "Tornar",
@@ -239,7 +241,11 @@
   },
   "common": {
     "siteName": "Valira Valley",
-    "externalLink": "S'obre en una altra web"
+    "externalLink": "S'obre en una altra web",
+    "cota_01": "Cota 01 · 1.023 m",
+    "cota_02": "Cota 02 · 1.410 m",
+    "cota_03": "Cota 03 · 1.890 m",
+    "cota_04": "Cota 04 · 2.240 m"
   },
   "about": {
     "meta_title": "Sobre Valira Valley",

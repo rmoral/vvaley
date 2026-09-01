@@ -13,6 +13,7 @@ export function CoverArt({
   quote,
   priority = false,
   variant = "contour",
+  treatment = "duotone",
   softDuotone = false,
   sizes = "(max-width: 768px) 100vw, 33vw",
   className = "",
@@ -27,16 +28,27 @@ export function CoverArt({
   /** Solo en la PRIMERA imagen sobre el pliegue. Nunca en un listado. */
   priority?: boolean;
   variant?: "contour" | "numeral" | "quote";
+  /**
+   * Tratamiento de la imagen. "duotone" para la foto propia del objeto;
+   * "plate" para las portadas por defecto de temática, que se repiten en
+   * muchas tarjetas: la placa oscura las devuelve a fondo y evita que una
+   * imagen genérica se lea como la foto real del artículo.
+   */
+  treatment?: "duotone" | "plate";
   /** Duotono suave: fichas de invitado, donde la cara debe reconocerse. */
   softDuotone?: boolean;
   sizes?: string;
   /** Debe fijar el ratio: aspect-video, aspect-square… para CLS = 0. */
   className?: string;
 }) {
-  // 1 · Hay imagen → next/image + duotono.
+  // 1 · Hay imagen → next/image + duotono (o placa, si es la de temática).
   if (src) {
+    const skin =
+      treatment === "plate"
+        ? "plate"
+        : `duotone ${softDuotone ? "duotone-soft" : ""}`;
     return (
-      <div className={`duotone ${softDuotone ? "duotone-soft" : ""} relative overflow-hidden ${className}`}>
+      <div className={`${skin} relative overflow-hidden ${className}`}>
         <Image src={src} alt={alt} fill sizes={sizes} priority={priority} className="object-cover" />
         {badge ? <Badge>{badge}</Badge> : null}
       </div>

@@ -41,11 +41,11 @@ export default async function SearchPage({
 
   return (
     <main>
-      <ListHeader title={t("title")} sub={t("sub")}>
+      <ListHeader title={t("title")} sub={t("sub")} dense width="5xl">
         <form
           action="/buscar"
           method="get"
-          className="mt-8 flex flex-col gap-2 sm:flex-row sm:max-w-2xl"
+          className="flex flex-col gap-2 sm:flex-row sm:max-w-2xl"
         >
           <label htmlFor="q" className="sr-only">
             {t("title")}

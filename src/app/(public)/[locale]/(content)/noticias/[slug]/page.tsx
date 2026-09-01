@@ -4,6 +4,7 @@ import { setRequestLocale, getTranslations, getFormatter } from "next-intl/serve
 import { prisma } from "@/lib/prisma";
 import { pickTranslation } from "@/lib/translations";
 import { renderMarkdown } from "@/lib/markdown";
+import { resolveCover } from "@/lib/pillar-cover";
 import { DetailShell, Prose } from "@/components/public/DetailShell";
 import { JsonLd } from "@/components/public/JsonLd";
 import { TagChips } from "@/components/public/TagChips";
@@ -78,6 +79,10 @@ export default async function NewsDetailPage({
   if (!tr) notFound();
 
   const html = tr.body ? renderMarkdown(tr.body) : "";
+  const cover = resolveCover({
+    uploaded: news.coverImageUrl,
+    tags: news.tags.map((nt) => nt.tag),
+  });
   const isFallback = tr.locale !== locale;
   const url = localizedUrls(`/noticias/${slug}`, locale as AppLocale).canonical;
   const jsonLd = {
@@ -105,7 +110,8 @@ export default async function NewsDetailPage({
       }
       title={tr.title}
       subtitle={tr.summary}
-      coverUrl={news.coverImageUrl ?? undefined}
+      coverUrl={cover.src ?? undefined}
+      coverTreatment={cover.isDefault ? "plate" : "duotone"}
       notice={isFallback ? t("fallback_notice") : undefined}
       aside={
         news.tags.length > 0 ? (

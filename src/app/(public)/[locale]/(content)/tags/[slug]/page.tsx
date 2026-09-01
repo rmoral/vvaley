@@ -108,14 +108,13 @@ export default async function TagPage({
   return (
     <main>
       <RevealMount />
+      {/* Sin cota: las cotas nombran los estratos fijos del sitio, y una
+          etiqueta es un corte transversal, no un estrato. */}
       <ListHeader
+        eyebrow={t("eyebrow")}
         title={tag.name}
         sub={tag.description ?? undefined}
-      >
-        <p className="mt-3 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-river">
-          {t("eyebrow")}
-        </p>
-      </ListHeader>
+      />
 
       <div className="mx-auto max-w-6xl px-6 pb-24 pt-16 md:px-16">
         {posts.length === 0 && news.length === 0 && (

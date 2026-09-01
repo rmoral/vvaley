@@ -17,6 +17,7 @@ export default async function NewsListPage({
   setRequestLocale(locale);
   const t = await getTranslations("newsList");
   const tc = await getTranslations("common");
+  const tn = await getTranslations("nav");
 
   const items = await prisma.news.findMany({
     where: { status: "PUBLISHED" },
@@ -42,7 +43,13 @@ export default async function NewsListPage({
   return (
     <main>
       <RevealMount />
-      <ListHeader title={t("title")} sub={t("sub")} />
+      <ListHeader
+        eyebrow={tn("news")}
+        altitude={tc("cota_02")}
+        title={t("title")}
+        sub={t("sub")}
+        width="5xl"
+      />
 
       <section className="mx-auto max-w-5xl px-6 pb-24 pt-16 md:px-16">
         {rows.length === 0 ? (
