@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
-import { NewsletterInline } from "@/components/public/NewsletterInline";
+import { GuestProfile } from "@/components/public/GuestProfile";
 import { GuestSocialLinks } from "@/components/public/GuestSocialLinks";
+import { Prose } from "@/components/public/DetailShell";
+import { NewsletterInline } from "@/components/public/NewsletterInline";
 import { JsonLd } from "@/components/public/JsonLd";
 import { localizedUrls, ogLocale } from "@/lib/seo";
 import type { AppLocale } from "@/i18n/routing";
@@ -88,63 +90,30 @@ export default async function GuestPage({
     sameAs: sameAs.length > 0 ? sameAs : undefined,
   };
 
+  // Esta página no usa <DetailShell>: la cabecera la compone <GuestProfile>,
+  // que ya trae el h1 y el retrato. El resto de la cota (medida de lectura,
+  // enlace de vuelta) se mantiene idéntico al del resto de detalles.
   return (
     <main className="mx-auto max-w-3xl px-6 pb-24 pt-32 md:px-16">
       <Link
         href="/invitados"
-        className="mb-6 inline-block text-[0.78rem] uppercase tracking-[0.1em] text-river no-underline hover:text-text"
+        className="mb-6 inline-block text-[0.78rem] uppercase tracking-[0.1em] text-river no-underline transition-colors duration-150 hover:text-text"
       >
         ← {t("back")}
       </Link>
 
-      <header className="flex flex-col gap-6 md:flex-row md:items-start">
-        {guest.photoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={guest.photoUrl}
-            alt={guest.fullName}
-            className="h-32 w-32 flex-shrink-0 rounded-full border border-bg3 object-cover md:h-44 md:w-44"
-          />
-        ) : (
-          <div
-            aria-hidden
-            className="flex h-32 w-32 flex-shrink-0 items-center justify-center rounded-full border border-bg3 bg-bg2 font-display text-[2.4rem] font-bold text-river md:h-44 md:w-44 md:text-[3rem]"
-          >
-            {guest.fullName
-              .split(/\s+/)
-              .slice(0, 2)
-              .map((p) => p[0]?.toUpperCase() ?? "")
-              .join("")}
-          </div>
-        )}
+      <GuestProfile guest={guest}>
+        <GuestSocialLinks guest={guest} variant="compact" />
+      </GuestProfile>
 
-        <div className="flex-1">
-          <h1 className="mb-2 font-display text-[clamp(2rem,4vw,3rem)] font-black leading-[1.1] text-text">
-            {guest.fullName}
-          </h1>
-          {(guest.role || guest.company) && (
-            <p className="mb-3 text-[1.05rem] font-light text-text-2">
-              {[guest.role, guest.company].filter(Boolean).join(" · ")}
-            </p>
-          )}
-          {guest.headline && (
-            <p className="mb-2 text-[0.95rem] italic text-river">
-              {guest.headline}
-            </p>
-          )}
+      {guest.bio ? (
+        <div className="mt-10">
+          <Prose text={guest.bio} />
         </div>
-      </header>
+      ) : null}
 
-      <GuestSocialLinks guest={guest} variant="detail" />
-
-      {guest.bio && (
-        <p className="mb-10 whitespace-pre-wrap text-[1rem] leading-[1.75] text-text-2">
-          {guest.bio}
-        </p>
-      )}
-
-      <section className="border-t border-bg3 pt-10">
-        <h2 className="mb-6 font-display text-[1.4rem] font-bold text-text">
+      <section className="mt-12 border-t border-bg3 pt-10">
+        <h2 className="mb-6 font-display text-sub font-bold text-text">
           {t("episodes")}
         </h2>
         {publishedEpisodes.length === 0 ? (
@@ -155,14 +124,14 @@ export default async function GuestPage({
               <li key={episode.id}>
                 <Link
                   href={`/podcast/${episode.slug}`}
-                  className="block rounded-lg border border-bg3 bg-white p-4 no-underline transition-colors hover:border-river-2"
+                  className="block rounded-lg border border-bg3 bg-white p-4 no-underline transition-all duration-250 ease-out-soft hover:-translate-y-0.5 hover:border-river-2 hover:shadow-lift"
                 >
-                  <div className="text-[0.78rem] uppercase tracking-[0.1em] text-river">
-                    {episode.number !== null
-                      ? String(episode.number).padStart(2, "0")
-                      : ""}
-                  </div>
-                  <div className="font-semibold text-text">{episode.title}</div>
+                  {episode.number !== null ? (
+                    <p className="text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-text-2">
+                      {String(episode.number).padStart(2, "0")}
+                    </p>
+                  ) : null}
+                  <p className="mt-1 font-semibold text-text">{episode.title}</p>
                 </Link>
               </li>
             ))}

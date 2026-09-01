@@ -3,8 +3,12 @@ import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations, getFormatter } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
+import { renderMarkdown } from "@/lib/markdown";
+import { DetailShell, Prose } from "@/components/public/DetailShell";
+import { EpisodePlayer } from "@/components/public/EpisodePlayer";
 import { NewsletterInline } from "@/components/public/NewsletterInline";
 import { JsonLd } from "@/components/public/JsonLd";
+import { Button } from "@/components/ui/Button";
 import { localizedUrls, ogLocale } from "@/lib/seo";
 import type { AppLocale } from "@/i18n/routing";
 
@@ -52,6 +56,7 @@ export default async function EpisodePage({
   const { locale, slug } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("episode");
+  const tl = await getTranslations("podcastList");
   const fmt = await getFormatter();
 
   const ep = await prisma.episode.findUnique({
@@ -89,86 +94,137 @@ export default async function EpisodePage({
       })),
   };
 
+  const guests = ep.guests.filter(({ guest }) => guest.isPublic);
+  const duration =
+    ep.durationSec != null ? `${Math.round(ep.durationSec / 60)} min` : undefined;
+
+  // Plataformas externas. Son marcas, no se traducen. Se usan como respaldo
+  // cuando el episodio no tiene audio propio subido, y como complemento
+  // cuando sí lo tiene.
+  const platforms = [
+    { href: ep.spotifyUrl, label: "Spotify" },
+    { href: ep.appleUrl, label: "Apple Podcasts" },
+    { href: ep.youtubeUrl, label: "YouTube" },
+  ].filter((p): p is { href: string; label: string } => Boolean(p.href));
+
   return (
-    <main className="mx-auto max-w-3xl px-6 pb-24 pt-32 md:px-16">
-      <Link
-        href="/podcast"
-        className="mb-6 inline-block text-[0.78rem] uppercase tracking-[0.1em] text-river no-underline hover:text-text"
-      >
-        ← {t("back")}
-      </Link>
-
-      {ep.number !== null && (
-        <div className="mb-2 font-display text-[2rem] font-black leading-none text-bg3">
-          {String(ep.number).padStart(2, "0")}
-        </div>
-      )}
-      <h1 className="mb-4 font-display text-[clamp(2rem,4vw,3rem)] font-black leading-[1.1] text-text">
-        {ep.title}
-      </h1>
-      {ep.subtitle && (
-        <p className="mb-6 text-[1.05rem] font-light leading-[1.6] text-text-2">
-          {ep.subtitle}
-        </p>
-      )}
-
-      <div className="mb-8 flex flex-wrap gap-x-6 gap-y-2 text-[0.78rem] text-text-2">
-        {ep.publishedAt && (
-          <span>
-            {t("publishedOn")}{" "}
-            {fmt.dateTime(ep.publishedAt, { dateStyle: "long" })}
-          </span>
-        )}
-        {ep.durationSec !== null && ep.durationSec !== undefined && (
-          <span>
-            {t("duration")}: {Math.round(ep.durationSec / 60)} min
-          </span>
-        )}
-      </div>
-
-      {ep.audioUrl && (
-        <audio controls className="mb-8 w-full" src={ep.audioUrl} />
-      )}
-
-      {ep.summary && (
-        <p className="mb-8 text-[1rem] leading-[1.75] text-text-2">{ep.summary}</p>
-      )}
-
-      {ep.showNotes && (
-        <div className="prose prose-neutral mb-12 max-w-none whitespace-pre-wrap text-[0.95rem] leading-[1.75] text-text-2">
-          {ep.showNotes}
-        </div>
-      )}
-
-      {ep.guests.filter(({ guest }) => guest.isPublic).length > 0 && (
-        <section className="border-t border-bg3 pt-10">
-          <h2 className="mb-6 font-display text-[1.4rem] font-bold text-text">
-            {t("guests")}
-          </h2>
-          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {ep.guests
-              .filter(({ guest }) => guest.isPublic)
-              .map(({ guest }) => (
+    <DetailShell
+      backHref="/podcast"
+      backLabel={t("back")}
+      numeral={ep.number !== null ? String(ep.number).padStart(2, "0") : undefined}
+      title={ep.title}
+      subtitle={ep.subtitle}
+      coverUrl={ep.coverImageUrl ?? undefined}
+      meta={
+        <>
+          {ep.publishedAt ? (
+            <span>
+              {t("publishedOn")} {fmt.dateTime(ep.publishedAt, { dateStyle: "long" })}
+            </span>
+          ) : null}
+          {/* Con audio propio la duración la lleva el reproductor: aquí se
+              omite para no decirla dos veces en la misma pantalla. */}
+          {duration && !ep.audioUrl ? (
+            <span>
+              {t("duration")}: {duration}
+            </span>
+          ) : null}
+        </>
+      }
+      aside={
+        guests.length > 0 ? (
+          <>
+            <h2 className="mb-6 font-display text-sub font-bold text-text">
+              {t("guests")}
+            </h2>
+            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {guests.map(({ guest }) => (
                 <li key={guest.id}>
                   <Link
                     href={`/invitados/${guest.slug}`}
-                    className="block rounded-lg border border-bg3 bg-white p-4 no-underline transition-colors hover:border-river-2"
+                    className="block h-full rounded-lg border border-bg3 bg-white p-4 no-underline transition-all duration-250 ease-out-soft hover:-translate-y-0.5 hover:border-river-2 hover:shadow-lift"
                   >
-                    <div className="font-semibold text-text">{guest.fullName}</div>
-                    {(guest.role || guest.company) && (
-                      <div className="text-[0.82rem] text-text-2">
+                    <p className="font-semibold text-text">{guest.fullName}</p>
+                    {guest.role || guest.company ? (
+                      <p className="mt-0.5 text-[0.82rem] text-text-2">
                         {[guest.role, guest.company].filter(Boolean).join(" · ")}
-                      </div>
-                    )}
+                      </p>
+                    ) : null}
                   </Link>
                 </li>
               ))}
-          </ul>
-        </section>
-      )}
+            </ul>
+          </>
+        ) : undefined
+      }
+      footer={
+        <>
+          <NewsletterInline source={`episode:${ep.slug}`} variant="episode" />
+          <JsonLd data={jsonLd} />
+        </>
+      }
+    >
+      <ListenBlock
+        audioUrl={ep.audioUrl}
+        label={tl("listen")}
+        duration={duration}
+        platforms={platforms}
+      />
 
-      <NewsletterInline source={`episode:${ep.slug}`} variant="episode" />
-      <JsonLd data={jsonLd} />
-    </main>
+      {ep.summary ? (
+        <p className="mt-8 text-[1.02rem] leading-[1.75] text-text-2">{ep.summary}</p>
+      ) : null}
+
+      {ep.showNotes ? (
+        <div className="mt-8">
+          <Prose html={renderMarkdown(ep.showNotes)} />
+        </div>
+      ) : null}
+    </DetailShell>
+  );
+}
+
+// Reproductor + plataformas. Con audio propio manda <EpisodePlayer> y las
+// plataformas quedan como fila secundaria debajo. Sin audio, las plataformas
+// heredan la caja para que el bloque de escucha no desaparezca.
+function ListenBlock({
+  audioUrl,
+  label,
+  duration,
+  platforms,
+}: {
+  audioUrl: string | null;
+  label: string;
+  duration?: string;
+  platforms: { href: string; label: string }[];
+}) {
+  if (!audioUrl && platforms.length === 0) return null;
+
+  const links = (
+    <div className="flex flex-wrap gap-3">
+      {platforms.map((p) => (
+        <Button key={p.href} href={p.href} variant="secondary" size="sm">
+          {p.label}
+        </Button>
+      ))}
+    </div>
+  );
+
+  if (!audioUrl) {
+    return (
+      <div className="rounded-lg border border-bg3 bg-white p-5">
+        <p className="mb-3 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-river">
+          {label}
+        </p>
+        {links}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <EpisodePlayer src={audioUrl} label={label} duration={duration} />
+      {platforms.length > 0 ? links : null}
+    </div>
   );
 }

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { setRequestLocale, getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
+import { setRequestLocale, getTranslations, getFormatter } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { pickTranslation } from "@/lib/translations";
 import { renderMarkdown } from "@/lib/markdown";
 import { registrationGate } from "@/lib/event-registration";
-import { EventRegistrationForm } from "@/components/public/EventRegistrationForm";
+import { DetailShell, Prose } from "@/components/public/DetailShell";
+import { EventGate } from "@/components/public/EventGate";
 import { JsonLd } from "@/components/public/JsonLd";
 import { localizedUrls, ogLocale } from "@/lib/seo";
 import type { AppLocale } from "@/i18n/routing";
@@ -56,6 +56,7 @@ export default async function EventDetailPage({
   const { locale, slug } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("eventDetail");
+  const fmt = await getFormatter();
 
   const event = await prisma.event.findUnique({
     where: { slug },
@@ -111,11 +112,6 @@ export default async function EventDetailPage({
       ? Math.max(0, event.capacity - event._count.registrations)
       : null;
 
-  const dateFmt = new Intl.DateTimeFormat(locale, {
-    dateStyle: "full",
-    timeStyle: "short",
-  });
-
   const locationCopy =
     event.locationType === "ONLINE"
       ? t("loc_online")
@@ -124,77 +120,35 @@ export default async function EventDetailPage({
         : t("loc_inperson");
 
   return (
-    <main className="mx-auto max-w-3xl px-6 pb-24 pt-32 md:px-16">
-      <Link
-        href="/eventos"
-        className="mb-6 inline-block text-[0.78rem] uppercase tracking-[0.1em] text-river no-underline hover:text-text"
-      >
-        ← {t("back")}
-      </Link>
-
-      <div className="mb-3 text-[0.74rem] uppercase tracking-[0.18em] text-river">
-        {dateFmt.format(event.startsAt)}
-      </div>
-      <h1 className="mb-4 font-display text-[clamp(2rem,4vw,3rem)] font-black leading-[1.1] text-text">
-        {tr.title}
-      </h1>
-      {tr.summary && (
-        <p className="mb-6 text-[1.05rem] font-light leading-[1.6] text-text-2">
-          {tr.summary}
-        </p>
-      )}
-
-      <div className="mb-8 flex flex-wrap gap-x-6 gap-y-2 text-[0.85rem] text-text-2">
-        <span>📍 {locationCopy}</span>
-        {event.venueName && <span>{event.venueName}</span>}
-        {event.venueAddress && (
-          <span className="text-text-2">{event.venueAddress}</span>
-        )}
-      </div>
-
-      {event.coverImageUrl && (
-        <div
-          className="mb-10 aspect-[16/9] w-full rounded-lg bg-bg2 bg-cover bg-center"
-          style={{ backgroundImage: `url(${event.coverImageUrl})` }}
-          aria-hidden
+    <DetailShell
+      backHref="/eventos"
+      backLabel={t("back")}
+      eyebrow={fmt.dateTime(event.startsAt, {
+        dateStyle: "full",
+        timeStyle: "short",
+      })}
+      title={tr.title}
+      subtitle={tr.summary}
+      coverUrl={event.coverImageUrl ?? undefined}
+      notice={isFallback ? t("fallback_notice") : undefined}
+      meta={
+        <>
+          <span>{locationCopy}</span>
+          {event.venueName ? <span>{event.venueName}</span> : null}
+          {event.venueAddress ? <span>{event.venueAddress}</span> : null}
+        </>
+      }
+      aside={
+        <EventGate
+          slug={event.slug}
+          open={gate.open}
+          reason={gate.open ? undefined : gate.reason}
+          seatsLeft={seatsLeft}
         />
-      )}
-
-      {isFallback && (
-        <div className="mb-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-[0.85rem] text-amber-800">
-          {t("fallback_notice")}
-        </div>
-      )}
-
-      {html && (
-        <article
-          className="prose prose-neutral max-w-none text-[1rem] leading-[1.75] text-text-2 [&_a]:text-river [&_a:hover]:text-text [&_h2]:mt-10 [&_h2]:mb-3 [&_h2]:font-display [&_h2]:text-[1.5rem] [&_h2]:font-bold [&_h2]:text-text [&_h3]:mt-8 [&_h3]:mb-2 [&_h3]:font-display [&_h3]:text-[1.2rem] [&_h3]:font-semibold [&_h3]:text-text [&_p]:mb-4 [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:mb-4 [&_ol]:list-decimal [&_ol]:pl-6"
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
-      )}
-
-      <section className="mt-12 border-t border-bg3 pt-10">
-        {gate.open ? (
-          <>
-            {seatsLeft != null && (
-              <p className="mb-4 text-[0.82rem] text-text-2">
-                {seatsLeft === 0
-                  ? t("seats_full")
-                  : t("seats_left", { count: seatsLeft })}
-              </p>
-            )}
-            <EventRegistrationForm slug={event.slug} />
-          </>
-        ) : (
-          <div className="rounded-lg border border-bg3 bg-bg2 p-6 text-center text-[0.92rem] text-text-2">
-            {gate.reason === "not_open_yet" && t("gate_not_open_yet")}
-            {gate.reason === "closed" && t("gate_closed")}
-            {gate.reason === "event_passed" && t("gate_event_passed")}
-            {gate.reason === "not_published" && t("gate_event_passed")}
-          </div>
-        )}
-      </section>
-      <JsonLd data={jsonLd} />
-    </main>
+      }
+      footer={<JsonLd data={jsonLd} />}
+    >
+      {html ? <Prose html={html} /> : null}
+    </DetailShell>
   );
 }

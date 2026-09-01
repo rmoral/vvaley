@@ -100,7 +100,7 @@ export function EpisodeForm({
             defaultValue={episode?.summary ?? ""}
           />
           <Textarea
-            label="Show notes"
+            label="Show notes (Markdown)"
             name="showNotes"
             rows={10}
             defaultValue={episode?.showNotes ?? ""}
