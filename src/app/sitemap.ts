@@ -16,6 +16,9 @@ const STATIC_PATHS = [
   { path: "/noticias", priority: 0.8, changeFrequency: "weekly" as const },
   { path: "/eventos", priority: 0.8, changeFrequency: "weekly" as const },
   { path: "/invitados", priority: 0.7, changeFrequency: "weekly" as const },
+  { path: "/servicios", priority: 0.9, changeFrequency: "monthly" as const },
+  { path: "/sobre", priority: 0.6, changeFrequency: "monthly" as const },
+  { path: "/contacto", priority: 0.6, changeFrequency: "yearly" as const },
 ];
 
 function localizedEntry(

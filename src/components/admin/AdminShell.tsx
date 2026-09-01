@@ -20,6 +20,7 @@ const navItems: NavItem[] = [
   { href: "/admin/newsletter", label: "Newsletter" },
   { href: "/admin/campanas", label: "Campañas" },
   { href: "/admin/social", label: "Redes sociales" },
+  { href: "/admin/contacto", label: "Contacto" },
   { href: "/admin/usuarios", label: "Usuarios", adminOnly: true },
 ];
 

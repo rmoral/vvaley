@@ -65,27 +65,18 @@ export function PublicNav({ locale }: { locale: AppLocale }) {
           >
             <ul className="min-w-[200px] list-none rounded-md border border-bg3 bg-white py-2 shadow-lg">
               <li>
-                <Link href="/#naming" className={`${link} px-4 py-2`} role="menuitem">
-                  {t("naming")}
+                <Link href="/sobre" className={`${link} px-4 py-2`} role="menuitem">
+                  {t("about")}
                 </Link>
               </li>
               <li>
-                <Link href="/#pilares" className={`${link} px-4 py-2`} role="menuitem">
-                  {t("pillars")}
+                <Link href="/servicios" className={`${link} px-4 py-2`} role="menuitem">
+                  {t("services")}
                 </Link>
               </li>
               <li>
-                <Link href="/#fases" className={`${link} px-4 py-2`} role="menuitem">
-                  {t("strategy")}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/#monetizacion"
-                  className={`${link} px-4 py-2`}
-                  role="menuitem"
-                >
-                  {t("monetization")}
+                <Link href="/contacto" className={`${link} px-4 py-2`} role="menuitem">
+                  {t("contact")}
                 </Link>
               </li>
             </ul>

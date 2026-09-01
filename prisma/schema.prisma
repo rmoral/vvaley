@@ -416,6 +416,44 @@ model SocialPublicationTarget {
   @@index([accountId])
 }
 
+// ---------- Contact ---------- //
+
+enum ContactTopic {
+  SERVICES
+  GUEST
+  SPONSOR
+  PRESS
+  OTHER
+}
+
+enum ContactStatus {
+  NEW
+  IN_PROGRESS
+  CLOSED
+}
+
+/// Inbound messages from the public /contacto form. Stored (rather than
+/// only emailed) so nothing is lost if the mail provider is down, and so
+/// the admin can triage without living in an inbox.
+model ContactRequest {
+  id        String        @id @default(cuid())
+  topic     ContactTopic  @default(OTHER)
+  name      String
+  email     String
+  company   String?
+  phone     String?
+  message   String        @db.Text
+  locale    String        @default("es")
+  status    ContactStatus @default(NEW)
+  /// Free-form internal notes for whoever handles the request.
+  notes     String?       @db.Text
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([status, createdAt])
+  @@index([topic, createdAt])
+}
+
 // ---------- Tags ---------- //
 
 model Tag {
