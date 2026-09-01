@@ -1,6 +1,23 @@
+/* ============================================================================
+   Valira Valley — globals.css · TANDA 1 (dirección «Cota»)
+   Tailwind CSS v4 · listo para sustituir src/styles/globals.css
+   ----------------------------------------------------------------------------
+   Nada de este archivo rompe el código actual: los nueve colores y las dos
+   fuentes conservan su nombre exacto, y las utilidades antiguas
+   (.animate-fade-up, .animate-fade-down, .animate-slow-spin, .reveal)
+   siguen existiendo como alias. Se puede desplegar solo este archivo.
+   ========================================================================= */
+
 @import "tailwindcss";
 
-@theme {
+/* `static` fuerza a Tailwind a emitir TODAS las variables del tema, no solo
+   las que alguna utilidad usa ya. Sin esto, los tokens nuevos (--text-hero,
+   --radius-btn, --shadow-lift, --color-ink-2, --color-alert) no aparecen en
+   :root hasta que algún componente los referencia, y cualquier CSS a mano o
+   estilo en línea que los use se queda sin valor. Cuesta unos cientos de
+   bytes y evita depurar fantasmas durante el rediseño. */
+@theme static {
+  /* ---- Colores existentes · NOMBRES SIN TOCAR ---- */
   --color-bg: #f4f8f8;
   --color-bg2: #ebf2f2;
   --color-bg3: #c8d8da;
@@ -11,9 +28,58 @@
   --color-text-2: #3a5557;
   --color-text-3: #6a8688;
 
+  /* ---- NUEVOS · estrato invertido de la zona comercial ---- */
+  --color-ink: #0d1f21;      /* fondo del bloque comercial */
+  --color-ink-2: #a8c3c4;    /* texto secundario sobre --color-ink (9.0:1) */
+  --color-alert: #8b2e2e;    /* error de formulario, dentro de la paleta (6.1:1) */
+
+  /* ---- Fuentes existentes · SIN TOCAR ---- */
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Fraunces", ui-serif, Georgia, serif;
+
+  /* ---- NUEVOS · escala de titulares. Genera text-hero, text-page, … ---- */
+  --text-hero: clamp(2.6rem, 5.5vw, 4.6rem);
+  --text-hero--line-height: 1.05;
+  --text-hero--letter-spacing: -0.015em;
+  --text-page: clamp(2.2rem, 4.5vw, 3.4rem);
+  --text-page--line-height: 1.08;
+  --text-page--letter-spacing: -0.015em;
+  --text-section: clamp(1.8rem, 3vw, 2.6rem);
+  --text-section--line-height: 1.15;
+  --text-sub: clamp(1.4rem, 2.4vw, 1.9rem);
+  --text-sub--line-height: 1.15;
+  --text-card-lg: 1.5rem;
+  --text-card-lg--line-height: 1.2;
+  --text-card: 1.2rem;
+  --text-card--line-height: 1.22;
+
+  /* ---- NUEVOS · radios. Genera rounded-btn, rounded-chip, rounded-field ---- */
+  --radius-btn: 3px;
+  --radius-chip: 2px;
+  --radius-field: 6px;
+
+  /* ---- NUEVOS · sombras. Genera shadow-lift, shadow-menu ---- */
+  --shadow-lift: 0 4px 20px rgb(46 139 143 / 0.08);
+  --shadow-menu: 0 10px 30px rgb(20 46 48 / 0.10);
+
+  /* ---- NUEVOS · curvas. Genera ease-out-soft, ease-inout-soft ---- */
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-inout-soft: cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* Duraciones y stagger: no van en @theme porque no generan utilidades,
+   solo se leen desde las clases de animación de más abajo. */
+:root {
+  --vv-dur-fast: 150ms;
+  --vv-dur-ui: 250ms;
+  --vv-dur-enter: 600ms;
+  --vv-dur-enter-lg: 900ms;
+  --vv-stagger: 80ms;
+}
+
+/* ============================================================================
+   BASE
+   ========================================================================= */
 
 *,
 *::before,
@@ -33,62 +99,133 @@ body {
   overflow-x: hidden;
 }
 
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(22px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Foco visible en todo el sistema. Antes solo estaba el del navegador,
+   que se pierde sobre los fondos claros de la paleta. */
+:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-river);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
-@keyframes fadeDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* ============================================================================
+   REPERTORIO DE GESTOS — cinco, y ninguno más
+   1. rise   entrada primaria      22px · 900ms   h1, antetítulo del hero
+   2. settle entrada secundaria    12px · 600ms   párrafos, chips, tarjetas
+   3. drop   desde arriba         -10px · 600ms   barra fija
+   4. draw   filete que se dibuja scaleX · 600ms  apertura de sección
+   5. drift  rotación perpetua     360° · 50s     sello (si se conserva)
+   ========================================================================= */
+
+@keyframes vvRise {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes vvSettle {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes vvDrop {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes vvDraw {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+@keyframes vvDrift {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
-@keyframes slowSpin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.vv-rise   { animation: vvRise var(--vv-dur-enter-lg) var(--ease-out-soft) both; }
+.vv-settle { animation: vvSettle var(--vv-dur-enter) var(--ease-out-soft) both; }
+.vv-drop   { animation: vvDrop var(--vv-dur-enter) var(--ease-out-soft) both; }
+.vv-drift  { animation: vvDrift 50s linear infinite; }
+.vv-drift-rev { animation: vvDrift 50s linear infinite reverse; }
+.vv-draw {
+  transform-origin: left center;
+  animation: vvDraw var(--vv-dur-enter) var(--ease-inout-soft) both;
 }
 
-.animate-fade-up {
-  animation: fadeUp 0.9s ease both;
-}
-.animate-fade-down {
-  animation: fadeDown 0.7s ease both;
-}
-.animate-slow-spin {
-  animation: slowSpin 50s linear infinite;
-}
-.animate-slow-spin-rev {
-  animation: slowSpin 50s linear infinite reverse;
-}
+/* Secuenciación por jerarquía: se aplica al PADRE de la rejilla.
+   Sustituye a repetir [animation-delay:.Ns] en cada hijo. */
+.vv-seq > *                { animation: vvSettle var(--vv-dur-enter) var(--ease-out-soft) both; }
+.vv-seq > *:nth-child(1)   { animation-delay: 0ms; }
+.vv-seq > *:nth-child(2)   { animation-delay: var(--vv-stagger); }
+.vv-seq > *:nth-child(3)   { animation-delay: calc(var(--vv-stagger) * 2); }
+.vv-seq > *:nth-child(4)   { animation-delay: calc(var(--vv-stagger) * 3); }
+.vv-seq > *:nth-child(5)   { animation-delay: calc(var(--vv-stagger) * 4); }
+.vv-seq > *:nth-child(6)   { animation-delay: calc(var(--vv-stagger) * 5); }
+.vv-seq > *:nth-child(n+7) { animation-delay: calc(var(--vv-stagger) * 6); }
 
+/* ---- Alias de compatibilidad: el código actual sigue funcionando ---- */
+.animate-fade-up      { animation: vvRise var(--vv-dur-enter-lg) var(--ease-out-soft) both; }
+.animate-fade-down    { animation: vvDrop var(--vv-dur-enter) var(--ease-out-soft) both; }
+.animate-slow-spin    { animation: vvDrift 50s linear infinite; }
+.animate-slow-spin-rev{ animation: vvDrift 50s linear infinite reverse; }
+
+/* ============================================================================
+   REVEAL AL HACER SCROLL
+   ----------------------------------------------------------------------------
+   CAMBIO CRÍTICO respecto al CSS actual: antes .reveal arrancaba en
+   opacity:0 siempre, así que si el JS no se ejecutaba —crawler, error de
+   red, JS desactivado— el contenido quedaba invisible. Ahora el estado
+   por defecto es VISIBLE y solo se oculta cuando hay scripting.
+   ========================================================================= */
+
+.vv-reveal,
 .reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition:
-    opacity 0.6s ease,
-    transform 0.6s ease;
-}
-.reveal.visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
 }
 
+@media (scripting: enabled) {
+  .vv-reveal,
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity var(--vv-dur-enter) var(--ease-out-soft),
+      transform var(--vv-dur-enter) var(--ease-out-soft);
+  }
+  .vv-reveal.is-visible,
+  .vv-reveal.visible,
+  .reveal.is-visible,
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============================================================================
+   SISTEMA GRÁFICO «COTA» — la imagen que no tenemos, generada en CSS
+   Todo son gradientes: cero peticiones, cero bytes de red, cero layout shift.
+   ========================================================================= */
+
+/* Curvas de nivel concéntricas. Fondo de hero y de cabeceras.
+   Nunca por encima de opacity .34: son suelo, no protagonista. */
+.topo-rings {
+  background-image: repeating-radial-gradient(
+    ellipse 62% 78% at 62% 46%,
+    transparent 0 34px,
+    rgb(46 139 143 / 0.5) 34px 35px
+  );
+  mask-image: radial-gradient(ellipse 70% 85% at 66% 48%, #000 25%, transparent 74%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 85% at 66% 48%, #000 25%, transparent 74%);
+  opacity: 0.34;
+}
+
+/* Portada generada cuando un episodio o artículo no tiene imagen. */
+.topo-tight {
+  background-color: var(--color-bg2);
+  background-image: repeating-radial-gradient(
+    ellipse 55% 70% at 40% 50%,
+    transparent 0 15px,
+    rgb(46 139 143 / 0.28) 15px 16px
+  );
+}
+
+/* Curvas horizontales — el motivo original del hero, cada 36px. */
 .hero-topo {
   background-image: repeating-linear-gradient(
     0deg,
@@ -97,29 +234,110 @@ body {
     var(--color-river) 36px,
     var(--color-river) 37px
   );
-  mask-image: radial-gradient(
-    ellipse 80% 90% at 80% 50%,
-    black 20%,
-    transparent 70%
-  );
-  -webkit-mask-image: radial-gradient(
-    ellipse 80% 90% at 80% 50%,
-    black 20%,
-    transparent 70%
+  mask-image: radial-gradient(ellipse 80% 90% at 80% 50%, #000 20%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 90% at 80% 50%, #000 20%, transparent 70%);
+}
+
+/* Fondo de hero: dos radiales teal sobre el fondo base. Sin cambios. */
+.hero-bg {
+  background:
+    radial-gradient(ellipse 65% 75% at 100% 50%, rgb(91 173 176 / 0.13) 0%, transparent 60%),
+    radial-gradient(ellipse 45% 55% at 0% 85%, rgb(46 139 143 / 0.05) 0%, transparent 55%),
+    var(--color-bg);
+}
+
+/* Grano finísimo para dar textura a bloques planos grandes (estrato oscuro). */
+.grain {
+  position: relative;
+}
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    repeating-linear-gradient(45deg, rgb(20 46 48 / 0.035) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(-45deg, rgb(20 46 48 / 0.035) 0 1px, transparent 1px 3px);
+}
+
+/* ============================================================================
+   TRATAMIENTO DE IMAGEN
+   Un solo tratamiento para todo el sitio: iguala una foto enviada por
+   WhatsApp con un paisaje generado. Se aplica sobre <Image> de next/image.
+   ========================================================================= */
+
+/* Duotono teal — miniaturas, portadas, retratos de listado. */
+.duotone {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--color-river), var(--color-text));
+}
+.duotone > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.08);
+  mix-blend-mode: luminosity;
+}
+.duotone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent 0 3px, rgb(20 46 48 / 0.10) 3px 4px);
+}
+
+/* Duotono suave — ficha de invitado: la cara debe reconocerse. */
+.duotone-soft > img {
+  filter: grayscale(0.55) contrast(1.04);
+  mix-blend-mode: normal;
+  opacity: 0.92;
+}
+
+/* Placa de fondo — cabeceras con imagen bajo texto. Viñeta fuerte. */
+.plate {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-ink);
+}
+.plate > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.42;
+  filter: grayscale(0.7) contrast(1.05);
+}
+.plate::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 90% 70% at 30% 50%,
+    rgb(13 31 33 / 0.25),
+    rgb(13 31 33 / 0.85) 75%
   );
 }
 
-.hero-bg {
-  background:
-    radial-gradient(
-      ellipse 65% 75% at 100% 50%,
-      rgba(91, 173, 176, 0.13) 0%,
-      transparent 60%
-    ),
-    radial-gradient(
-      ellipse 45% 55% at 0% 85%,
-      rgba(46, 139, 143, 0.05) 0%,
-      transparent 55%
-    ),
-    var(--color-bg);
+/* ============================================================================
+   MOVIMIENTO REDUCIDO
+   No existía. El sello giraba 50s en bucle infinito incluso con la
+   preferencia del sistema activada.
+   ========================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .vv-reveal,
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
