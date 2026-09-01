@@ -9,7 +9,9 @@
     "subscribe": "Subscribe",
     "search": "Search",
     "services": "Services",
-    "contact": "Contact"
+    "contact": "Contact",
+    "menu": "Open menu",
+    "close": "Close menu"
   },
   "search": {
     "title": "Search",

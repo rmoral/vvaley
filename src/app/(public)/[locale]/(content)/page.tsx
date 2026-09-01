@@ -1,7 +1,13 @@
+import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { RevealMount } from "@/components/public/Reveal";
+import { routing, type AppLocale } from "@/i18n/routing";
+
+function isAppLocale(value: string): value is AppLocale {
+  return (routing.locales as readonly string[]).includes(value);
+}
 
 // Render on demand instead of prerendering at build time. The home is
 // content-driven (intl messages + a few live counts), and prerendering
@@ -15,6 +21,13 @@ export default async function HomePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  // `[locale]` matches any single segment, so junk requests every browser
+  // makes — /favicon.ico, /apple-touch-icon.png — land here with the
+  // filename as the locale. The layout rejects them, but this page still
+  // evaluates and used to throw a RangeError inside Intl.DateTimeFormat
+  // before that happened. Reject them here too.
+  if (!isAppLocale(locale)) notFound();
+
   setRequestLocale(locale);
   const t = await getTranslations("home");
 

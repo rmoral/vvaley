@@ -65,6 +65,13 @@
   /* ---- NUEVOS · curvas. Genera ease-out-soft, ease-inout-soft ---- */
   --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-inout-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ---- NUEVO · punto de ruptura de la barra de navegación ----
+     Genera las variantes menu: y max-menu:. No usamos lg: (1024px) porque
+     medido con los seis ítems del menú, catalán desborda 21px y francés
+     13px justo a 1024. A 1080 ya caben los cuatro idiomas; 1120 deja
+     margen para traducciones algo más largas sin volver a romperse. */
+  --breakpoint-menu: 1120px;
 }
 
 /* Duraciones y stagger: no van en @theme porque no generan utilidades,

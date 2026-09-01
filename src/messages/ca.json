@@ -9,7 +9,9 @@
     "subscribe": "Subscriu-te",
     "search": "Cercar",
     "services": "Serveis",
-    "contact": "Contacte"
+    "contact": "Contacte",
+    "menu": "Obrir menú",
+    "close": "Tancar menú"
   },
   "search": {
     "title": "Cercar",

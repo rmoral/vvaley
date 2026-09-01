@@ -12,8 +12,8 @@ function isAppLocale(value: string): value is AppLocale {
 }
 import "../../../styles/globals.css";
 import { Analytics } from "@/components/public/Analytics";
-import { PublicNav } from "@/components/public/PublicNav";
-import { PublicFooter } from "@/components/public/PublicFooter";
+import { SiteNav } from "@/components/public/SiteNav";
+import { SiteFooter } from "@/components/public/SiteFooter";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -82,9 +82,9 @@ export default async function PublicLocaleLayout({
     <html lang={locale} className={`${fraunces.variable} ${jakarta.variable}`}>
       <body>
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <PublicNav locale={locale} />
+          <SiteNav locale={locale} />
           {children}
-          <PublicFooter />
+          <SiteFooter />
         </NextIntlClientProvider>
         <Analytics />
       </body>
