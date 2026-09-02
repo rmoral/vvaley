@@ -215,6 +215,9 @@ model PostTranslation {
   /// [{ pregunta, respuesta }]. Se pinta como bloque visible y como JSON-LD
   /// de tipo FAQPage. Null = la pieza no tiene FAQ.
   faq             Json?
+  /// [{ texto, destino }]. Enlaces a otras piezas del sitio, en este idioma.
+  /// Se pintan como bloque "Seguir leyendo" al final. Null = sin enlaces.
+  relatedLinks    Json?
 
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
@@ -265,6 +268,9 @@ model NewsTranslation {
   /// [{ pregunta, respuesta }]. Se pinta como bloque visible y como JSON-LD
   /// de tipo FAQPage. Null = la pieza no tiene FAQ.
   faq             Json?
+  /// [{ texto, destino }]. Enlaces a otras piezas del sitio, en este idioma.
+  /// Se pintan como bloque "Seguir leyendo" al final. Null = sin enlaces.
+  relatedLinks    Json?
 
   news News @relation(fields: [newsId], references: [id], onDelete: Cascade)
 

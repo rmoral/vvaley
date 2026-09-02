@@ -21,6 +21,7 @@ import { readFileSync, readdirSync, existsSync } from "node:fs";
 import path from "node:path";
 import { PrismaClient, PostStatus, NewsStatus, Prisma } from "@prisma/client";
 import { parse as parseYaml } from "yaml";
+import { canonicalTagSlug, canonicalTagName } from "../src/lib/tag-taxonomy";
 
 const prisma = new PrismaClient();
 
@@ -41,6 +42,7 @@ type FrontMatter = {
   resumen_geo?: string;
   imagen_destacada?: { alt?: string; nombre_archivo?: string };
   faq?: { pregunta: string; respuesta: string }[];
+  enlaces_internos?: { texto: string; destino: string }[];
 };
 
 function slugify(input: string): string {
@@ -135,19 +137,41 @@ function mergeFaq(...listas: Faq[][]): Faq[] | null {
   return out.length > 0 ? out : null;
 }
 
+/**
+ * Enlaces internos, tal cual los escribió redacción. Se filtran a rutas del
+ * propio sitio: un destino externo aquí sería un enlace saliente disfrazado
+ * de navegación interna.
+ */
+function cleanLinks(links: FrontMatter["enlaces_internos"]) {
+  if (!Array.isArray(links)) return [];
+  const seen = new Set<string>();
+  return links.flatMap((l) => {
+    if (typeof l?.texto !== "string" || typeof l?.destino !== "string") return [];
+    const texto = l.texto.trim();
+    const destino = l.destino.trim();
+    if (!texto || !destino.startsWith("/") || destino.startsWith("//")) return [];
+    if (seen.has(destino)) return [];
+    seen.add(destino);
+    return [{ texto, destino }];
+  });
+}
+
 /** Categoría + etiquetas, deduplicadas por slug, en un solo conjunto. */
 async function resolveTagIds(fm: FrontMatter): Promise<string[]> {
   const names = [...(fm.categoria ? [fm.categoria] : []), ...(fm.etiquetas ?? [])];
   const ids: string[] = [];
   const seen = new Set<string>();
   for (const name of names) {
-    const slug = slugify(name);
+    // Se normaliza contra el vocabulario canónico: redacción etiqueta con su
+    // vocabulario y el sitio lo funde para no acabar con una página de
+    // etiqueta por pieza.
+    const slug = canonicalTagSlug(slugify(name));
     if (!slug || seen.has(slug)) continue;
     seen.add(slug);
     const tag = await prisma.tag.upsert({
       where: { slug },
       update: {},
-      create: { slug, name: name.trim() },
+      create: { slug, name: canonicalTagName(slug, name.trim()) },
     });
     ids.push(tag.id);
   }
@@ -191,6 +215,8 @@ type Result = {
   imagen?: string;
   /** true si esa portada ya está en disco y se ha asignado. */
   portada: boolean;
+  /** Destinos de los enlaces internos, para comprobar que existen. */
+  destinos: string[];
 };
 
 async function importOne(
@@ -205,6 +231,7 @@ async function importOne(
   const { body, faq: faqCuerpo } = extractBodyFaq(raw);
   const faq = mergeFaq(cleanFaq(fm.faq), faqCuerpo);
 
+  const enlaces = cleanLinks(fm.enlaces_internos);
   const tagIds = await resolveTagIds(fm);
   const publishedAt = fm.fecha_publicacion ? new Date(fm.fecha_publicacion) : null;
   if (publishedAt && Number.isNaN(publishedAt.getTime())) {
@@ -222,6 +249,9 @@ async function importOne(
     metaDescription: fm.meta_description ?? null,
     coverImageAlt: fm.imagen_destacada?.alt ?? null,
     faq: (faq ?? Prisma.DbNull) as Prisma.InputJsonValue,
+    relatedLinks: (enlaces.length > 0
+      ? enlaces
+      : Prisma.DbNull) as Prisma.InputJsonValue,
   };
 
   const isNews = fm.tipo === "noticia";
@@ -253,7 +283,7 @@ async function importOne(
           tags: { deleteMany: {}, create: tagIds.map((tagId) => ({ tagId })) },
         },
       });
-      return { slug: fm.slug, accion: "actualizado", imagen, portada: cover !== null };
+      return { slug: fm.slug, accion: "actualizado", imagen, portada: cover !== null, destinos: enlaces.map((e) => e.destino) };
     }
 
     await prisma.news.create({
@@ -267,7 +297,7 @@ async function importOne(
         tags: { create: tagIds.map((tagId) => ({ tagId })) },
       },
     });
-    return { slug: fm.slug, accion: "creado", imagen, portada: cover !== null };
+    return { slug: fm.slug, accion: "creado", imagen, portada: cover !== null, destinos: enlaces.map((e) => e.destino) };
   }
 
   const existing = await prisma.post.findUnique({
@@ -292,7 +322,7 @@ async function importOne(
         tags: { deleteMany: {}, create: tagIds.map((tagId) => ({ tagId })) },
       },
     });
-    return { slug: fm.slug, accion: "actualizado", imagen, portada: cover !== null };
+    return { slug: fm.slug, accion: "actualizado", imagen, portada: cover !== null, destinos: enlaces.map((e) => e.destino) };
   }
 
   await prisma.post.create({
@@ -306,7 +336,7 @@ async function importOne(
       tags: { create: tagIds.map((tagId) => ({ tagId })) },
     },
   });
-  return { slug: fm.slug, accion: "creado", imagen, portada: cover !== null };
+  return { slug: fm.slug, accion: "creado", imagen, portada: cover !== null, destinos: enlaces.map((e) => e.destino) };
 }
 
 async function main() {
@@ -367,6 +397,24 @@ async function main() {
     console.log(`Deja el fichero en public/${COVER_DIR}/ y vuelve a importar:`);
     for (const r of sinPortada) console.log(`  ${r.imagen}`);
   }
+  // Enlaces internos que apuntan a una pieza que no existe. Se avisa en vez
+  // de fallar: el paquete puede enlazar a algo que aún no se ha importado.
+  const publicados = new Set([
+    ...(await prisma.post.findMany({ select: { slug: true } })).map((p) => `/blog/${p.slug}`),
+    ...(await prisma.news.findMany({ select: { slug: true } })).map((n) => `/noticias/${n.slug}`),
+  ]);
+  const rotos = new Map<string, string[]>();
+  for (const r of ok) {
+    const malos = r.destinos.filter((d) => !publicados.has(d));
+    if (malos.length > 0) rotos.set(r.slug, malos);
+  }
+  const totalEnlaces = ok.reduce((n, r) => n + r.destinos.length, 0);
+  console.log(`\nEnlaces internos: ${totalEnlaces} guardados, ${[...rotos.values()].flat().length} sin destino.`);
+  for (const [slug, malos] of rotos) {
+    console.log(`  ${slug}`);
+    for (const m of malos) console.log(`     → ${m}`);
+  }
+
   if (fallos.length > 0) process.exitCode = 1;
 }
 

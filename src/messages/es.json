@@ -148,7 +148,8 @@
     "back": "Volver al blog",
     "by": "Por",
     "fallback_notice": "Este artículo aún no está disponible en tu idioma. Te lo mostramos en su versión original.",
-    "faq_title": "Preguntas frecuentes"
+    "faq_title": "Preguntas frecuentes",
+    "related_title": "Seguir leyendo"
   },
   "newsletterArchive": {
     "title": "Archivo de la newsletter",
@@ -177,7 +178,8 @@
     "back": "Volver a noticias",
     "fallback_notice": "Esta noticia aún no está disponible en tu idioma. Te la mostramos en su versión original.",
     "no_body": "Esta noticia sólo tiene resumen.",
-    "faq_title": "Preguntas frecuentes"
+    "faq_title": "Preguntas frecuentes",
+    "related_title": "Seguir leyendo"
   },
   "tagPage": {
     "eyebrow": "Etiqueta",
