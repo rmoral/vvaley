@@ -9,7 +9,11 @@ import { DetailShell, Prose } from "@/components/public/DetailShell";
 import { JsonLd } from "@/components/public/JsonLd";
 import { TagChips } from "@/components/public/TagChips";
 import { FaqBlock, parseFaq } from "@/components/public/FaqBlock";
-import { RelatedLinks, parseRelatedLinks } from "@/components/public/RelatedLinks";
+import {
+  RelatedLinks,
+  parseRelatedLinks,
+  publishedRelatedLinks,
+} from "@/components/public/RelatedLinks";
 import { localizedUrls, ogLocale } from "@/lib/seo";
 import type { AppLocale } from "@/i18n/routing";
 
@@ -88,7 +92,8 @@ export default async function NewsDetailPage({
   });
   const isFallback = tr.locale !== locale;
   const faq = parseFaq(tr.faq);
-  const related = parseRelatedLinks(tr.relatedLinks);
+  const relatedRaw = parseRelatedLinks(tr.relatedLinks);
+  const related = relatedRaw ? await publishedRelatedLinks(relatedRaw) : [];
   const url = localizedUrls(`/noticias/${slug}`, locale as AppLocale).canonical;
   const jsonLd = {
     "@context": "https://schema.org",
@@ -143,7 +148,7 @@ export default async function NewsDetailPage({
               <FaqBlock title={t("faq_title")} items={faq} />
             </section>
           ) : null}
-          {related ? (
+          {related.length > 0 ? (
             <section className="mt-12 border-t border-bg3 pt-10">
               <RelatedLinks title={t("related_title")} items={related} />
             </section>

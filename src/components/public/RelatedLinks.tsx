@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/navigation";
+import { prisma } from "@/lib/prisma";
 
 // Server Component. Bloque "Seguir leyendo" al final de artículos y noticias.
 //
@@ -34,6 +35,48 @@ export function parseRelatedLinks(value: unknown): RelatedLink[] | null {
     return [{ texto: t, destino: d }];
   });
   return rows.length > 0 ? rows : null;
+}
+
+/**
+ * Deja solo los enlaces cuyo destino está PUBLICADO ahora mismo.
+ *
+ * El importador ya poda los destinos que no existen, pero eso no basta: una
+ * pieza puede existir y estar en borrador, y entonces el enlace da 404. Y el
+ * estado cambia con el tiempo, así que comprobarlo al importar deja el dato
+ * viejo en cuanto alguien publica desde el back-office. Se resuelve al pintar,
+ * con una sola consulta por página, y así nunca hay un 404 en el bloque.
+ */
+export async function publishedRelatedLinks(
+  items: RelatedLink[],
+): Promise<RelatedLink[]> {
+  const blog: string[] = [];
+  const noticias: string[] = [];
+  for (const { destino } of items) {
+    const m = destino.match(/^\/(blog|noticias)\/([^/?#]+)$/);
+    if (!m) continue;
+    (m[1] === "blog" ? blog : noticias).push(m[2]);
+  }
+
+  const [posts, news] = await Promise.all([
+    blog.length
+      ? prisma.post.findMany({
+          where: { slug: { in: blog }, status: "PUBLISHED" },
+          select: { slug: true },
+        })
+      : [],
+    noticias.length
+      ? prisma.news.findMany({
+          where: { slug: { in: noticias }, status: "PUBLISHED" },
+          select: { slug: true },
+        })
+      : [],
+  ]);
+
+  const vivos = new Set([
+    ...posts.map((p) => `/blog/${p.slug}`),
+    ...news.map((n) => `/noticias/${n.slug}`),
+  ]);
+  return items.filter((i) => vivos.has(i.destino));
 }
 
 export function RelatedLinks({

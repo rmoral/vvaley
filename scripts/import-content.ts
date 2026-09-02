@@ -63,7 +63,8 @@ type FrontMatter = {
   resumen_geo?: string;
   imagen_destacada?: { alt?: string; nombre_archivo?: string };
   faq?: { pregunta: string; respuesta: string }[];
-  enlaces_internos?: { texto: string; destino: string }[];
+  /** `destino` en el paquete de septiembre, `url` en el del día. */
+  enlaces_internos?: { texto: string; destino?: string; url?: string }[];
 };
 
 function slugify(input: string): string {
@@ -134,24 +135,48 @@ function extractBodyFaq(body: string): { body: string; faq: Faq[] } {
   return { body: (body.slice(0, m.index) + body.slice(m.index! + m[0].length)).trim(), faq };
 }
 
-/** Clave de comparación de preguntas: sin acentos, signos ni mayúsculas. */
-function faqKey(q: string): string {
-  return q
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "");
+/** Palabras de una pregunta, sin acentos, signos ni mayúsculas. */
+function faqWords(q: string): Set<string> {
+  return new Set(
+    q
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter(Boolean),
+  );
 }
 
-/** Funde los dos juegos sin perder ninguna pregunta. */
+/**
+ * ¿Son la misma pregunta? La igualdad exacta no basta: el cuerpo suele traer
+ * la misma pregunta abreviada («¿Qué obligaciones DEL AI ACT se han aplazado…»
+ * frente a «¿Qué obligaciones se han aplazado…»). Se mide la contención —qué
+ * parte de la pregunta corta está dentro de la larga— y no la similitud
+ * simétrica, que penalizaría justo el caso que hay que detectar.
+ *
+ * El umbral 0.85 funde las reescrituras y deja separadas las preguntas
+ * distintas, que en este material comparten como mucho un par de palabras.
+ */
+function mismaPregunta(a: Set<string>, b: Set<string>): boolean {
+  const [corta, larga] = a.size <= b.size ? [a, b] : [b, a];
+  if (corta.size === 0) return false;
+  let comunes = 0;
+  for (const w of corta) if (larga.has(w)) comunes++;
+  return comunes / corta.size >= 0.85;
+}
+
+/**
+ * Funde los dos juegos sin perder ninguna pregunta REAL. Gana la primera lista
+ * (la del front-matter), cuyas respuestas son más completas y autocontenidas.
+ */
 function mergeFaq(...listas: Faq[][]): Faq[] | null {
   const out: Faq[] = [];
-  const seen = new Set<string>();
+  const vistas: Set<string>[] = [];
   for (const lista of listas) {
     for (const f of lista) {
-      const k = faqKey(f.pregunta);
-      if (!k || seen.has(k)) continue;
-      seen.add(k);
+      const w = faqWords(f.pregunta);
+      if (w.size === 0 || vistas.some((v) => mismaPregunta(v, w))) continue;
+      vistas.push(w);
       out.push(f);
     }
   }
@@ -167,9 +192,10 @@ function cleanLinks(links: FrontMatter["enlaces_internos"]) {
   if (!Array.isArray(links)) return [];
   const seen = new Set<string>();
   return links.flatMap((l) => {
-    if (typeof l?.texto !== "string" || typeof l?.destino !== "string") return [];
+    const bruto = l?.destino ?? l?.url;
+    if (typeof l?.texto !== "string" || typeof bruto !== "string") return [];
     const texto = l.texto.trim();
-    const destino = l.destino.trim();
+    const destino = bruto.trim();
     if (!texto || !destino.startsWith("/") || destino.startsWith("//")) return [];
     if (seen.has(destino)) return [];
     seen.add(destino);
@@ -432,8 +458,43 @@ async function main() {
     const malos = r.destinos.filter((d) => !publicados.has(d));
     if (malos.length > 0) rotos.set(r.slug, malos);
   }
+
+  // Poda: se reescribe relatedLinks sin los destinos que no existen.
+  for (const [slug, malos] of rotos) {
+    const fuera = new Set(malos);
+    for (const tabla of ["postTranslation", "newsTranslation"] as const) {
+      const rows =
+        tabla === "postTranslation"
+          ? await prisma.postTranslation.findMany({
+              where: { post: { slug }, locale: LOCALE },
+              select: { id: true, relatedLinks: true },
+            })
+          : await prisma.newsTranslation.findMany({
+              where: { news: { slug }, locale: LOCALE },
+              select: { id: true, relatedLinks: true },
+            });
+      for (const row of rows) {
+        if (!Array.isArray(row.relatedLinks)) continue;
+        const limpio = (row.relatedLinks as { destino: string }[]).filter(
+          (l) => !fuera.has(l.destino),
+        );
+        const data = {
+          relatedLinks: (limpio.length > 0
+            ? limpio
+            : Prisma.DbNull) as Prisma.InputJsonValue,
+        };
+        if (tabla === "postTranslation") {
+          await prisma.postTranslation.update({ where: { id: row.id }, data });
+        } else {
+          await prisma.newsTranslation.update({ where: { id: row.id }, data });
+        }
+      }
+    }
+  }
+
+  const podados = [...rotos.values()].flat().length;
   const totalEnlaces = ok.reduce((n, r) => n + r.destinos.length, 0);
-  console.log(`\nEnlaces internos: ${totalEnlaces} guardados, ${[...rotos.values()].flat().length} sin destino.`);
+  console.log(`\nEnlaces internos: ${totalEnlaces - podados} guardados, ${podados} podados por no existir el destino.`);
   for (const [slug, malos] of rotos) {
     console.log(`  ${slug}`);
     for (const m of malos) console.log(`     → ${m}`);

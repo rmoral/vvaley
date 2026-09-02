@@ -48,6 +48,8 @@ const SINONIMOS: Record<string, string> = {
   ecosistema: "startups",
 
   // Dinero que sale
+  ipc: "costes",
+  carburantes: "costes",
   "costes-laborales": "costes",
   salarios: "costes",
   precios: "costes",
