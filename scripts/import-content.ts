@@ -7,10 +7,11 @@
  * cuyo front-matter siga `_recursos/plantilla.md` del paquete.
  *
  * Es IDEMPOTENTE: la clave es el `slug`. Reimportar el mismo paquete
- * actualiza las piezas en lugar de duplicarlas, y respeta el estado de
- * publicación de las que ya existan (una pieza ya publicada no vuelve a
- * borrador por reimportar). Las traducciones del idioma importado se
- * reemplazan; las de otros idiomas no se tocan.
+ * actualiza las piezas en lugar de duplicarlas. Sin --publish se respeta el
+ * estado que ya tuvieran (una pieza publicada no vuelve a borrador por
+ * reimportar) y las nuevas entran como borrador; con --publish se publican
+ * todas, también las que ya estuvieran. Las traducciones del idioma importado
+ * se reemplazan; las de otros idiomas no se tocan.
  *
  * PORTADAS: las imágenes llegan aparte y por tandas. Si el fichero que pide
  * `imagen_destacada.nombre_archivo` ya está en `public/covers/piezas/`, se
@@ -19,9 +20,29 @@
  */
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import path from "node:path";
+
+// El .env se carga a mano ANTES de instanciar PrismaClient. Next lo lee solo,
+// pero un script suelto lanzado con tsx no: sin esto el import falla en el
+// servidor con "Environment variable not found: DATABASE_URL", justo donde
+// nadie tiene el entorno exportado en su shell.
+loadDotEnv();
+
 import { PrismaClient, PostStatus, NewsStatus, Prisma } from "@prisma/client";
 import { parse as parseYaml } from "yaml";
 import { canonicalTagSlug, canonicalTagName } from "../src/lib/tag-taxonomy";
+
+function loadDotEnv() {
+  const file = path.join(process.cwd(), ".env");
+  if (!existsSync(file)) return;
+  for (const linea of readFileSync(file, "utf8").split("\n")) {
+    const m = linea.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/);
+    if (!m) continue;
+    const [, clave] = m;
+    // Lo ya presente en el entorno manda sobre el fichero.
+    if (process.env[clave] !== undefined) continue;
+    process.env[clave] = m[2].trim().replace(/^(['"])(.*)\1$/s, "$2");
+  }
+}
 
 const prisma = new PrismaClient();
 
@@ -263,10 +284,12 @@ async function importOne(
       where: { slug: fm.slug },
       select: { id: true, status: true, coverImageUrl: true },
     });
-    // Una pieza ya publicada no vuelve a borrador por reimportarla.
-    const status =
-      existing?.status ??
-      (opts.publish ? NewsStatus.PUBLISHED : NewsStatus.DRAFT);
+    // Con --publish, publica; es una orden explícita y vale también para lo
+    // ya importado. Sin la bandera, se respeta el estado que ya tuviera: una
+    // pieza publicada no debe volver a borrador por reimportar el paquete.
+    const status = opts.publish
+      ? NewsStatus.PUBLISHED
+      : (existing?.status ?? NewsStatus.DRAFT);
 
     if (existing) {
       await prisma.newsTranslation.deleteMany({
@@ -304,8 +327,9 @@ async function importOne(
     where: { slug: fm.slug },
     select: { id: true, status: true, coverImageUrl: true },
   });
-  const status =
-    existing?.status ?? (opts.publish ? PostStatus.PUBLISHED : PostStatus.DRAFT);
+  const status = opts.publish
+    ? PostStatus.PUBLISHED
+    : (existing?.status ?? PostStatus.DRAFT);
 
   if (existing) {
     await prisma.postTranslation.deleteMany({
