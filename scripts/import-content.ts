@@ -13,7 +13,7 @@
  * reemplazan; las de otros idiomas no se tocan.
  *
  * PORTADAS: las imágenes llegan aparte y por tandas. Si el fichero que pide
- * `imagen_destacada.nombre_archivo` ya está en `public/covers/articulos/`, se
+ * `imagen_destacada.nombre_archivo` ya está en `public/covers/piezas/`, se
  * asigna; si no, la pieza se queda sin portada y el resumen final la lista
  * como pendiente. Reimportar más adelante la recoge sin tocar nada más.
  */
@@ -156,8 +156,9 @@ async function resolveTagIds(fm: FrontMatter): Promise<string[]> {
 
 
 // Carpeta de portadas de artículo y noticia. Separada de `public/covers/`, que
-// guarda las cuatro imágenes por temática del sistema de diseño.
-const COVER_DIR = "covers/articulos";
+// guarda las cuatro imágenes por temática del sistema de diseño. Se llama
+// "piezas" y no "articulos" porque aquí van también las portadas de noticia.
+const COVER_DIR = "covers/piezas";
 
 /**
  * Ruta pública de la portada si el fichero ya existe en disco, o null.
