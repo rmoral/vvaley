@@ -24,6 +24,8 @@ enlaces_internos:
     destino: "/blog/gobernanza-agentes-ia-antes-de-produccion"
   - texto: "qué pasa con tu factura de cloud tras las guías de capex"
     destino: "/noticias/capex-hiperescaladores-2026-cloud"
+  - texto: "las ayudas de digitalización, con la IA como primera demanda"
+    destino: "/noticias/digitalitzacio-empreses-2026-ia-primera-demanda"
 enlaces_externos:
   - titulo: "McKinsey — The State of AI (25 de agosto de 2026)"
     url: "https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai"

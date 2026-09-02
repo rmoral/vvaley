@@ -24,6 +24,8 @@ enlaces_internos:
     destino: "/blog/cuanto-cuesta-automatizar-un-proceso-con-ia"
   - texto: "obligaciones de transparencia del AI Act"
     destino: "/blog/ai-act-transparencia-pymes-guia"
+  - texto: "cómo conseguir que ChatGPT cite tu empresa"
+    destino: "/blog/geo-que-chatgpt-cite-tu-empresa"
 enlaces_externos:
   - titulo: "Eurostat — Use of artificial intelligence in enterprises"
     url: "https://ec.europa.eu/eurostat/web/products-eurostat-news/w/ddn-20251211-2"

@@ -20,6 +20,8 @@ enlaces_internos:
     destino: "/blog/levantar-ronda-europa-2026-fundador"
   - texto: "La Fundació AndUp y el escalado de startups en Andorra"
     destino: "/noticias/fundacio-andup-startups-andorra"
+  - texto: "La ronda de PLD Space y quién financia el deep tech industrial"
+    destino: "/noticias/pld-space-ronda-288-millones"
 enlaces_externos:
   - titulo: "Crunchbase — European venture funding, Q2 2026"
     url: "https://news.crunchbase.com/venture/data-funding-ai-ma-up-europe-q2-2026/"

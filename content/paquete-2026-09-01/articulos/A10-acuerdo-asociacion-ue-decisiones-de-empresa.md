@@ -22,6 +22,8 @@ enlaces_internos:
     destino: "/blog/contratar-talento-en-andorra-pleno-empleo"
   - texto: "las obligaciones de transparencia del AI Act para pymes"
     destino: "/blog/ai-act-transparencia-pymes-guia"
+  - texto: "el Consejo de la UE aprueba el acuerdo de asociación con Andorra"
+    destino: "/noticias/consejo-ue-aprueba-acuerdo-asociacion-andorra"
 enlaces_externos:
   - titulo: "El Consejo de la UE aprueba el acuerdo de asociación (VilaWeb)"
     url: "https://www.vilaweb.cat/noticies/consell-ue-aprova-acord-associacio-andorra/"

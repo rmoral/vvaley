@@ -24,6 +24,8 @@ enlaces_internos:
     destino: "/noticias/fundacio-andup-startups-andorra"
   - texto: "calendario real para trasladar una empresa a Andorra"
     destino: "/blog/trasladar-empresa-a-andorra-calendario-real"
+  - texto: "quién puso los 288 millones de la ronda de PLD Space"
+    destino: "/noticias/pld-space-ronda-288-millones"
 enlaces_externos:
   - titulo: "Crunchbase — Capital riesgo europeo, 2T de 2026"
     url: "https://news.crunchbase.com/venture/data-funding-ai-ma-up-europe-q2-2026/"

@@ -22,6 +22,8 @@ enlaces_internos:
     destino: "/blog/acuerdo-asociacion-ue-decisiones-de-empresa"
   - texto: "casos de uso de IA en empresas pequeñas"
     destino: "/blog/casos-de-uso-ia-empresa-pequena"
+  - texto: "el inmobiliario andorrano a dos velocidades"
+    destino: "/noticias/andorra-empresas-inmobiliario-dos-velocidades"
 enlaces_externos:
   - titulo: "FMI — Article IV de Andorra 2026"
     url: "https://www.imf.org/en/news/articles/2026/05/04/pr26134-andorra-imf-concludes-2026-article-iv-consultation"

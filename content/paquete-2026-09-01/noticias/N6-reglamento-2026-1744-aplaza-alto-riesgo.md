@@ -22,6 +22,8 @@ enlaces_internos:
     destino: "/blog/gobernanza-agentes-ia-antes-de-produccion"
   - texto: "El acuerdo de asociación con la UE y tus decisiones de empresa"
     destino: "/blog/acuerdo-asociacion-ue-decisiones-de-empresa"
+  - texto: "Qué obligaciones del AI Act alcanzan a una empresa andorrana"
+    destino: "/blog/ai-act-empresas-andorranas"
 enlaces_externos:
   - titulo: "Comisión Europea — Safer and more transparent AI"
     url: "https://commission.europa.eu/news-and-media/news/safer-and-more-transparent-ai-2026-08-02_en"

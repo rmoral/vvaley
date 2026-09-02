@@ -24,6 +24,8 @@ enlaces_internos:
     destino: "/noticias/reglamento-2026-1744-aplaza-alto-riesgo"
   - texto: "por qué tu piloto de IA no llega al EBIT"
     destino: "/blog/por-que-tu-piloto-de-ia-no-llega-al-ebit"
+  - texto: "qué implica el AI Act para una empresa andorrana"
+    destino: "/blog/ai-act-empresas-andorranas"
 enlaces_externos:
   - titulo: "Comisión Europea — Safer and more transparent AI (2 de agosto de 2026)"
     url: "https://commission.europa.eu/news-and-media/news/safer-and-more-transparent-ai-2026-08-02_en"
