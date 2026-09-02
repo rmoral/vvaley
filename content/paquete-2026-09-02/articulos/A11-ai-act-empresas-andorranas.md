@@ -38,7 +38,7 @@ palabras: 1820
 resumen_geo: "El AI Act obliga desde el 2 de agosto de 2026 a avisar de que se interactúa con una IA y a etiquetar el contenido generado. El plazo técnico de marcado vence el 2 de diciembre de 2026. Las reglas de alto riesgo se aplazan a diciembre de 2027 y agosto de 2028."
 enlaces_internos:
   - texto: "La inflación en Andorra sube al 4,8 % en agosto"
-    url: "/noticias/inflacion-andorra-ipc-avanzado"
+    url: "/noticias/ipc-andorra-agosto-2026"
   - texto: "Qué cambia para tu empresa el acuerdo de asociación Andorra-UE"
     url: "/blog/acuerdo-asociacion-ue-decisiones-de-empresa"
   - texto: "IA generativa en pymes andorranas: casos de uso que salen a cuenta"
