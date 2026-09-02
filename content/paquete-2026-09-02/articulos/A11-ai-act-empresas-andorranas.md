@@ -59,7 +59,7 @@ enlaces_externos:
   - texto: "Consejo de la UE — Luz verde al acuerdo con Andorra y San Marino (16 de julio de 2026)"
     url: "https://www.consilium.europa.eu/en/press/press-releases/2026/07/16/council-greenlights-eu-deal-with-andorra-and-san-marino/"
 imagen_destacada:
-  alt: "Empresaria revisando un dossier normativo impreso junto a un portátil en una oficina de piedra y vidrio en un valle pirenaico al amanecer"
+  alt: "Empresaria anotando a lápiz un dossier normativo impreso en una oficina de paredes de piedra de un valle pirenaico, obligaciones del AI Act para empresas andorranas"
   nombre_archivo: "ai-act-empresas-andorranas-cumplimiento.jpg"
   prompt_nano_banana: "Editorial photograph for a business news site. A woman in her forties in a navy blazer sits at a light oak desk in a small stone-walled office in a Pyrenean valley town, pencil-annotating a thick printed regulatory dossier, a cooling espresso beside her. Early September morning: cold blue daylight through a tall wooden window onto wooded slopes and low cloud, balanced by one warm desk lamp. Shot on a 35mm lens at f/2.0, medium-wide from across the desk, subject on the right third, bare wall left for a headline. Muted slate, oak and forest green; calm, workmanlike. photorealistic editorial photograph, 16:9, high detail. Negative prompt: text, watermark, logos, distorted hands, extra fingers, uncanny faces, CGI look, stock-photo cliché, oversaturated colors."
 schema:
