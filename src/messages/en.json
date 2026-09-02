@@ -147,7 +147,8 @@
   "blogPost": {
     "back": "Back to blog",
     "by": "By",
-    "fallback_notice": "This article isn't available in your language yet. We're showing you the original version."
+    "fallback_notice": "This article isn't available in your language yet. We're showing you the original version.",
+    "faq_title": "Frequently asked questions"
   },
   "newsletterArchive": {
     "title": "Newsletter archive",
@@ -175,7 +176,8 @@
   "newsDetail": {
     "back": "Back to news",
     "fallback_notice": "This article isn't available in your language yet. We're showing you the original version.",
-    "no_body": "This news only has a summary."
+    "no_body": "This news only has a summary.",
+    "faq_title": "Frequently asked questions"
   },
   "tagPage": {
     "eyebrow": "Tag",

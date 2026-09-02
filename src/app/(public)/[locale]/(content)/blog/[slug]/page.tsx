@@ -9,6 +9,7 @@ import { DetailShell, Prose } from "@/components/public/DetailShell";
 import { NewsletterInline } from "@/components/public/NewsletterInline";
 import { JsonLd } from "@/components/public/JsonLd";
 import { TagChips } from "@/components/public/TagChips";
+import { FaqBlock, parseFaq } from "@/components/public/FaqBlock";
 import { localizedUrls, ogLocale } from "@/lib/seo";
 import type { AppLocale } from "@/i18n/routing";
 
@@ -29,14 +30,15 @@ export async function generateMetadata({
   if (!tr) return {};
   const urls = localizedUrls(`/blog/${slug}`, locale as AppLocale);
   return {
-    title: tr.title,
-    description: tr.summary ?? undefined,
+    // seoTitle es el titular corto para el SERP; title es el H1 de la página.
+    title: tr.seoTitle ?? tr.title,
+    description: tr.metaDescription ?? tr.summary ?? undefined,
     alternates: urls,
     openGraph: {
       type: "article",
       url: urls.canonical,
       title: tr.title,
-      description: tr.summary ?? undefined,
+      description: tr.metaDescription ?? tr.summary ?? undefined,
       locale: ogLocale(locale as AppLocale),
       publishedTime: post.publishedAt?.toISOString(),
       modifiedTime: post.updatedAt.toISOString(),
@@ -44,7 +46,7 @@ export async function generateMetadata({
     twitter: {
       card: "summary_large_image",
       title: tr.title,
-      description: tr.summary ?? undefined,
+      description: tr.metaDescription ?? tr.summary ?? undefined,
     },
   };
 }
@@ -78,6 +80,7 @@ export default async function BlogPostPage({
     tags: post.tags.map((pt) => pt.tag),
   });
   const isFallback = tr.locale !== locale;
+  const faq = parseFaq(tr.faq);
   const url = localizedUrls(`/blog/${slug}`, locale as AppLocale).canonical;
   const jsonLd = {
     "@context": "https://schema.org",
@@ -97,6 +100,19 @@ export default async function BlogPostPage({
     mainEntityOfPage: url,
   };
 
+  // Segundo JSON-LD, independiente del Article: es el que puede dar
+  // resultado enriquecido de preguntas frecuentes.
+  const faqLd = faq && {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "@id": `${url}#faq`,
+    mainEntity: faq.map((f) => ({
+      "@type": "Question",
+      name: f.pregunta,
+      acceptedAnswer: { "@type": "Answer", text: f.respuesta },
+    })),
+  };
+
   return (
     <DetailShell
       backHref="/blog"
@@ -110,6 +126,7 @@ export default async function BlogPostPage({
       subtitle={tr.summary}
       coverUrl={cover.src ?? undefined}
       coverTreatment={cover.isDefault ? "plate" : "duotone"}
+      coverAlt={cover.isDefault ? "" : (tr.coverImageAlt ?? "")}
       notice={isFallback ? t("fallback_notice") : undefined}
       aside={
         post.tags.length > 0 || post.author?.name ? (
@@ -128,8 +145,14 @@ export default async function BlogPostPage({
       }
       footer={
         <>
+          {faq ? (
+            <section className="mt-12 border-t border-bg3 pt-10">
+              <FaqBlock title={t("faq_title")} items={faq} />
+            </section>
+          ) : null}
           <NewsletterInline source={`blog:${post.slug}`} variant="blog" />
           <JsonLd data={jsonLd} />
+          {faqLd ? <JsonLd data={faqLd} /> : null}
         </>
       }
     >

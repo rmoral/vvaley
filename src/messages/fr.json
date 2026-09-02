@@ -147,7 +147,8 @@
   "blogPost": {
     "back": "Retour au blog",
     "by": "Par",
-    "fallback_notice": "Cet article n'est pas encore disponible dans votre langue. Nous vous le montrons dans sa version originale."
+    "fallback_notice": "Cet article n'est pas encore disponible dans votre langue. Nous vous le montrons dans sa version originale.",
+    "faq_title": "Questions fréquentes"
   },
   "newsletterArchive": {
     "title": "Archives de la newsletter",
@@ -175,7 +176,8 @@
   "newsDetail": {
     "back": "Retour aux actualités",
     "fallback_notice": "Cet article n'est pas encore disponible dans votre langue. Nous vous le montrons dans sa version originale.",
-    "no_body": "Cette actualité ne contient qu'un résumé."
+    "no_body": "Cette actualité ne contient qu'un résumé.",
+    "faq_title": "Questions fréquentes"
   },
   "tagPage": {
     "eyebrow": "Étiquette",

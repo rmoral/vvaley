@@ -122,8 +122,18 @@ export function Prose({ html, text }: { html?: string; text?: string | null }) {
     "[&_h2]:mt-10 [&_h2]:mb-3 [&_h2]:font-display [&_h2]:text-[1.5rem] [&_h2]:font-bold [&_h2]:text-text " +
     "[&_h3]:mt-8 [&_h3]:mb-2 [&_h3]:font-display [&_h3]:text-[1.2rem] [&_h3]:font-semibold [&_h3]:text-text " +
     "[&_p]:mb-4 [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:mb-4 [&_ol]:list-decimal [&_ol]:pl-6 " +
-    "[&_blockquote]:border-l-2 [&_blockquote]:border-river [&_blockquote]:pl-5 [&_blockquote]:font-display " +
-    "[&_blockquote]:text-[1.15rem] [&_blockquote]:italic [&_blockquote]:text-text";
+    "[&_blockquote]:my-6 [&_blockquote]:border-l-2 [&_blockquote]:border-river [&_blockquote]:pl-5 [&_blockquote]:font-display " +
+    "[&_blockquote]:text-[1.15rem] [&_blockquote]:italic [&_blockquote]:text-text " +
+    // Tablas. Cada una va envuelta por renderMarkdown en .vv-scroll-x, que es
+    // lo único que se desplaza en horizontal: la página nunca.
+    "[&_.vv-scroll-x]:my-6 [&_.vv-scroll-x]:overflow-x-auto " +
+    "[&_table]:w-full [&_table]:min-w-[34rem] [&_table]:border-collapse [&_table]:text-[0.86rem] " +
+    "[&_thead]:border-b-2 [&_thead]:border-text " +
+    "[&_th]:py-2.5 [&_th]:pr-5 [&_th]:text-left [&_th]:align-bottom [&_th]:text-[0.68rem] " +
+    "[&_th]:font-semibold [&_th]:uppercase [&_th]:tracking-[0.14em] [&_th]:text-text-2 " +
+    "[&_td]:border-b [&_td]:border-bg3 [&_td]:py-2.5 [&_td]:pr-5 [&_td]:align-top [&_td]:leading-[1.55] " +
+    "[&_th:last-child]:pr-0 [&_td:last-child]:pr-0 " +
+    "[&_code]:rounded [&_code]:bg-bg2 [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-[0.92em]";
 
   if (html) return <article className={cls} dangerouslySetInnerHTML={{ __html: html }} />;
   return <article className={`${cls} whitespace-pre-wrap`}>{text}</article>;

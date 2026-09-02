@@ -8,6 +8,7 @@ import { resolveCover } from "@/lib/pillar-cover";
 import { DetailShell, Prose } from "@/components/public/DetailShell";
 import { JsonLd } from "@/components/public/JsonLd";
 import { TagChips } from "@/components/public/TagChips";
+import { FaqBlock, parseFaq } from "@/components/public/FaqBlock";
 import { localizedUrls, ogLocale } from "@/lib/seo";
 import type { AppLocale } from "@/i18n/routing";
 
@@ -28,14 +29,15 @@ export async function generateMetadata({
   if (!tr) return {};
   const urls = localizedUrls(`/noticias/${slug}`, locale as AppLocale);
   return {
-    title: tr.title,
-    description: tr.summary ?? undefined,
+    // seoTitle es el titular corto para el SERP; title es el H1 de la página.
+    title: tr.seoTitle ?? tr.title,
+    description: tr.metaDescription ?? tr.summary ?? undefined,
     alternates: urls,
     openGraph: {
       type: "article",
       url: urls.canonical,
       title: tr.title,
-      description: tr.summary ?? undefined,
+      description: tr.metaDescription ?? tr.summary ?? undefined,
       images: news.coverImageUrl ? [news.coverImageUrl] : undefined,
       locale: ogLocale(locale as AppLocale),
       publishedTime: news.publishedAt?.toISOString(),
@@ -43,7 +45,7 @@ export async function generateMetadata({
     twitter: {
       card: "summary_large_image",
       title: tr.title,
-      description: tr.summary ?? undefined,
+      description: tr.metaDescription ?? tr.summary ?? undefined,
       images: news.coverImageUrl ? [news.coverImageUrl] : undefined,
     },
   };
@@ -84,6 +86,7 @@ export default async function NewsDetailPage({
     tags: news.tags.map((nt) => nt.tag),
   });
   const isFallback = tr.locale !== locale;
+  const faq = parseFaq(tr.faq);
   const url = localizedUrls(`/noticias/${slug}`, locale as AppLocale).canonical;
   const jsonLd = {
     "@context": "https://schema.org",
@@ -99,6 +102,18 @@ export default async function NewsDetailPage({
     publisher: { "@type": "Organization", name: "Valira Valley" },
   };
 
+  // Segundo JSON-LD, independiente del NewsArticle.
+  const faqLd = faq && {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "@id": `${url}#faq`,
+    mainEntity: faq.map((f) => ({
+      "@type": "Question",
+      name: f.pregunta,
+      acceptedAnswer: { "@type": "Answer", text: f.respuesta },
+    })),
+  };
+
   return (
     <DetailShell
       backHref="/noticias"
@@ -112,13 +127,24 @@ export default async function NewsDetailPage({
       subtitle={tr.summary}
       coverUrl={cover.src ?? undefined}
       coverTreatment={cover.isDefault ? "plate" : "duotone"}
+      coverAlt={cover.isDefault ? "" : (tr.coverImageAlt ?? "")}
       notice={isFallback ? t("fallback_notice") : undefined}
       aside={
         news.tags.length > 0 ? (
           <TagChips tags={news.tags.map((nt) => nt.tag)} />
         ) : undefined
       }
-      footer={<JsonLd data={jsonLd} />}
+      footer={
+        <>
+          {faq ? (
+            <section className="mt-12 border-t border-bg3 pt-10">
+              <FaqBlock title={t("faq_title")} items={faq} />
+            </section>
+          ) : null}
+          <JsonLd data={jsonLd} />
+          {faqLd ? <JsonLd data={faqLd} /> : null}
+        </>
+      }
     >
       {html ? (
         <Prose html={html} />

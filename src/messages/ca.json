@@ -147,7 +147,8 @@
   "blogPost": {
     "back": "Tornar al blog",
     "by": "Per",
-    "fallback_notice": "Aquest article encara no està disponible en el teu idioma. Te'l mostrem en la seva versió original."
+    "fallback_notice": "Aquest article encara no està disponible en el teu idioma. Te'l mostrem en la seva versió original.",
+    "faq_title": "Preguntes freqüents"
   },
   "newsletterArchive": {
     "title": "Arxiu de la newsletter",
@@ -175,7 +176,8 @@
   "newsDetail": {
     "back": "Tornar a notícies",
     "fallback_notice": "Aquesta notícia encara no està disponible en el teu idioma. Te la mostrem en la seva versió original.",
-    "no_body": "Aquesta notícia només té resum."
+    "no_body": "Aquesta notícia només té resum.",
+    "faq_title": "Preguntes freqüents"
   },
   "tagPage": {
     "eyebrow": "Etiqueta",

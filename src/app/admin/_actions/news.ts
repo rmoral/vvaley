@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { NewsStatus } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
+import { parseFaqText } from "@/lib/faq";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
@@ -27,6 +29,10 @@ const translationSchema = z.object({
   title: z.string(),
   summary: z.string().nullable(),
   body: z.string().nullable(),
+  seoTitle: z.string().nullable(),
+  metaDescription: z.string().nullable(),
+  coverImageAlt: z.string().nullable(),
+  faq: z.string().nullable(),
 });
 
 const newsSchema = z.object({
@@ -61,6 +67,10 @@ function parseForm(formData: FormData) {
     title: trim(formData.get(`title_${locale}`)) ?? "",
     summary: trim(formData.get(`summary_${locale}`)),
     body: trim(formData.get(`body_${locale}`)),
+    seoTitle: trim(formData.get(`seoTitle_${locale}`)),
+    metaDescription: trim(formData.get(`metaDescription_${locale}`)),
+    coverImageAlt: trim(formData.get(`coverImageAlt_${locale}`)),
+    faq: trim(formData.get(`faq_${locale}`)),
   }));
 
   return newsSchema.parse({
@@ -100,7 +110,16 @@ function defaultTitle(translations: { title: string; locale: string }[]) {
 }
 
 function persistedTranslations(
-  translations: { locale: string; title: string; summary: string | null; body: string | null }[],
+  translations: {
+    locale: string;
+    title: string;
+    summary: string | null;
+    body: string | null;
+    seoTitle: string | null;
+    metaDescription: string | null;
+    coverImageAlt: string | null;
+    faq: string | null;
+  }[],
 ) {
   return translations
     .filter((t) => t.title.trim().length > 0)
@@ -109,6 +128,11 @@ function persistedTranslations(
       title: t.title,
       summary: t.summary,
       body: t.body,
+      seoTitle: t.seoTitle,
+      metaDescription: t.metaDescription,
+      coverImageAlt: t.coverImageAlt,
+      // El textarea guarda texto plano; en base de datos va como JSON.
+      faq: parseFaqText(t.faq) ?? Prisma.DbNull,
     }));
 }
 

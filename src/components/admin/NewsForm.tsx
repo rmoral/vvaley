@@ -10,6 +10,7 @@ import {
 } from "@prisma/client";
 import { routing, type AppLocale } from "@/i18n/routing";
 import { tagsToString } from "@/lib/tags";
+import { faqToText } from "@/lib/faq";
 
 const localeLabel: Record<AppLocale, string> = {
   es: "Español",
@@ -105,6 +106,40 @@ export function NewsForm({ news, action, deleteAction, saved, error }: Props) {
                   rows={12}
                   defaultValue={tr?.body ?? ""}
                 />
+
+                <Field
+                  label="Alt de la portada"
+                  name={`coverImageAlt_${loc}`}
+                  defaultValue={tr?.coverImageAlt ?? ""}
+                  help="Qué se ve en la imagen. Lo lee quien no puede verla."
+                />
+
+                <details className="rounded-md border border-bg3 bg-bg2 px-3 py-2">
+                  <summary className="cursor-pointer text-[0.78rem] font-medium text-text-2">
+                    SEO y preguntas frecuentes
+                  </summary>
+                  <div className="mt-4 flex flex-col gap-4">
+                    <Field
+                      label="Título SEO"
+                      name={`seoTitle_${loc}`}
+                      defaultValue={tr?.seoTitle ?? ""}
+                      help="El que sale en Google, máximo 60 caracteres. En blanco usa el título."
+                    />
+                    <Field
+                      label="Meta description"
+                      name={`metaDescription_${loc}`}
+                      defaultValue={tr?.metaDescription ?? ""}
+                      help="Entre 140 y 158 caracteres. En blanco usa el resumen."
+                    />
+                    <SeoTextarea
+                      label="Preguntas frecuentes"
+                      name={`faq_${loc}`}
+                      rows={10}
+                      defaultValue={faqToText(tr?.faq)}
+                      help="Un bloque por pregunta, separados por una línea en blanco. La primera línea es la pregunta y el resto, la respuesta."
+                    />
+                  </div>
+                </details>
               </div>
             );
           })}
@@ -291,6 +326,35 @@ function Select({
           </option>
         ))}
       </select>
+    </label>
+  );
+}
+
+// Textarea de los campos SEO. No usa el editor de markdown porque aquí no hay
+// markdown: es texto plano con bloques separados por línea en blanco.
+function SeoTextarea({
+  label,
+  name,
+  rows = 8,
+  defaultValue,
+  help,
+}: {
+  label: string;
+  name: string;
+  rows?: number;
+  defaultValue?: string;
+  help?: string;
+}) {
+  return (
+    <label className="flex flex-col gap-1 text-[0.78rem] font-medium text-text-2">
+      {label}
+      <textarea
+        name={name}
+        rows={rows}
+        defaultValue={defaultValue}
+        className="rounded-md border border-bg3 bg-bg px-3 py-2 text-[0.9rem] leading-[1.5] text-text outline-none transition-colors focus:border-river"
+      />
+      {help && <span className="text-[0.74rem] font-normal text-text-3">{help}</span>}
     </label>
   );
 }

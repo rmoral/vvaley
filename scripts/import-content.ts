@@ -1,0 +1,331 @@
+/**
+ * Importador del paquete editorial en markdown con front-matter.
+ *
+ *   pnpm content:import <directorio> [--publish] [--author=email@dominio]
+ *
+ * El directorio debe contener `articulos/` y/o `noticias/` con ficheros .md
+ * cuyo front-matter siga `_recursos/plantilla.md` del paquete.
+ *
+ * Es IDEMPOTENTE: la clave es el `slug`. Reimportar el mismo paquete
+ * actualiza las piezas en lugar de duplicarlas, y respeta el estado de
+ * publicación de las que ya existan (una pieza ya publicada no vuelve a
+ * borrador por reimportar). Las traducciones del idioma importado se
+ * reemplazan; las de otros idiomas no se tocan.
+ *
+ * NO toca `coverImageUrl`: las imágenes llegan aparte. El resumen final
+ * lista el nombre de archivo que cada pieza espera.
+ */
+import { readFileSync, readdirSync, existsSync } from "node:fs";
+import path from "node:path";
+import { PrismaClient, PostStatus, NewsStatus, Prisma } from "@prisma/client";
+import { parse as parseYaml } from "yaml";
+
+const prisma = new PrismaClient();
+
+// El paquete viene en castellano. Si algún día llega traducido, este es el
+// único punto que hay que tocar.
+const LOCALE = "es";
+
+type FrontMatter = {
+  tipo: "articulo" | "noticia";
+  titulo_h1: string;
+  title_tag?: string;
+  slug: string;
+  meta_description?: string;
+  categoria?: string;
+  etiquetas?: string[];
+  autor?: string;
+  fecha_publicacion?: string;
+  resumen_geo?: string;
+  imagen_destacada?: { alt?: string; nombre_archivo?: string };
+  faq?: { pregunta: string; respuesta: string }[];
+};
+
+function slugify(input: string): string {
+  return input
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+/** Separa el front-matter YAML del cuerpo markdown. */
+function splitFrontMatter(raw: string): { data: FrontMatter; body: string } {
+  const text = raw.replace(/^﻿/, "").replace(/\r\n/g, "\n");
+  if (!text.startsWith("---\n")) {
+    throw new Error("el fichero no empieza por front-matter");
+  }
+  const end = text.indexOf("\n---\n", 3);
+  if (end === -1) throw new Error("front-matter sin cierre");
+  return {
+    data: parseYaml(text.slice(4, end + 1)) as FrontMatter,
+    body: text.slice(end + 5).trim(),
+  };
+}
+
+type Faq = { pregunta: string; respuesta: string };
+
+function cleanFaq(faq: FrontMatter["faq"]): Faq[] {
+  if (!Array.isArray(faq)) return [];
+  return faq
+    .filter((f) => typeof f?.pregunta === "string" && typeof f?.respuesta === "string")
+    .map((f) => ({ pregunta: f.pregunta.trim(), respuesta: f.respuesta.trim() }))
+    .filter((f) => f.pregunta && f.respuesta);
+}
+
+/**
+ * El cuerpo trae además su propia sección "## Preguntas frecuentes", escrita
+ * como prosa. En 12 de las 20 piezas del paquete repite las preguntas del
+ * front-matter y en 8 son preguntas DISTINTAS, así que no basta con borrar
+ * una de las dos.
+ *
+ * Aquí se extrae la sección y se devuelve por separado, para fundirla con la
+ * del front-matter. Motivo: el JSON-LD de tipo FAQPage solo es legítimo si
+ * cada pregunta que declara está visible en la página. Con dos juegos —uno
+ * visible y otro solo en el marcado— el sitio estaría declarando contenido
+ * que el lector no ve, que es justo lo que Google sanciona.
+ *
+ * La sección va siempre entre "## Preguntas frecuentes" y "## Fuentes".
+ */
+function extractBodyFaq(body: string): { body: string; faq: Faq[] } {
+  // El final de la sección es el siguiente encabezado de nivel 2 o el fin del
+  // texto. Ojo con `$`: con la bandera `m` casa al final de CADA línea, así
+  // que cortaría la captura en el primer salto y se perderían las preguntas.
+  // `(?![\s\S])` es el fin real de la cadena.
+  const m = body.match(/^## Preguntas frecuentes[^\n]*\n([\s\S]*?)(?=\n## |(?![\s\S]))/m);
+  if (!m) return { body, faq: [] };
+
+  const faq: Faq[] = [];
+  const bloques = m[1].split(/^### /m).slice(1);
+  for (const bloque of bloques) {
+    const [primera, ...resto] = bloque.split("\n");
+    const pregunta = primera.trim();
+    const respuesta = resto.join("\n").trim().replace(/\s*\n\s*/g, " ");
+    if (pregunta && respuesta) faq.push({ pregunta, respuesta });
+  }
+
+  return { body: (body.slice(0, m.index) + body.slice(m.index! + m[0].length)).trim(), faq };
+}
+
+/** Clave de comparación de preguntas: sin acentos, signos ni mayúsculas. */
+function faqKey(q: string): string {
+  return q
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "");
+}
+
+/** Funde los dos juegos sin perder ninguna pregunta. */
+function mergeFaq(...listas: Faq[][]): Faq[] | null {
+  const out: Faq[] = [];
+  const seen = new Set<string>();
+  for (const lista of listas) {
+    for (const f of lista) {
+      const k = faqKey(f.pregunta);
+      if (!k || seen.has(k)) continue;
+      seen.add(k);
+      out.push(f);
+    }
+  }
+  return out.length > 0 ? out : null;
+}
+
+/** Categoría + etiquetas, deduplicadas por slug, en un solo conjunto. */
+async function resolveTagIds(fm: FrontMatter): Promise<string[]> {
+  const names = [...(fm.categoria ? [fm.categoria] : []), ...(fm.etiquetas ?? [])];
+  const ids: string[] = [];
+  const seen = new Set<string>();
+  for (const name of names) {
+    const slug = slugify(name);
+    if (!slug || seen.has(slug)) continue;
+    seen.add(slug);
+    const tag = await prisma.tag.upsert({
+      where: { slug },
+      update: {},
+      create: { slug, name: name.trim() },
+    });
+    ids.push(tag.id);
+  }
+  return ids;
+}
+
+type Result = { slug: string; accion: "creado" | "actualizado"; imagen?: string };
+
+async function importOne(
+  file: string,
+  opts: { publish: boolean; authorId: string | null },
+): Promise<Result> {
+  const { data: fm, body: raw } = splitFrontMatter(readFileSync(file, "utf8"));
+  if (!fm.slug || !fm.titulo_h1) throw new Error("falta slug o titulo_h1");
+
+  // El FAQ sale del cuerpo y se funde con el del front-matter: uno solo,
+  // visible, y el mismo que declara el JSON-LD.
+  const { body, faq: faqCuerpo } = extractBodyFaq(raw);
+  const faq = mergeFaq(cleanFaq(fm.faq), faqCuerpo);
+
+  const tagIds = await resolveTagIds(fm);
+  const publishedAt = fm.fecha_publicacion ? new Date(fm.fecha_publicacion) : null;
+  if (publishedAt && Number.isNaN(publishedAt.getTime())) {
+    throw new Error(`fecha_publicacion inválida: ${fm.fecha_publicacion}`);
+  }
+
+  const translation = {
+    locale: LOCALE,
+    title: fm.titulo_h1,
+    // resumen_geo es la entradilla visible; meta_description es el snippet
+    // del buscador. Son textos distintos y van a campos distintos.
+    summary: fm.resumen_geo ?? null,
+    body,
+    seoTitle: fm.title_tag ?? null,
+    metaDescription: fm.meta_description ?? null,
+    coverImageAlt: fm.imagen_destacada?.alt ?? null,
+    faq: (faq ?? Prisma.DbNull) as Prisma.InputJsonValue,
+  };
+
+  const isNews = fm.tipo === "noticia";
+  const imagen = fm.imagen_destacada?.nombre_archivo;
+
+  if (isNews) {
+    const existing = await prisma.news.findUnique({
+      where: { slug: fm.slug },
+      select: { id: true, status: true },
+    });
+    // Una pieza ya publicada no vuelve a borrador por reimportarla.
+    const status =
+      existing?.status ??
+      (opts.publish ? NewsStatus.PUBLISHED : NewsStatus.DRAFT);
+
+    if (existing) {
+      await prisma.newsTranslation.deleteMany({
+        where: { newsId: existing.id, locale: LOCALE },
+      });
+      await prisma.news.update({
+        where: { id: existing.id },
+        data: {
+          status,
+          publishedAt,
+          authorId: opts.authorId ?? undefined,
+          translations: { create: translation },
+          tags: { deleteMany: {}, create: tagIds.map((tagId) => ({ tagId })) },
+        },
+      });
+      return { slug: fm.slug, accion: "actualizado", imagen };
+    }
+
+    await prisma.news.create({
+      data: {
+        slug: fm.slug,
+        status,
+        publishedAt,
+        authorId: opts.authorId,
+        translations: { create: translation },
+        tags: { create: tagIds.map((tagId) => ({ tagId })) },
+      },
+    });
+    return { slug: fm.slug, accion: "creado", imagen };
+  }
+
+  const existing = await prisma.post.findUnique({
+    where: { slug: fm.slug },
+    select: { id: true, status: true },
+  });
+  const status =
+    existing?.status ?? (opts.publish ? PostStatus.PUBLISHED : PostStatus.DRAFT);
+
+  if (existing) {
+    await prisma.postTranslation.deleteMany({
+      where: { postId: existing.id, locale: LOCALE },
+    });
+    await prisma.post.update({
+      where: { id: existing.id },
+      data: {
+        status,
+        publishedAt,
+        authorId: opts.authorId ?? undefined,
+        translations: { create: translation },
+        tags: { deleteMany: {}, create: tagIds.map((tagId) => ({ tagId })) },
+      },
+    });
+    return { slug: fm.slug, accion: "actualizado", imagen };
+  }
+
+  await prisma.post.create({
+    data: {
+      slug: fm.slug,
+      status,
+      publishedAt,
+      authorId: opts.authorId,
+      translations: { create: translation },
+      tags: { create: tagIds.map((tagId) => ({ tagId })) },
+    },
+  });
+  return { slug: fm.slug, accion: "creado", imagen };
+}
+
+async function main() {
+  const args = process.argv.slice(2);
+  const dir = args.find((a) => !a.startsWith("--"));
+  if (!dir) {
+    console.error(
+      "uso: pnpm content:import <directorio> [--publish] [--author=email]",
+    );
+    process.exit(1);
+  }
+  const publish = args.includes("--publish");
+  const authorEmail = args.find((a) => a.startsWith("--author="))?.slice(9);
+
+  let authorId: string | null = null;
+  if (authorEmail) {
+    const user = await prisma.user.findUnique({
+      where: { email: authorEmail },
+      select: { id: true },
+    });
+    if (!user) throw new Error(`no existe ningún usuario con email ${authorEmail}`);
+    authorId = user.id;
+  }
+
+  const files: string[] = [];
+  for (const sub of ["articulos", "noticias"]) {
+    const d = path.join(dir, sub);
+    if (!existsSync(d)) continue;
+    for (const f of readdirSync(d).sort()) {
+      if (f.endsWith(".md")) files.push(path.join(d, f));
+    }
+  }
+  if (files.length === 0) throw new Error(`sin ficheros .md en ${dir}`);
+
+  console.log(
+    `${files.length} ficheros · estado ${publish ? "PUBLISHED" : "DRAFT"} · autor ${authorEmail ?? "(ninguno)"}\n`,
+  );
+
+  const ok: Result[] = [];
+  const fallos: { file: string; error: string }[] = [];
+  for (const file of files) {
+    try {
+      const r = await importOne(file, { publish, authorId });
+      ok.push(r);
+      console.log(`  ✓ ${r.accion.padEnd(12)} ${r.slug}`);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      fallos.push({ file, error: msg });
+      console.log(`  ✗ ${path.basename(file)}: ${msg}`);
+    }
+  }
+
+  console.log(`\n${ok.length} importadas, ${fallos.length} con error.`);
+  if (ok.some((r) => r.imagen)) {
+    console.log("\nPortadas pendientes (nombre de archivo esperado por pieza):");
+    for (const r of ok) if (r.imagen) console.log(`  ${r.slug}  →  ${r.imagen}`);
+  }
+  if (fallos.length > 0) process.exitCode = 1;
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exitCode = 1;
+  })
+  .finally(() => prisma.$disconnect());
