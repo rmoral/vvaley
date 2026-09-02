@@ -26,9 +26,9 @@ export function NewsletterInline({ source, variant = "default" }: Props) {
   return (
     <aside
       aria-labelledby="newsletter-inline-title"
-      className="my-12 rounded-xl border border-[rgba(46,139,143,0.25)] bg-[rgba(46,139,143,0.04)] p-6 text-center md:p-8"
+      className="my-12 rounded-xl border border-[rgba(39,117,119,0.25)] bg-[rgba(39,117,119,0.04)] p-6 text-center md:p-8"
     >
-      <div className="mx-auto inline-flex items-center gap-2 rounded-[2px] border border-[rgba(46,139,143,0.25)] bg-white px-2.5 py-1 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-river">
+      <div className="mx-auto inline-flex items-center gap-2 rounded-[2px] border border-[rgba(39,117,119,0.25)] bg-white px-2.5 py-1 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-river">
         {t("eyebrow")}
       </div>
 
@@ -52,7 +52,7 @@ export function NewsletterInline({ source, variant = "default" }: Props) {
         aria-live="polite"
       >
         {submitted ? (
-          <div className="rounded-[3px] border border-[rgba(46,139,143,0.3)] bg-white px-4 py-4 text-[0.92rem] font-medium text-river">
+          <div className="rounded-[3px] border border-[rgba(39,117,119,0.3)] bg-white px-4 py-4 text-[0.92rem] font-medium text-river">
             ✓ {t("success")}
           </div>
         ) : (

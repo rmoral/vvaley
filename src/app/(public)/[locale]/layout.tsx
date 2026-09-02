@@ -60,6 +60,9 @@ export async function generateMetadata({
       alternateLocale: ogAlternateLocales(loc),
     },
     twitter: { card: "summary_large_image", title, description },
+    // Los iconos los resuelve Next desde src/app (favicon.ico, icon.svg y
+    // apple-icon.png). El manifest no entra por esa vía y hay que declararlo.
+    manifest: "/site.webmanifest",
   };
 }
 

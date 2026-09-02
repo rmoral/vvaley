@@ -10,7 +10,7 @@ const roleLabel: Record<UserRole, string> = {
 };
 
 const roleClass: Record<UserRole, string> = {
-  ADMIN: "bg-[rgba(46,139,143,0.1)] text-river",
+  ADMIN: "bg-[rgba(39,117,119,0.1)] text-river",
   EDITOR: "bg-bg2 text-text-2",
 };
 

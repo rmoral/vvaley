@@ -45,11 +45,22 @@ export function SiteNav({ locale }: { locale: AppLocale }) {
   return (
     <nav className="vv-drop fixed inset-x-0 top-0 z-50 border-b border-bg3 bg-bg/[0.94] backdrop-blur-md">
       <div className="flex items-center justify-between gap-4 px-6 py-[1.1rem] md:px-16">
-        <Link
-          href="/"
-          className="whitespace-nowrap font-display text-[1.2rem] font-black tracking-[0.05em] text-text no-underline"
-        >
-          VALIRA<em className="not-italic text-river"> · </em>VALLEY
+        {/* El logotipo va como <img> y no inline: es el mismo fichero en la
+            barra, el pie y el favicon, así el navegador lo cachea una vez.
+            Lleva su propio texto alternativo, así que el enlace no necesita
+            aria-label. width/height evitan el salto de maquetación. */}
+        <Link href="/" className="shrink-0 no-underline">
+          {/* eslint-disable-next-line @next/next/no-img-element -- next/image
+              no optimiza SVG: lo serviría tal cual detrás de un envoltorio y
+              de la maquinaria de /_next/image. Son 527 bytes; el <img> directo
+              es más rápido y más simple. */}
+          <img
+            src="/logo.svg"
+            alt="Valira Valley"
+            width={232}
+            height={32}
+            className="block h-7 w-auto"
+          />
         </Link>
 
         {/* Menú horizontal a partir de menu: = 1120px (antes md:, que rompía en FR/CA) */}

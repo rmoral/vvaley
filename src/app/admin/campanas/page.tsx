@@ -14,7 +14,7 @@ const statusLabel: Record<CampaignStatus, string> = {
 const statusClass: Record<CampaignStatus, string> = {
   DRAFT: "bg-bg2 text-text-2",
   SENDING: "bg-amber-50 text-amber-700",
-  SENT: "bg-[rgba(46,139,143,0.1)] text-river",
+  SENT: "bg-[rgba(39,117,119,0.1)] text-river",
   FAILED: "bg-red-50 text-red-700",
 };
 

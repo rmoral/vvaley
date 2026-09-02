@@ -25,7 +25,7 @@ const statusLabel: Record<ContactStatus, string> = {
 };
 
 const statusClass: Record<ContactStatus, string> = {
-  NEW: "bg-[rgba(46,139,143,0.1)] text-river",
+  NEW: "bg-[rgba(39,117,119,0.1)] text-river",
   IN_PROGRESS: "bg-amber-50 text-amber-700",
   CLOSED: "bg-bg2 text-text-3",
 };
@@ -228,7 +228,7 @@ function FilterLink({
       href={href}
       className={`rounded-md border px-3 py-1.5 no-underline transition-colors ${
         active
-          ? "border-river bg-[rgba(46,139,143,0.08)] font-semibold text-river"
+          ? "border-river bg-[rgba(39,117,119,0.08)] font-semibold text-river"
           : "border-bg3 bg-white text-text-2 hover:border-river-2"
       }`}
     >

@@ -15,7 +15,7 @@ const statusLabel: Record<EpisodeStatus, string> = {
 const statusClass: Record<EpisodeStatus, string> = {
   DRAFT: "bg-bg2 text-text-2",
   SCHEDULED: "bg-amber-50 text-amber-700",
-  PUBLISHED: "bg-[rgba(46,139,143,0.1)] text-river",
+  PUBLISHED: "bg-[rgba(39,117,119,0.1)] text-river",
   ARCHIVED: "bg-bg2 text-text-3",
 };
 
@@ -146,7 +146,7 @@ function FilterPill({
       href={href}
       className={`rounded-full border px-3 py-1 no-underline transition-colors ${
         active
-          ? "border-river bg-[rgba(46,139,143,0.08)] text-river"
+          ? "border-river bg-[rgba(39,117,119,0.08)] text-river"
           : "border-bg3 bg-white text-text-2 hover:border-river"
       }`}
     >

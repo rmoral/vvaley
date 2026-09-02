@@ -23,7 +23,7 @@ const OG_SIZE = { width: 1200, height: 630 };
 const INK = "#0d1f21";
 const TEXT = "#142e30";
 const TEXT_2 = "#3a5557";
-const RIVER = "#2e8b8f";
+const RIVER = "#277577";
 const RIVER_2 = "#5badb0";
 const PAPER = "#f4f8f8";
 
@@ -80,7 +80,7 @@ export async function ogImage({
   const fg = invert ? "#ffffff" : TEXT;
   const accent = invert ? RIVER_2 : RIVER;
   const muted = invert ? "#a8c3c4" : TEXT_2;
-  const ringColor = invert ? "rgba(91,173,176,0.22)" : "rgba(46,139,143,0.28)";
+  const ringColor = invert ? "rgba(91,173,176,0.22)" : "rgba(39,117,119,0.28)";
 
   const domain = getSiteUrl().replace(/^https?:\/\//, "").replace(/\/$/, "");
 

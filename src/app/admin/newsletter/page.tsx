@@ -19,7 +19,7 @@ const statusLabel: Record<SubscriberStatus, string> = {
 
 const statusClass: Record<SubscriberStatus, string> = {
   PENDING: "bg-amber-50 text-amber-700",
-  CONFIRMED: "bg-[rgba(46,139,143,0.1)] text-river",
+  CONFIRMED: "bg-[rgba(39,117,119,0.1)] text-river",
   UNSUBSCRIBED: "bg-bg2 text-text-3",
 };
 

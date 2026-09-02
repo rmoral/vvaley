@@ -194,7 +194,7 @@ export function EpisodeForm({
             help="Se incluye en el evento de calendario y en el email."
           />
           {episode?.inviteSentAt && (
-            <div className="rounded-md border border-[rgba(46,139,143,0.25)] bg-[rgba(46,139,143,0.05)] px-3 py-2 text-[0.78rem] text-river">
+            <div className="rounded-md border border-[rgba(39,117,119,0.25)] bg-[rgba(39,117,119,0.05)] px-3 py-2 text-[0.78rem] text-river">
               ✓ Invitaciones enviadas el{" "}
               {new Intl.DateTimeFormat("es", {
                 dateStyle: "medium",

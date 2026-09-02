@@ -43,7 +43,7 @@ export default async function ContactPage({
 
   return (
     <main className="mx-auto max-w-3xl px-6 pb-24 pt-32 md:px-16">
-      <div className="mb-5 inline-block rounded-[2px] border border-[rgba(46,139,143,0.25)] bg-[rgba(46,139,143,0.04)] px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-river">
+      <div className="mb-5 inline-block rounded-[2px] border border-[rgba(39,117,119,0.25)] bg-[rgba(39,117,119,0.04)] px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-river">
         {t("tag")}
       </div>
       <h1 className="mb-4 font-display text-[clamp(2.2rem,4.5vw,3.2rem)] font-black leading-[1.08] text-text">

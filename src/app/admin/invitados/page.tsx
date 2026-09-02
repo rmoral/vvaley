@@ -16,7 +16,7 @@ const statusLabel: Record<GuestStatus, string> = {
 const statusClass: Record<GuestStatus, string> = {
   PROPOSED: "bg-bg2 text-text-2",
   CONFIRMED: "bg-amber-50 text-amber-700",
-  RECORDED: "bg-[rgba(46,139,143,0.1)] text-river",
+  RECORDED: "bg-[rgba(39,117,119,0.1)] text-river",
   DECLINED: "bg-red-50 text-red-700",
 };
 

@@ -17,7 +17,7 @@ const statusLabel: Record<RegistrationStatus, string> = {
 };
 
 const statusClass: Record<RegistrationStatus, string> = {
-  CONFIRMED: "bg-[rgba(46,139,143,0.1)] text-river",
+  CONFIRMED: "bg-[rgba(39,117,119,0.1)] text-river",
   WAITLIST: "bg-amber-50 text-amber-700",
   CANCELLED: "bg-bg2 text-text-3",
 };

@@ -16,7 +16,7 @@ const statusLabel: Record<NewsStatus, string> = {
 const statusClass: Record<NewsStatus, string> = {
   DRAFT: "bg-bg2 text-text-2",
   SCHEDULED: "bg-amber-50 text-amber-700",
-  PUBLISHED: "bg-[rgba(46,139,143,0.1)] text-river",
+  PUBLISHED: "bg-[rgba(39,117,119,0.1)] text-river",
   ARCHIVED: "bg-bg2 text-text-3",
 };
 
@@ -126,7 +126,7 @@ export default async function NewsListAdminPage({
                           }
                           className={`inline-block rounded px-1.5 py-0.5 font-mono text-[0.7rem] uppercase ${
                             translatedLocales.has(loc)
-                              ? "bg-[rgba(46,139,143,0.1)] text-river"
+                              ? "bg-[rgba(39,117,119,0.1)] text-river"
                               : "bg-bg2 text-text-3"
                           }`}
                         >
@@ -177,7 +177,7 @@ function FilterPill({
       href={href}
       className={`rounded-full border px-3 py-1 no-underline transition-colors ${
         active
-          ? "border-river bg-[rgba(46,139,143,0.08)] text-river"
+          ? "border-river bg-[rgba(39,117,119,0.08)] text-river"
           : "border-bg3 bg-white text-text-2 hover:border-river"
       }`}
     >

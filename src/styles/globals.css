@@ -21,7 +21,7 @@
   --color-bg: #f4f8f8;
   --color-bg2: #ebf2f2;
   --color-bg3: #c8d8da;
-  --color-river: #2e8b8f;
+  --color-river: #277577;
   --color-river-2: #5badb0;
   --color-stone: #8b6f5e;
   --color-text: #142e30;
@@ -59,7 +59,7 @@
   --radius-field: 6px;
 
   /* ---- NUEVOS · sombras. Genera shadow-lift, shadow-menu ---- */
-  --shadow-lift: 0 4px 20px rgb(46 139 143 / 0.08);
+  --shadow-lift: 0 4px 20px rgb(39 117 119 / 0.08);
   --shadow-menu: 0 10px 30px rgb(20 46 48 / 0.10);
 
   /* ---- NUEVOS · curvas. Genera ease-out-soft, ease-inout-soft ---- */
@@ -222,7 +222,7 @@ body {
   background-image: repeating-radial-gradient(
     ellipse 62% 78% at 62% 46%,
     transparent 0 34px,
-    rgb(46 139 143 / 0.5) 34px 35px
+    rgb(39 117 119 / 0.5) 34px 35px
   );
   mask-image: radial-gradient(ellipse 70% 85% at 66% 48%, #000 25%, transparent 74%);
   -webkit-mask-image: radial-gradient(ellipse 70% 85% at 66% 48%, #000 25%, transparent 74%);
@@ -235,7 +235,7 @@ body {
   background-image: repeating-radial-gradient(
     ellipse 55% 70% at 40% 50%,
     transparent 0 15px,
-    rgb(46 139 143 / 0.28) 15px 16px
+    rgb(39 117 119 / 0.28) 15px 16px
   );
 }
 
@@ -256,7 +256,7 @@ body {
 .hero-bg {
   background:
     radial-gradient(ellipse 65% 75% at 100% 50%, rgb(91 173 176 / 0.13) 0%, transparent 60%),
-    radial-gradient(ellipse 45% 55% at 0% 85%, rgb(46 139 143 / 0.05) 0%, transparent 55%),
+    radial-gradient(ellipse 45% 55% at 0% 85%, rgb(39 117 119 / 0.05) 0%, transparent 55%),
     var(--color-bg);
 }
 

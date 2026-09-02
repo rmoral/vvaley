@@ -17,7 +17,7 @@ const statusClass: Record<SocialPublicationStatus, string> = {
   DRAFT: "bg-bg2 text-text-2",
   SCHEDULED: "bg-amber-50 text-amber-700",
   PUBLISHING: "bg-amber-50 text-amber-700",
-  PUBLISHED: "bg-[rgba(46,139,143,0.1)] text-river",
+  PUBLISHED: "bg-[rgba(39,117,119,0.1)] text-river",
   FAILED: "bg-red-50 text-red-700",
 };
 
