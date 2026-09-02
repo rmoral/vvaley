@@ -12,8 +12,10 @@
  * borrador por reimportar). Las traducciones del idioma importado se
  * reemplazan; las de otros idiomas no se tocan.
  *
- * NO toca `coverImageUrl`: las imágenes llegan aparte. El resumen final
- * lista el nombre de archivo que cada pieza espera.
+ * PORTADAS: las imágenes llegan aparte y por tandas. Si el fichero que pide
+ * `imagen_destacada.nombre_archivo` ya está en `public/covers/articulos/`, se
+ * asigna; si no, la pieza se queda sin portada y el resumen final la lista
+ * como pendiente. Reimportar más adelante la recoge sin tocar nada más.
  */
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import path from "node:path";
@@ -152,7 +154,43 @@ async function resolveTagIds(fm: FrontMatter): Promise<string[]> {
   return ids;
 }
 
-type Result = { slug: string; accion: "creado" | "actualizado"; imagen?: string };
+
+// Carpeta de portadas de artículo y noticia. Separada de `public/covers/`, que
+// guarda las cuatro imágenes por temática del sistema de diseño.
+const COVER_DIR = "covers/articulos";
+
+/**
+ * Ruta pública de la portada si el fichero ya existe en disco, o null.
+ * `nombre_archivo` viene del front-matter, siempre como "<slug>.jpg".
+ */
+function coverPath(nombre?: string): string | null {
+  if (!nombre) return null;
+  const rel = `/${COVER_DIR}/${nombre}`;
+  return existsSync(path.join(process.cwd(), "public", rel)) ? rel : null;
+}
+
+/**
+ * Qué hacer con `coverImageUrl` al reimportar.
+ *
+ * Se asigna cuando la pieza no tiene portada, y se actualiza cuando la que
+ * tiene salió de esta misma convención. Si alguien subió otra desde el
+ * back-office, se respeta: reimportar el paquete no debe deshacer un cambio
+ * hecho a mano en la web.
+ */
+function nextCover(actual: string | null | undefined, encontrada: string | null) {
+  if (!encontrada) return undefined; // sin fichero todavía: no se toca
+  if (!actual || actual.startsWith(`/${COVER_DIR}/`)) return encontrada;
+  return undefined;
+}
+
+type Result = {
+  slug: string;
+  accion: "creado" | "actualizado";
+  /** Nombre del fichero de portada que la pieza espera. */
+  imagen?: string;
+  /** true si esa portada ya está en disco y se ha asignado. */
+  portada: boolean;
+};
 
 async function importOne(
   file: string,
@@ -187,11 +225,12 @@ async function importOne(
 
   const isNews = fm.tipo === "noticia";
   const imagen = fm.imagen_destacada?.nombre_archivo;
+  const cover = coverPath(imagen);
 
   if (isNews) {
     const existing = await prisma.news.findUnique({
       where: { slug: fm.slug },
-      select: { id: true, status: true },
+      select: { id: true, status: true, coverImageUrl: true },
     });
     // Una pieza ya publicada no vuelve a borrador por reimportarla.
     const status =
@@ -207,12 +246,13 @@ async function importOne(
         data: {
           status,
           publishedAt,
+          coverImageUrl: nextCover(existing.coverImageUrl, cover),
           authorId: opts.authorId ?? undefined,
           translations: { create: translation },
           tags: { deleteMany: {}, create: tagIds.map((tagId) => ({ tagId })) },
         },
       });
-      return { slug: fm.slug, accion: "actualizado", imagen };
+      return { slug: fm.slug, accion: "actualizado", imagen, portada: cover !== null };
     }
 
     await prisma.news.create({
@@ -220,17 +260,18 @@ async function importOne(
         slug: fm.slug,
         status,
         publishedAt,
+        coverImageUrl: cover,
         authorId: opts.authorId,
         translations: { create: translation },
         tags: { create: tagIds.map((tagId) => ({ tagId })) },
       },
     });
-    return { slug: fm.slug, accion: "creado", imagen };
+    return { slug: fm.slug, accion: "creado", imagen, portada: cover !== null };
   }
 
   const existing = await prisma.post.findUnique({
     where: { slug: fm.slug },
-    select: { id: true, status: true },
+    select: { id: true, status: true, coverImageUrl: true },
   });
   const status =
     existing?.status ?? (opts.publish ? PostStatus.PUBLISHED : PostStatus.DRAFT);
@@ -244,12 +285,13 @@ async function importOne(
       data: {
         status,
         publishedAt,
+        coverImageUrl: nextCover(existing.coverImageUrl, cover),
         authorId: opts.authorId ?? undefined,
         translations: { create: translation },
         tags: { deleteMany: {}, create: tagIds.map((tagId) => ({ tagId })) },
       },
     });
-    return { slug: fm.slug, accion: "actualizado", imagen };
+    return { slug: fm.slug, accion: "actualizado", imagen, portada: cover !== null };
   }
 
   await prisma.post.create({
@@ -257,12 +299,13 @@ async function importOne(
       slug: fm.slug,
       status,
       publishedAt,
+      coverImageUrl: cover,
       authorId: opts.authorId,
       translations: { create: translation },
       tags: { create: tagIds.map((tagId) => ({ tagId })) },
     },
   });
-  return { slug: fm.slug, accion: "creado", imagen };
+  return { slug: fm.slug, accion: "creado", imagen, portada: cover !== null };
 }
 
 async function main() {
@@ -316,9 +359,12 @@ async function main() {
   }
 
   console.log(`\n${ok.length} importadas, ${fallos.length} con error.`);
-  if (ok.some((r) => r.imagen)) {
-    console.log("\nPortadas pendientes (nombre de archivo esperado por pieza):");
-    for (const r of ok) if (r.imagen) console.log(`  ${r.slug}  →  ${r.imagen}`);
+  const conPortada = ok.filter((r) => r.portada);
+  const sinPortada = ok.filter((r) => r.imagen && !r.portada);
+  console.log(`\nPortadas: ${conPortada.length} puestas, ${sinPortada.length} pendientes.`);
+  if (sinPortada.length > 0) {
+    console.log(`Deja el fichero en public/${COVER_DIR}/ y vuelve a importar:`);
+    for (const r of sinPortada) console.log(`  ${r.imagen}`);
   }
   if (fallos.length > 0) process.exitCode = 1;
 }
