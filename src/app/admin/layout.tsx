@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import "../../styles/globals.css";
+import {
+  GoogleTagManager,
+  GoogleTagManagerNoScript,
+} from "@/components/GoogleTagManager";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -30,7 +34,11 @@ export default function AdminRootLayout({
 }) {
   return (
     <html lang="es" className={`${fraunces.variable} ${jakarta.variable}`}>
-      <body className="bg-bg2">{children}</body>
+      <body className="bg-bg2">
+        <GoogleTagManager />
+        <GoogleTagManagerNoScript />
+        {children}
+      </body>
     </html>
   );
 }

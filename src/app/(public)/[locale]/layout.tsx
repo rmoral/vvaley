@@ -12,6 +12,10 @@ function isAppLocale(value: string): value is AppLocale {
 }
 import "../../../styles/globals.css";
 import { Analytics } from "@/components/public/Analytics";
+import {
+  GoogleTagManager,
+  GoogleTagManagerNoScript,
+} from "@/components/GoogleTagManager";
 import { SiteNav } from "@/components/public/SiteNav";
 import { SiteFooter } from "@/components/public/SiteFooter";
 
@@ -81,6 +85,8 @@ export default async function PublicLocaleLayout({
   return (
     <html lang={locale} className={`${fraunces.variable} ${jakarta.variable}`}>
       <body>
+        <GoogleTagManager />
+        <GoogleTagManagerNoScript />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SiteNav locale={locale} />
           {children}
