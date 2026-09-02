@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { EventLocationType, EventStatus } from "@prisma/client";
 import { z } from "zod";
-import { auth } from "@/auth";
+import { requireAdmin, requireSession } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
 import { routing } from "@/i18n/routing";
@@ -62,11 +62,6 @@ const eventSchema = z.object({
   translations: z.array(translationSchema),
 });
 
-async function requireAdmin() {
-  const session = await auth();
-  if (!session?.user) redirect("/admin/login");
-  return session;
-}
 
 function parseForm(formData: FormData) {
   const translations = routing.locales.map((locale) => ({
@@ -145,7 +140,7 @@ function persistedTranslations(
 }
 
 export async function createEvent(formData: FormData) {
-  const session = await requireAdmin();
+  const session = await requireSession();
   const data = parseForm(formData);
 
   const persisted = persistedTranslations(data.translations);
@@ -182,7 +177,7 @@ export async function createEvent(formData: FormData) {
 }
 
 export async function updateEvent(id: string, formData: FormData) {
-  await requireAdmin();
+  await requireSession();
   const data = parseForm(formData);
 
   const persisted = persistedTranslations(data.translations);
@@ -232,7 +227,7 @@ export async function deleteEvent(id: string) {
 // Registrations mutations from the admin panel.
 
 export async function cancelRegistration(eventId: string, regId: string) {
-  await requireAdmin();
+  await requireSession();
   await prisma.eventRegistration.update({
     where: { id: regId },
     data: { status: "CANCELLED" },
@@ -241,7 +236,7 @@ export async function cancelRegistration(eventId: string, regId: string) {
 }
 
 export async function confirmRegistration(eventId: string, regId: string) {
-  await requireAdmin();
+  await requireSession();
   await prisma.eventRegistration.update({
     where: { id: regId },
     data: { status: "CONFIRMED" },

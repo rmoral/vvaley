@@ -8,12 +8,13 @@ import { resolveCover } from "@/lib/pillar-cover";
 import { DetailShell, Prose } from "@/components/public/DetailShell";
 import { JsonLd } from "@/components/public/JsonLd";
 import { TagChips } from "@/components/public/TagChips";
-import { FaqBlock, parseFaq } from "@/components/public/FaqBlock";
+import { FaqBlock } from "@/components/public/FaqBlock";
+import { parseFaq } from "@/lib/faq";
 import {
   RelatedLinks,
-  parseRelatedLinks,
   publishedRelatedLinks,
 } from "@/components/public/RelatedLinks";
+import { parseRelatedLinks } from "@/lib/related-links";
 import { localizedUrls, ogLocale } from "@/lib/seo";
 import type { AppLocale } from "@/i18n/routing";
 

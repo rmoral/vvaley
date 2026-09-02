@@ -1,17 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { requireAdmin, requireSession } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 
-async function requireAdmin() {
-  const session = await auth();
-  if (!session?.user) redirect("/admin/login");
-}
 
 export async function unsubscribeSubscriber(id: string) {
-  await requireAdmin();
+  await requireSession();
   await prisma.newsletterSubscriber.update({
     where: { id },
     data: { status: "UNSUBSCRIBED", unsubscribedAt: new Date() },
@@ -26,7 +21,7 @@ export async function deleteSubscriber(id: string) {
 }
 
 export async function reactivateSubscriber(id: string) {
-  await requireAdmin();
+  await requireSession();
   await prisma.newsletterSubscriber.update({
     where: { id },
     data: {

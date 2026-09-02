@@ -1,4 +1,23 @@
-import type { FaqEntry } from "@/components/public/FaqBlock";
+export type FaqEntry = { pregunta: string; respuesta: string };
+
+/**
+ * Valida el JSON que viene de la base de datos. El campo es Json?, así que
+ * puede traer cualquier forma: se filtra a pares con las dos cadenas llenas
+ * y se devuelve null si no queda ninguno.
+ */
+export function parseFaq(value: unknown): FaqEntry[] | null {
+  if (!Array.isArray(value)) return null;
+  const rows = value.flatMap((row) => {
+    if (!row || typeof row !== "object") return [];
+    const { pregunta, respuesta } = row as Record<string, unknown>;
+    if (typeof pregunta !== "string" || typeof respuesta !== "string") return [];
+    const p = pregunta.trim();
+    const r = respuesta.trim();
+    return p && r ? [{ pregunta: p, respuesta: r }] : [];
+  });
+  return rows.length > 0 ? rows : null;
+}
+
 
 // Formato de texto del editor de FAQ en el back-office. Se eligió texto plano
 // y no JSON porque quien escribe las preguntas es redacción, no desarrollo:

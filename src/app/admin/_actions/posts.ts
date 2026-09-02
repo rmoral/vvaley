@@ -6,7 +6,7 @@ import { PostStatus } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { parseFaqText } from "@/lib/faq";
-import { auth } from "@/auth";
+import { requireAdmin, requireSession } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
 import { parseTagNames, upsertTagsByName } from "@/lib/tags";
@@ -49,11 +49,6 @@ const postSchema = z.object({
   tagNames: z.array(z.string()),
 });
 
-async function requireAdmin() {
-  const session = await auth();
-  if (!session?.user) redirect("/admin/login");
-  return session;
-}
 
 function parseForm(formData: FormData) {
   const translations = routing.locales.map((locale) => ({
@@ -130,7 +125,7 @@ function translationsToPersist(
 }
 
 export async function createPost(formData: FormData) {
-  const session = await requireAdmin();
+  const session = await requireSession();
   const data = parseForm(formData);
 
   const persisted = translationsToPersist(data.translations);
@@ -165,7 +160,7 @@ export async function createPost(formData: FormData) {
 }
 
 export async function updatePost(id: string, formData: FormData) {
-  await requireAdmin();
+  await requireSession();
   const data = parseForm(formData);
 
   const persisted = translationsToPersist(data.translations);

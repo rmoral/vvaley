@@ -8,7 +8,7 @@ import {
   SocialPublicationStatus,
 } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { requireSession } from "@/lib/auth-helpers";
+import { requireAdmin, requireSession } from "@/lib/auth-helpers";
 import { getProvider } from "@/lib/social/registry";
 import {
   callbackUrl,
@@ -34,7 +34,7 @@ const dateOrNull = (v: FormDataEntryValue | null) => {
  * provider's authorize URL, redirect.
  */
 export async function startConnect(provider: SocialProvider) {
-  await requireSession();
+  await requireAdmin();
 
   const impl = getProvider(provider);
   if (!impl.isAvailable) {
@@ -58,7 +58,7 @@ export async function startConnect(provider: SocialProvider) {
 }
 
 export async function disconnectAccount(id: string) {
-  await requireSession();
+  await requireAdmin();
   // Soft disconnect: keep history, mark inactive. Editor can reconnect by
   // running the OAuth flow again, which upserts on (provider, externalId).
   await prisma.socialAccount.update({
@@ -69,6 +69,10 @@ export async function disconnectAccount(id: string) {
 }
 
 export async function reconnectAccount(id: string) {
+  // La guarda va antes de tocar la base. startConnect ya exige ADMIN, pero
+  // sin esto un editor podría averiguar si un id de cuenta existe mirando a
+  // qué error redirige.
+  await requireAdmin();
   const account = await prisma.socialAccount.findUnique({ where: { id } });
   if (!account) redirect("/admin/social?error=not_found");
   await startConnect(account.provider);
@@ -138,7 +142,7 @@ export async function createPublication(formData: FormData) {
 }
 
 export async function deletePublication(id: string) {
-  await requireSession();
+  await requireAdmin();
   await prisma.socialPublication.delete({ where: { id } });
   revalidatePath("/admin/social/publicaciones");
   redirect("/admin/social/publicaciones");

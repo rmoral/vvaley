@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { EpisodePillar, EpisodeStatus, GuestStatus } from "@prisma/client";
 import { z } from "zod";
-import { auth } from "@/auth";
+import { requireAdmin, requireSession } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
 import { sendEpisodeInvites } from "@/lib/calendar-invites";
@@ -49,11 +49,6 @@ const episodeSchema = z.object({
   guestIds: z.array(z.string()).default([]),
 });
 
-async function requireAdmin() {
-  const session = await auth();
-  if (!session?.user) redirect("/admin/login");
-  return session;
-}
 
 function parseForm(formData: FormData) {
   const pillarRaw = trim(formData.get("pillar"));
@@ -149,7 +144,7 @@ async function maybeSendInvites(episodeId: string) {
 }
 
 export async function createEpisode(formData: FormData) {
-  await requireAdmin();
+  await requireSession();
   const data = parseForm(formData);
   const baseSlug = data.slug ? slugify(data.slug) : slugify(data.title);
   const slug = await uniqueSlug(baseSlug);
@@ -194,7 +189,7 @@ export async function createEpisode(formData: FormData) {
 }
 
 export async function updateEpisode(id: string, formData: FormData) {
-  await requireAdmin();
+  await requireSession();
   const data = parseForm(formData);
   const baseSlug = data.slug ? slugify(data.slug) : slugify(data.title);
   const slug = await uniqueSlug(baseSlug, id);
@@ -262,7 +257,7 @@ export async function deleteEpisode(id: string) {
 
 /** Manual trigger from the admin UI. Lets the editor force a resend. */
 export async function resendEpisodeInvites(id: string) {
-  await requireAdmin();
+  await requireSession();
   await maybeSendInvites(id);
   revalidatePath(`/admin/episodios/${id}`);
 }

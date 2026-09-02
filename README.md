@@ -166,9 +166,19 @@ Iteraciones completadas:
 - [x] Noticias multilingües (con soporte para noticia "propia" o curada con `externalUrl`).
 - [x] Eventos multilingües con inscripciones públicas, gestión de aforo (waitlist automático), email de confirmación y CSV de inscritos.
 
+- [x] Publicación a RRSS: cola `SocialPublication` con conectores a LinkedIn, X, Instagram y TikTok.
+- [x] Envíos de campaña de la newsletter, además del email transaccional de confirmación.
+- [x] Sistema de diseño «Cota»: marca, iconos, imágenes Open Graph y paleta que cumple AA.
+- [x] Pipeline editorial: importador de paquetes markdown con campos SEO, FAQ, enlaces internos y portadas.
+- [x] Roles: `requireSession()` para crear y editar, `requireAdmin()` para borrar y para lo que toca cuentas o sale del sitio.
+- [x] Tests y CI en GitHub Actions (tipos, lint, tests y build).
+- [x] Copia de seguridad diaria de la base **y** de las imágenes subidas.
+
 Próximas iteraciones:
 
-- Subida de medios: portadas e imágenes a S3/Cloudflare R2 desde el backoffice.
-- Publicación a RRSS: cola de jobs `SocialPublication` con conectores a LinkedIn, X, Instagram, TikTok.
-- Envíos de campaña de la newsletter (no sólo el email transaccional de confirmación).
-- Roles y permisos finos para `EDITOR` vs `ADMIN`.
+- Subida de medios a S3/Cloudflare R2. Hoy van al disco de la instancia; el
+  respaldo diario las cubre, pero un almacén externo evitaría el punto único.
+- Sesión de fotos para `/sobre`, `/servicios` y los retratos de los conductores:
+  lo único del sistema de diseño que sigue sin cerrar.
+- Tests de integración de rutas: hoy la CI valida tipos, lint, lógica pura y
+  build, pero no levanta el sitio contra una base de datos.

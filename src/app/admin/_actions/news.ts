@@ -6,7 +6,7 @@ import { NewsStatus } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { parseFaqText } from "@/lib/faq";
-import { auth } from "@/auth";
+import { requireAdmin, requireSession } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
 import { parseTagNames, upsertTagsByName } from "@/lib/tags";
@@ -55,11 +55,6 @@ const newsSchema = z.object({
   tagNames: z.array(z.string()),
 });
 
-async function requireAdmin() {
-  const session = await auth();
-  if (!session?.user) redirect("/admin/login");
-  return session;
-}
 
 function parseForm(formData: FormData) {
   const translations = routing.locales.map((locale) => ({
@@ -137,7 +132,7 @@ function persistedTranslations(
 }
 
 export async function createNews(formData: FormData) {
-  const session = await requireAdmin();
+  const session = await requireSession();
   const data = parseForm(formData);
 
   const persisted = persistedTranslations(data.translations);
@@ -173,7 +168,7 @@ export async function createNews(formData: FormData) {
 }
 
 export async function updateNews(id: string, formData: FormData) {
-  await requireAdmin();
+  await requireSession();
   const data = parseForm(formData);
 
   const persisted = persistedTranslations(data.translations);

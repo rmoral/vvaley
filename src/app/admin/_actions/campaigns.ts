@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { CampaignStatus, SubscriberStatus } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireSession } from "@/lib/auth-helpers";
+import { requireAdmin, requireSession } from "@/lib/auth-helpers";
 import { sendEmail } from "@/lib/email";
 import { renderCampaign } from "@/lib/campaign-emails";
 import { buildCampaignBody, defaultSubject } from "@/lib/campaign-builder";
@@ -227,7 +227,7 @@ export async function composeCampaignFromContent(formData: FormData) {
 }
 
 export async function deleteCampaign(id: string) {
-  await requireSession();
+  await requireAdmin();
   await prisma.campaign.delete({ where: { id } });
   revalidatePath("/admin/campanas");
   redirect("/admin/campanas");
@@ -240,7 +240,7 @@ export async function deleteCampaign(id: string) {
  * the page and watch the progress.
  */
 export async function sendCampaign(id: string) {
-  await requireSession();
+  await requireAdmin();
 
   const campaign = await prisma.campaign.findUnique({ where: { id } });
   if (!campaign) redirect("/admin/campanas?error=not_found");

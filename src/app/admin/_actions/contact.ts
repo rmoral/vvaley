@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { ContactStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { requireSession } from "@/lib/auth-helpers";
+import { requireAdmin, requireSession } from "@/lib/auth-helpers";
 
 export async function setContactStatus(id: string, status: ContactStatus) {
   await requireSession();
@@ -20,7 +20,7 @@ export async function saveContactNotes(id: string, formData: FormData) {
 }
 
 export async function deleteContactRequest(id: string) {
-  await requireSession();
+  await requireAdmin();
   await prisma.contactRequest.delete({ where: { id } });
   revalidatePath("/admin/contacto");
 }

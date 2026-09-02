@@ -5,25 +5,7 @@
 // El mismo contenido se emite además como JSON-LD de tipo FAQPage (lo hace la
 // página, no este componente), que es lo que puede dar resultado enriquecido.
 
-export type FaqEntry = { pregunta: string; respuesta: string };
-
-/**
- * Valida el JSON que viene de la base de datos. El campo es Json?, así que
- * puede traer cualquier forma: se filtra a pares con las dos cadenas llenas
- * y se devuelve null si no queda ninguno.
- */
-export function parseFaq(value: unknown): FaqEntry[] | null {
-  if (!Array.isArray(value)) return null;
-  const rows = value.flatMap((row) => {
-    if (!row || typeof row !== "object") return [];
-    const { pregunta, respuesta } = row as Record<string, unknown>;
-    if (typeof pregunta !== "string" || typeof respuesta !== "string") return [];
-    const p = pregunta.trim();
-    const r = respuesta.trim();
-    return p && r ? [{ pregunta: p, respuesta: r }] : [];
-  });
-  return rows.length > 0 ? rows : null;
-}
+import type { FaqEntry } from "@/lib/faq";
 
 export function FaqBlock({ title, items }: { title: string; items: FaqEntry[] }) {
   return (

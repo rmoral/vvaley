@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { GuestStatus } from "@prisma/client";
 import { z } from "zod";
-import { auth } from "@/auth";
+import { requireAdmin, requireSession } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
 
@@ -38,11 +38,6 @@ const guestSchema = z.object({
   scheduledAt: z.date().nullable(),
 });
 
-async function requireAdmin() {
-  const session = await auth();
-  if (!session?.user) redirect("/admin/login");
-  return session;
-}
 
 function parseForm(formData: FormData) {
   const statusRaw = trim(formData.get("status")) ?? GuestStatus.PROPOSED;
@@ -81,7 +76,7 @@ async function uniqueSlug(base: string, ignoreId?: string) {
 }
 
 export async function createGuest(formData: FormData) {
-  await requireAdmin();
+  await requireSession();
   const data = parseForm(formData);
   const baseSlug = data.slug ? slugify(data.slug) : slugify(data.fullName);
   const slug = await uniqueSlug(baseSlug);
@@ -111,7 +106,7 @@ export async function createGuest(formData: FormData) {
 }
 
 export async function updateGuest(id: string, formData: FormData) {
-  await requireAdmin();
+  await requireSession();
   const data = parseForm(formData);
   const baseSlug = data.slug ? slugify(data.slug) : slugify(data.fullName);
   const slug = await uniqueSlug(baseSlug, id);
