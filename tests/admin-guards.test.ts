@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 
 /**
  * Política de permisos del back-office, verificada leyendo el código.
@@ -52,47 +53,49 @@ const ficheros = readdirSync(DIR)
   .filter((f) => f.endsWith(".ts"))
   .map((f) => f.replace(/\.ts$/, ""));
 
+const todas = ficheros.flatMap(accionesDe);
+
 describe("permisos del back-office", () => {
   it("cubre todos los ficheros de acciones", () => {
     // Si alguien añade un fichero nuevo, este test obliga a declarar su
     // política en lugar de dejarlo pasar sin revisar.
-    expect(ficheros.sort()).toEqual(Object.keys(SOLO_ADMIN).sort());
+    assert.deepEqual(ficheros.sort(), Object.keys(SOLO_ADMIN).sort());
   });
 
   it("no quedan copias locales de requireAdmin", () => {
     // La copia local era el fallo original: mismo nombre, sin comprobar rol.
     for (const f of ficheros) {
       const src = readFileSync(path.join(DIR, `${f}.ts`), "utf8");
-      expect(
-        /^\s*async function requireAdmin\(/m.test(src),
+      assert.ok(
+        !/^\s*async function requireAdmin\(/m.test(src),
         `${f}.ts define su propia requireAdmin en vez de usar @/lib/auth-helpers`,
-      ).toBe(false);
+      );
     }
   });
 
-  const todas = ficheros.flatMap(accionesDe);
-
   it("hay acciones que verificar", () => {
-    expect(todas.length).toBeGreaterThan(25);
+    assert.ok(todas.length > 25, `solo se encontraron ${todas.length}`);
   });
 
-  it.each(todas)("$fichero.$nombre tiene la guarda correcta", (accion) => {
-    const esperaAdmin = SOLO_ADMIN[accion.fichero].includes(accion.nombre);
-    const tieneAdmin = accion.cuerpo.includes("await requireAdmin()");
-    const tieneSesion = accion.cuerpo.includes("await requireSession()");
+  for (const accion of todas) {
+    it(`${accion.fichero}.${accion.nombre} tiene la guarda correcta`, () => {
+      const esperaAdmin = SOLO_ADMIN[accion.fichero].includes(accion.nombre);
+      const tieneAdmin = accion.cuerpo.includes("await requireAdmin()");
+      const tieneSesion = accion.cuerpo.includes("await requireSession()");
 
-    expect(
-      tieneAdmin || tieneSesion,
-      `${accion.nombre} no llama a ninguna guarda`,
-    ).toBe(true);
-
-    expect(
-      tieneAdmin,
-      esperaAdmin
-        ? `${accion.nombre} destruye o expone datos: debe exigir requireAdmin()`
-        : `${accion.nombre} es de edición corriente: requireSession() basta`,
-    ).toBe(esperaAdmin);
-  });
+      assert.ok(
+        tieneAdmin || tieneSesion,
+        `${accion.nombre} no llama a ninguna guarda`,
+      );
+      assert.equal(
+        tieneAdmin,
+        esperaAdmin,
+        esperaAdmin
+          ? `${accion.nombre} destruye o expone datos: debe exigir requireAdmin()`
+          : `${accion.nombre} es de edición corriente: requireSession() basta`,
+      );
+    });
+  }
 
   it("la guarda es lo primero que hace cada acción", () => {
     // Consultar la base antes de comprobar permisos filtra si un id existe.
@@ -104,6 +107,6 @@ describe("permisos del back-office", () => {
         tarde.push(`${a.fichero}.${a.nombre}`);
       }
     }
-    expect(tarde, `consultan la base antes de comprobar permisos`).toEqual([]);
+    assert.deepEqual(tarde, [], "consultan la base antes de comprobar permisos");
   });
 });

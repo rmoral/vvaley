@@ -34,6 +34,10 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      # Los tests corren con el runner de node y tsx, sin framework: vitest
+      # arrastraba rolldown y sus 15 binarios de plataforma, y la política de
+      # supply-chain de pnpm (minimumReleaseAge) los rechazaba en el servidor
+      # por recién publicados. Un runner sin dependencias no tiene ese problema.
       - name: Tests
         run: pnpm test
 

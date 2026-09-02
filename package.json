@@ -14,8 +14,8 @@
     "prisma:seed": "tsx prisma/seed.ts",
     "postinstall": "prisma generate",
     "content:import": "tsx scripts/import-content.ts",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "node --import tsx --test tests/**/*.test.ts",
+    "test:watch": "node --import tsx --test --watch tests/**/*.test.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -45,7 +45,6 @@
     "tailwindcss": "^4.0.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
-    "vitest": "^4.1.11",
     "yaml": "^2.9.0"
   }
 }
