@@ -56,10 +56,10 @@ enlaces_externos:
   - titulo: "Diari d'Andorra — L'APDA sanciona Andorra Telecom per la identificació de titulars d'eSIM"
     url: "https://www.diariandorra.ad/nacional/250502/l-apda-sanciona-andorra-telecom-per-identificacio-titulars-d-esim_172136.html"
 imagen_destacada:
-  alt: "Responsable de una pequeña empresa revisando en pantalla un registro de actividades de tratamiento en una oficina de un valle andorrano, protección de datos en Andorra"
+  alt: "Responsable de una pequeña empresa cotejando de pie una lista impresa con la tabla del monitor, en una oficina con vistas a un valle andorrano lluvioso, protección de datos en Andorra"
   nombre_archivo: "proteccion-datos-apda-andorra-empresas.jpg"
   prompt_nano_banana: >
-    Editorial photograph for a business news site. A man in his late thirties in a grey knit sweater stands at a desk in a small office in a narrow Pyrenean valley town, checking a spreadsheet of processing activities on his monitor against a printed checklist in his hand. Early September afternoon: flat overcast daylight through a wide window showing wet slate roofs and steep wooded slopes. Shot on a 50mm lens at f/2.8, medium shot from behind his shoulder, screen glow on his face, bare wall on the left third. Muted grey, oatmeal and dark green; quiet and methodical. photorealistic editorial photograph, 16:9, high detail. Negative prompt: text, watermark, logos, distorted hands, extra fingers, uncanny faces, CGI look, stock-photo cliché, oversaturated colors.
+    A man in his late thirties in a grey knit sweater stands at a wooden desk in a small office in a narrow Pyrenean valley town, holding a printed sheet and studying a blurred table of rows on his monitor. Early September afternoon lit only by flat overcast daylight from a wide window over wet slate roofs and wooded slopes; no desk lamp, no warm light. Shot on a 50mm lens at f/2.8, medium shot from behind his shoulder, bare wall on the left third. Muted grey, oatmeal and dark green; quiet, methodical. photorealistic editorial photograph, 16:9, high detail. Negative prompt: readable text, letters, numbers, dates, spreadsheet software interface, logos, watermark, warm lamp light, distorted hands, extra fingers, uncanny faces, CGI look, stock-photo cliché, oversaturated colors.
 schema:
   "@context": "https://schema.org"
   "@type": "Article"
