@@ -1,8 +1,16 @@
 import { Link } from "@/i18n/navigation";
+import { CoverArt } from "./CoverArt";
 import { TagChips } from "./TagChips";
 
 // Server Component. Fila de /noticias. Formato lista con fecha en columna
 // izquierda: la noticia es un flujo cronológico, no una rejilla de tarjetas.
+//
+// La miniatura se añadió después. La fila nació sin imagen, y eso hacía que
+// subir una portada a una noticia no cambiara nada en el listado: la portada
+// solo se veía al abrir la pieza. Va como miniatura y no como cabecera de
+// tarjeta para no romper el ritmo de lectura cronológico: en una lista de
+// veinte noticias, veinte imágenes grandes obligan a desplazarse tres pantallas
+// para ver lo mismo.
 //
 // externalUrl: si la noticia es curada, el enlace sale fuera en pestaña nueva
 // y se marca con ↗. El indicador lleva su propio <span class="sr-only"> con
@@ -17,6 +25,9 @@ export function NewsItem({
     slug: string;
     title: string;
     summary?: string | null;
+    coverImageUrl?: string | null;
+    /** true cuando la portada es la de temática, no una subida. */
+    coverIsDefault?: boolean;
     publishedAt?: Date | null;
     externalUrl?: string | null;
     tags?: { slug: string; name: string }[];
@@ -26,20 +37,33 @@ export function NewsItem({
   externalLabel: string;
 }) {
   const shell =
-    "vv-reveal group flex flex-col gap-2 rounded-lg border border-bg3 bg-white p-5 no-underline " +
+    "vv-reveal group flex flex-col gap-3 rounded-lg border border-bg3 bg-white p-5 no-underline " +
     "transition-all duration-250 ease-out-soft hover:-translate-y-0.5 hover:border-river-2 hover:shadow-lift " +
-    "sm:flex-row sm:items-baseline sm:gap-6";
+    "sm:flex-row sm:items-start sm:gap-6";
 
   const body = (
     <>
       {news.publishedAt ? (
         <time
           dateTime={news.publishedAt.toISOString()}
-          className="shrink-0 text-[0.74rem] uppercase tracking-[0.1em] text-river sm:w-32"
+          className="shrink-0 text-[0.74rem] uppercase tracking-[0.1em] text-river sm:w-32 sm:pt-1"
         >
           {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(news.publishedAt)}
         </time>
       ) : null}
+
+      {/* En móvil la miniatura va delante y a ancho completo, que es como se
+          leen las listas en un teléfono. En escritorio se encoge a 160px y se
+          coloca detrás del texto, para que la columna de titulares siga
+          alineada y la vista se pueda recorrer en vertical. */}
+      <CoverArt
+        src={news.coverImageUrl}
+        alt=""
+        variant="contour"
+        treatment={news.coverIsDefault ? "plate" : "duotone"}
+        sizes="(max-width: 640px) 100vw, 160px"
+        className="aspect-video w-full shrink-0 overflow-hidden rounded-md sm:order-last sm:w-40"
+      />
 
       <div className="flex-1">
         <h2 className="font-display text-card font-bold leading-tight text-text transition-colors duration-150 group-hover:text-river text-pretty">

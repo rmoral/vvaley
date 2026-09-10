@@ -1,6 +1,7 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { pickTranslation } from "@/lib/translations";
+import { resolveCover } from "@/lib/pillar-cover";
 import { NewsItem } from "@/components/public/NewsItem";
 import { RevealMount } from "@/components/public/RevealMount";
 import { ListHeader } from "@/components/public/ListHeader";
@@ -29,13 +30,18 @@ export default async function NewsListPage({
     .map((news) => {
       const tr = pickTranslation(news, locale as AppLocale);
       if (!tr) return null;
+      const tags = news.tags.map((nt) => nt.tag);
+      // Misma escalera que en el blog: subida → temática del pilar → contorno.
+      const cover = resolveCover({ uploaded: news.coverImageUrl, tags });
       return {
         slug: news.slug,
         title: tr.title,
         summary: tr.summary,
+        coverImageUrl: cover.src,
+        coverIsDefault: cover.isDefault,
         publishedAt: news.publishedAt,
         externalUrl: news.externalUrl,
-        tags: news.tags.map((nt) => nt.tag),
+        tags,
       };
     })
     .filter((n): n is NonNullable<typeof n> => n !== null);
