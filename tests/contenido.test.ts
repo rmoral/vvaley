@@ -105,6 +105,13 @@ describe("taxonomía de etiquetas", () => {
     assert.equal(canonicalTagSlug("regulacion-europea"), "regulacion");
     assert.equal(canonicalTagSlug("aduana"), "fiscalidad");
     assert.equal(canonicalTagSlug("tabaco"), "fiscalidad");
+    // Y con el del 6.
+    assert.equal(canonicalTagSlug("microempresas"), "pymes");
+    assert.equal(canonicalTagSlug("mercado-laboral"), "talento");
+    assert.equal(canonicalTagSlug("cass"), "talento");
+    // «productividad» estaba en automatización y despistaba: la pieza que la
+    // usa habla de tamaño de empresa, no de automatizar nada.
+    assert.equal(canonicalTagSlug("productividad"), "empresa");
   });
 
   it("deja pasar lo que no está en el mapa", () => {

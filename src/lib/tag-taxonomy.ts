@@ -64,10 +64,11 @@ const SINONIMOS: Record<string, string> = {
   "recursos-humanos": "talento",
   "gestion-de-personas": "talento",
   "politica-salarial": "talento",
+  "mercado-laboral": "talento",
+  cass: "talento",
 
   // Procesos
   operaciones: "automatizacion",
-  productividad: "automatizacion",
 
   // Contenidos y posicionamiento
   seo: "geo",
@@ -85,6 +86,12 @@ const SINONIMOS: Record<string, string> = {
   estrategia: "empresa",
   gestion: "empresa",
   expansion: "empresa",
+  microempresas: "pymes",
+  // «productividad» estuvo en automatización y despistaba: la pieza que la usa
+  // habla de tamaño de empresa y de la barrera del sexto empleado, no de
+  // automatizar nada. La productividad es un asunto de gestión; automatizar es
+  // una palanca, no un sinónimo.
+  productividad: "empresa",
 
   // Macro
   pib: "economia",

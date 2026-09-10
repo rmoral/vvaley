@@ -45,6 +45,8 @@ enlaces_internos:
     url: "/blog/casos-de-uso-ia-empresa-pequena"
   - texto: "Protección de datos y APDA: obligaciones básicas para empresas"
     url: "/blog/proteccion-datos-apda-andorra-empresas"
+  - texto: "Qué aplazó el Digital Omnibus y qué te sigue obligando desde agosto"
+    url: "/blog/obligaciones-ai-act-empresas"
 enlaces_externos:
   - texto: "Comisión Europea — La Comisión empieza a aplicar las normas del AI Act y los nuevos requisitos de transparencia el 2 de agosto"
     url: "https://digital-strategy.ec.europa.eu/en/news/commission-starts-enforcing-ai-act-rules-and-new-transparency-requirements-2-august"
