@@ -22,6 +22,10 @@ enlaces_internos:
     destino: "/blog/cuanto-cuesta-automatizar-un-proceso-con-ia"
   - texto: "el inmobiliario y las empresas andorranas a dos velocidades"
     destino: "/noticias/andorra-empresas-inmobiliario-dos-velocidades"
+  - texto: "el salto del transporte y la secuencia de la bonificación del carburante"
+    destino: "/noticias/inflacion-en-andorra-transporte"
+  - texto: "por qué indexar salarios al IPC te saldrá caro en 2027"
+    destino: "/blog/indexar-salarios-al-ipc"
 enlaces_externos:
   - titulo: "Bondia — L'IPC avançat de l'agost dispara la inflació interanual fins al 4,8 %"
     url: "https://www.bondia.ad/economia/l-ipc-avancat-de-l-agost-dispara-la-inflacio-interanual-fins-al-4-8"

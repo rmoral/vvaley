@@ -11,7 +11,9 @@
  * («IA», «IA aplicada», «IA en la empresa» → inteligencia artificial) y se
  * absorben las de un solo uso en la etiqueta general que ya existía
  * («salarios», «precios», «inflación» → costes). El resultado son 21
- * etiquetas, todas con dos piezas o más.
+ * etiquetas; solo «cloud» y «geo» siguen con una pieza cada una, y se dejan
+ * fuera del mapa a propósito porque son temas con recorrido propio que van a
+ * repetirse, no variantes de otra cosa.
  *
  * El mapa se aplica al importar, no al escribir: redacción sigue etiquetando
  * con su vocabulario y el sitio lo normaliza. Cuando aparezca una etiqueta
@@ -38,6 +40,7 @@ const SINONIMOS: Record<string, string> = {
   // Unión Europea
   europa: "union-europea",
   "acuerdo-de-asociacion": "union-europea",
+  "zona-euro": "union-europea",
 
   // Dinero que entra
   inversion: "financiacion",
@@ -58,6 +61,8 @@ const SINONIMOS: Record<string, string> = {
   // Personas
   contratacion: "talento",
   "recursos-humanos": "talento",
+  "gestion-de-personas": "talento",
+  "politica-salarial": "talento",
 
   // Procesos
   operaciones: "automatizacion",

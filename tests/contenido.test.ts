@@ -96,6 +96,10 @@ describe("taxonomía de etiquetas", () => {
     for (const v of ["salarios", "precios", "inflacion", "ipc", "carburantes"]) {
       assert.equal(canonicalTagSlug(v), "costes");
     }
+    // Añadidos con el paquete del 4 de septiembre: sin estos dos, el artículo
+    // de salarios estrenaba dos páginas de etiqueta con una sola pieza.
+    assert.equal(canonicalTagSlug("gestion-de-personas"), "talento");
+    assert.equal(canonicalTagSlug("zona-euro"), "union-europea");
   });
 
   it("deja pasar lo que no está en el mapa", () => {
