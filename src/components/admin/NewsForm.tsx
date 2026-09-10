@@ -8,6 +8,7 @@ import {
   type NewsTranslation,
   type Tag,
 } from "@prisma/client";
+import { ImageUploader } from "./ImageUploader";
 import { routing, type AppLocale } from "@/i18n/routing";
 import { tagsToString } from "@/lib/tags";
 import { faqToText } from "@/lib/faq";
@@ -178,12 +179,11 @@ export function NewsForm({ news, action, deleteAction, saved, error }: Props) {
             placeholder="https://"
             help="Si rellenas esto, la noticia se mostrará como una nota corta enlazando al medio original."
           />
-          <Field
-            label="URL de la portada"
+          <ImageUploader
+            label="Portada"
             name="coverImageUrl"
-            type="url"
             defaultValue={news?.coverImageUrl ?? ""}
-            placeholder="https://"
+            help="Sube una imagen o pega una URL externa."
           />
           <Field
             label="Etiquetas"

@@ -1,4 +1,5 @@
 import { EpisodePillar, EpisodeStatus, type Episode } from "@prisma/client";
+import { ImageUploader } from "./ImageUploader";
 
 type GuestOption = { id: string; fullName: string; company: string | null };
 
@@ -115,12 +116,11 @@ export function EpisodeForm({
             defaultValue={episode?.audioUrl ?? ""}
             placeholder="https://"
           />
-          <Field
-            label="URL de la portada"
+          <ImageUploader
+            label="Portada"
             name="coverImageUrl"
-            type="url"
             defaultValue={episode?.coverImageUrl ?? ""}
-            placeholder="https://"
+            help="Sube una imagen o pega una URL externa."
           />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Field

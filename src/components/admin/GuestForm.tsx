@@ -1,4 +1,5 @@
 import { GuestStatus, type Guest } from "@prisma/client";
+import { ImageUploader } from "./ImageUploader";
 
 type Props = {
   guest?: Guest | null;
@@ -98,13 +99,11 @@ export function GuestForm({ guest, action, deleteAction, saved }: Props) {
         </Card>
 
         <Card title="Foto">
-          <Field
-            label="URL de la foto"
+          <ImageUploader
+            label="Foto"
             name="photoUrl"
-            type="url"
             defaultValue={guest?.photoUrl ?? ""}
-            placeholder="https://"
-            help="De momento se gestiona por URL. La subida con S3 se añadirá en una próxima iteración."
+            help="Sube una imagen o pega una URL externa."
           />
         </Card>
 

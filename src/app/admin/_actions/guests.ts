@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { GuestStatus } from "@prisma/client";
 import { z } from "zod";
 import { requireAdmin, requireSession } from "@/lib/auth-helpers";
+import { assetUrl } from "@/lib/asset-url";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
 
@@ -27,7 +28,7 @@ const guestSchema = z.object({
   company: z.string().optional().nullable(),
   role: z.string().optional().nullable(),
   bio: z.string().optional().nullable(),
-  photoUrl: z.string().url().optional().nullable().or(z.literal("").transform(() => null)),
+  photoUrl: assetUrl,
   email: z.string().email().optional().nullable().or(z.literal("").transform(() => null)),
   website: z.string().url().optional().nullable().or(z.literal("").transform(() => null)),
   linkedin: z.string().optional().nullable(),

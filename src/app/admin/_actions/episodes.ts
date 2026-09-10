@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { EpisodePillar, EpisodeStatus, GuestStatus } from "@prisma/client";
 import { z } from "zod";
 import { requireAdmin, requireSession } from "@/lib/auth-helpers";
+import { assetUrl } from "@/lib/asset-url";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
 import { sendEpisodeInvites } from "@/lib/calendar-invites";
@@ -37,14 +38,14 @@ const episodeSchema = z.object({
   showNotes: z.string().optional().nullable(),
   pillar: z.nativeEnum(EpisodePillar).nullable(),
   durationSec: z.number().int().nullable(),
-  audioUrl: z.string().url().optional().nullable().or(z.literal("").transform(() => null)),
-  coverImageUrl: z.string().url().optional().nullable().or(z.literal("").transform(() => null)),
+  audioUrl: assetUrl,
+  coverImageUrl: assetUrl,
   spotifyUrl: z.string().url().optional().nullable().or(z.literal("").transform(() => null)),
   appleUrl: z.string().url().optional().nullable().or(z.literal("").transform(() => null)),
   youtubeUrl: z.string().url().optional().nullable().or(z.literal("").transform(() => null)),
   status: z.nativeEnum(EpisodeStatus),
   recordingAt: z.date().nullable(),
-  recordingUrl: z.string().url().optional().nullable().or(z.literal("").transform(() => null)),
+  recordingUrl: assetUrl,
   publishedAt: z.date().nullable(),
   guestIds: z.array(z.string()).default([]),
 });

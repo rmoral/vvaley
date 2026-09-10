@@ -98,12 +98,16 @@ export function ImageUploader({ name, label, defaultValue, help }: Props) {
         )}
       </div>
 
+      {/* type="text" y no "url": el valor habitual es una ruta del propio
+          sitio, "/uploads/2026/09/foto.jpg", que es justo lo que devuelve el
+          subidor de arriba. Con type="url" el navegador la marcaba como
+          inválida y bloqueaba el envío del formulario. */}
       <input
-        type="url"
+        type="text"
         name={name}
         value={url}
         onChange={(e) => setUrl(e.target.value)}
-        placeholder="https://..."
+        placeholder="/uploads/... o https://..."
         className="rounded-md border border-bg3 bg-bg px-3 py-2 font-mono text-[0.82rem] text-text outline-none transition-colors focus:border-river"
       />
 

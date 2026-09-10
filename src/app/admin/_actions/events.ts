@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { EventLocationType, EventStatus } from "@prisma/client";
 import { z } from "zod";
 import { requireAdmin, requireSession } from "@/lib/auth-helpers";
+import { assetUrl } from "@/lib/asset-url";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
 import { SERIES_VALUES } from "@/lib/event-series";
@@ -83,12 +84,7 @@ const eventSchema = z.object({
   capacity: z.number().int().nullable(),
   registrationOpensAt: z.date().nullable(),
   registrationClosesAt: z.date().nullable(),
-  coverImageUrl: z
-    .string()
-    .url()
-    .optional()
-    .nullable()
-    .or(z.literal("").transform(() => null)),
+  coverImageUrl: assetUrl,
   translations: z.array(translationSchema),
 });
 

@@ -7,6 +7,7 @@ import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { parseFaqText } from "@/lib/faq";
 import { requireAdmin, requireSession } from "@/lib/auth-helpers";
+import { assetUrl } from "@/lib/asset-url";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
 import { parseTagNames, upsertTagsByName } from "@/lib/tags";
@@ -38,12 +39,7 @@ const translationSchema = z.object({
 const newsSchema = z.object({
   slug: z.string().nullable(),
   status: z.nativeEnum(NewsStatus),
-  coverImageUrl: z
-    .string()
-    .url()
-    .optional()
-    .nullable()
-    .or(z.literal("").transform(() => null)),
+  coverImageUrl: assetUrl,
   externalUrl: z
     .string()
     .url()
