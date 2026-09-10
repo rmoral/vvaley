@@ -10,7 +10,9 @@ import { TagChips } from "./TagChips";
 // solo se veía al abrir la pieza. Va como miniatura y no como cabecera de
 // tarjeta para no romper el ritmo de lectura cronológico: en una lista de
 // veinte noticias, veinte imágenes grandes obligan a desplazarse tres pantallas
-// para ver lo mismo.
+// para ver lo mismo. Y va bajo la fecha, no al otro lado del texto, porque así
+// las dos piezas de metadato ocupan una sola columna y la fila se ajusta a la
+// altura del texto en vez de a la del elemento más alto de tres.
 //
 // externalUrl: si la noticia es curada, el enlace sale fuera en pestaña nueva
 // y se marca con ↗. El indicador lleva su propio <span class="sr-only"> con
@@ -43,27 +45,31 @@ export function NewsItem({
 
   const body = (
     <>
-      {news.publishedAt ? (
-        <time
-          dateTime={news.publishedAt.toISOString()}
-          className="shrink-0 text-[0.74rem] uppercase tracking-[0.1em] text-river sm:w-32 sm:pt-1"
-        >
-          {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(news.publishedAt)}
-        </time>
-      ) : null}
+      {/* Fecha y miniatura comparten columna. La fecha ocupa una línea y dejaba
+          el resto de su columna en blanco mientras la imagen colgaba al otro
+          lado del texto: tres columnas para dos cosas, y la fila crecía hasta
+          la más alta de las tres. Apiladas, la altura la marca el texto y las
+          filas quedan más juntas. En móvil no hay columnas y sale fecha,
+          imagen a ancho completo y texto, que es el orden de lectura. */}
+      <div className="flex shrink-0 flex-col gap-2.5 sm:w-40">
+        {news.publishedAt ? (
+          <time
+            dateTime={news.publishedAt.toISOString()}
+            className="text-[0.74rem] uppercase tracking-[0.1em] text-river sm:pt-1"
+          >
+            {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(news.publishedAt)}
+          </time>
+        ) : null}
 
-      {/* En móvil la miniatura va delante y a ancho completo, que es como se
-          leen las listas en un teléfono. En escritorio se encoge a 160px y se
-          coloca detrás del texto, para que la columna de titulares siga
-          alineada y la vista se pueda recorrer en vertical. */}
-      <CoverArt
-        src={news.coverImageUrl}
-        alt=""
-        variant="contour"
-        treatment={news.coverIsDefault ? "plate" : "duotone"}
-        sizes="(max-width: 640px) 100vw, 160px"
-        className="aspect-video w-full shrink-0 overflow-hidden rounded-md sm:order-last sm:w-40"
-      />
+        <CoverArt
+          src={news.coverImageUrl}
+          alt=""
+          variant="contour"
+          treatment={news.coverIsDefault ? "plate" : "duotone"}
+          sizes="(max-width: 640px) 100vw, 160px"
+          className="aspect-video w-full overflow-hidden rounded-md"
+        />
+      </div>
 
       <div className="flex-1">
         <h2 className="font-display text-card font-bold leading-tight text-text transition-colors duration-150 group-hover:text-river text-pretty">
