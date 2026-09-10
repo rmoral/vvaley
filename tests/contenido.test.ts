@@ -112,6 +112,12 @@ describe("taxonomía de etiquetas", () => {
     // «productividad» estaba en automatización y despistaba: la pieza que la
     // usa habla de tamaño de empresa, no de automatizar nada.
     assert.equal(canonicalTagSlug("productividad"), "empresa");
+    // Y con el del 8.
+    assert.equal(canonicalTagSlug("bce"), "economia");
+    assert.equal(canonicalTagSlug("deuda"), "economia");
+    assert.equal(canonicalTagSlug("energia"), "costes");
+    assert.equal(canonicalTagSlug("presupuesto"), "fiscalidad");
+    assert.equal(canonicalTagSlug("finanzas-publicas"), "fiscalidad");
   });
 
   it("deja pasar lo que no está en el mapa", () => {

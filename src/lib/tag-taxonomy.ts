@@ -54,6 +54,7 @@ const SINONIMOS: Record<string, string> = {
   // Dinero que sale
   ipc: "costes",
   carburantes: "costes",
+  energia: "costes",
   "costes-laborales": "costes",
   salarios: "costes",
   precios: "costes",
@@ -97,6 +98,8 @@ const SINONIMOS: Record<string, string> = {
   pib: "economia",
   "tipos-de-interes": "economia",
   inmobiliario: "economia",
+  bce: "economia",
+  deuda: "economia",
 
   // Ayudas públicas
   subvenciones: "digitalizacion",
@@ -106,6 +109,8 @@ const SINONIMOS: Record<string, string> = {
   // «aduana» se merecerá página propia: entonces se saca del mapa.
   aduana: "fiscalidad",
   tabaco: "fiscalidad",
+  presupuesto: "fiscalidad",
+  "finanzas-publicas": "fiscalidad",
 };
 
 /** Nombre visible de cada etiqueta canónica que no sale bien de un slug. */
