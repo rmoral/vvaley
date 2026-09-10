@@ -7,6 +7,7 @@ import { z } from "zod";
 import { requireAdmin, requireSession } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
+import { SERIES_VALUES } from "@/lib/event-series";
 import { routing } from "@/i18n/routing";
 
 const trim = (v: FormDataEntryValue | null) => {
@@ -28,6 +29,22 @@ const dateOrNull = (v: FormDataEntryValue | null) => {
   return Number.isNaN(d.getTime()) ? null : d;
 };
 
+/**
+ * Precio escrito a mano ("20", "20 €", "12,50") a céntimos.
+ *
+ * Acepta coma y punto porque quien rellena esto escribe en español y teclea
+ * 12,50; guardar 1250 en vez de 12 no debería depender de acordarse de la
+ * convención inglesa.
+ */
+const centsOrNull = (v: FormDataEntryValue | null) => {
+  const s = trim(v);
+  if (s === null) return null;
+  const limpio = s.replace(/[^\d,.-]/g, "").replace(",", ".");
+  const n = Number(limpio);
+  if (!Number.isFinite(n) || n < 0) return null;
+  return Math.round(n * 100);
+};
+
 const translationSchema = z.object({
   locale: z.string(),
   title: z.string(),
@@ -39,6 +56,19 @@ const eventSchema = z.object({
   slug: z.string().nullable(),
   status: z.nativeEnum(EventStatus),
   locationType: z.nativeEnum(EventLocationType),
+  // Se valida contra la lista cerrada: una serie inventada dejaría la edición
+  // fuera de su landing sin dar ningún aviso.
+  series: z
+    .enum(SERIES_VALUES as [string, ...string[]])
+    .nullable(),
+  guestId: z.string().nullable(),
+  priceCents: z.number().int().nonnegative().nullable(),
+  ticketUrl: z
+    .string()
+    .url()
+    .optional()
+    .nullable()
+    .or(z.literal("").transform(() => null)),
   startsAt: z.date(),
   endsAt: z.date().nullable(),
   timezone: z.string(),
@@ -83,6 +113,10 @@ function parseForm(formData: FormData) {
     locationType:
       (trim(formData.get("locationType")) as EventLocationType | null) ??
       EventLocationType.INPERSON,
+    series: trim(formData.get("series")),
+    guestId: trim(formData.get("guestId")),
+    priceCents: centsOrNull(formData.get("price")),
+    ticketUrl: trim(formData.get("ticketUrl")),
     startsAt,
     endsAt: dateOrNull(formData.get("endsAt")),
     timezone: trim(formData.get("timezone")) ?? "Europe/Andorra",
@@ -166,6 +200,10 @@ export async function createEvent(formData: FormData) {
       registrationOpensAt: data.registrationOpensAt,
       registrationClosesAt: data.registrationClosesAt,
       coverImageUrl: data.coverImageUrl,
+      series: data.series,
+      guestId: data.guestId,
+      priceCents: data.priceCents,
+      ticketUrl: data.ticketUrl,
       authorId: session.user.id,
       translations: { create: persisted },
     },
@@ -206,6 +244,10 @@ export async function updateEvent(id: string, formData: FormData) {
         registrationOpensAt: data.registrationOpensAt,
         registrationClosesAt: data.registrationClosesAt,
         coverImageUrl: data.coverImageUrl,
+        series: data.series,
+        guestId: data.guestId,
+        priceCents: data.priceCents,
+        ticketUrl: data.ticketUrl,
         translations: { create: persisted },
       },
     }),

@@ -60,6 +60,7 @@ model Guest {
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   episodes    EpisodeGuest[]
+  events      Event[]
 
   @@index([fullName])
   @@index([status, scheduledAt])
@@ -304,6 +305,10 @@ model Event {
   slug                 String              @unique
   status               EventStatus         @default(DRAFT)
   locationType         EventLocationType   @default(INPERSON)
+  /// Formato recurrente al que pertenece la edición: "meetup", "table",
+  /// "summit" o "ski". Es lo que permite que /meetup resuelva siempre la
+  /// próxima edición sin cambiar la URL cada mes. null = evento suelto.
+  series               String?
   startsAt             DateTime
   endsAt               DateTime?
   timezone             String              @default("Europe/Andorra")
@@ -314,6 +319,16 @@ model Event {
   registrationOpensAt  DateTime?
   registrationClosesAt DateTime?
   coverImageUrl        String?
+  /// Precio en céntimos. null = gratuito o sin precio publicado.
+  priceCents           Int?
+  /// Venta externa (Eventbrite, Stripe…). Si está, el CTA lleva ahí en vez
+  /// de al formulario propio: permite cobrar sin montar pasarela.
+  ticketUrl            String?
+  /// Invitado de la edición. Es el mismo Guest del podcast a propósito: la
+  /// regla editorial es que invitado de meetup = episodio. Nullable porque
+  /// las ediciones sociales (navidad, verano) no llevan entrevista.
+  guestId              String?
+  guest                Guest?              @relation(fields: [guestId], references: [id], onDelete: SetNull)
   authorId             String?
   author               User?               @relation(fields: [authorId], references: [id])
   createdAt            DateTime            @default(now())
@@ -322,6 +337,7 @@ model Event {
   registrations        EventRegistration[]
 
   @@index([status, startsAt])
+  @@index([series, status, startsAt])
 }
 
 model EventTranslation {

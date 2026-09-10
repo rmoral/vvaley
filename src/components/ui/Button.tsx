@@ -27,6 +27,7 @@ const BASE =
 
 export function Button({
   href,
+  external = false,
   variant = "primary",
   size = "md",
   fullWidthMobile = false,
@@ -36,6 +37,12 @@ export function Button({
   className = "",
 }: {
   href?: string;
+  /**
+   * Destino fuera del sitio. Hace falta porque el Link de next-intl antepone
+   * el idioma a la ruta, y sobre una URL absoluta —una plataforma de
+   * ticketing, por ejemplo— eso la rompe. Sale en pestaña nueva.
+   */
+  external?: boolean;
   variant?: Variant;
   size?: Size;
   /** En móvil ocupa el 100%: evita que dos CTA largas en FR/CA se compriman. */
@@ -54,6 +61,13 @@ export function Button({
   ].join(" ");
 
   if (href && !disabled) {
+    if (external) {
+      return (
+        <a href={href} target="_blank" rel="noopener noreferrer" className={cls}>
+          {children}
+        </a>
+      );
+    }
     return (
       <Link href={href} className={cls}>
         {children}

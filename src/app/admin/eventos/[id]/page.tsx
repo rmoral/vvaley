@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { EventForm } from "@/components/admin/EventForm";
 import { updateEvent, deleteEvent } from "@/app/admin/_actions/events";
+import { guestOptions } from "@/lib/guest-options";
 
 export default async function EditEventPage({
   params,
@@ -28,6 +29,7 @@ export default async function EditEventPage({
   });
   if (!event) notFound();
 
+  const guests = await guestOptions();
   const update = updateEvent.bind(null, id);
   const remove = async () => {
     "use server";
@@ -72,6 +74,7 @@ export default async function EditEventPage({
       </header>
       <EventForm
         event={event}
+        guests={guests}
         action={update}
         deleteAction={remove}
         saved={Boolean(saved)}

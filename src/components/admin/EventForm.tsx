@@ -8,6 +8,17 @@ import {
   type EventTranslation,
 } from "@prisma/client";
 import { routing, type AppLocale } from "@/i18n/routing";
+import { SERIES } from "@/lib/event-series";
+import { ImageUploader } from "./ImageUploader";
+
+/** Formatos recurrentes del plan. "" = evento suelto, fuera de serie. */
+const seriesLabel: Record<string, string> = {
+  "": "Suelto (no aparece en ninguna landing)",
+  [SERIES.MEETUP]: "Meetup mensual — sale en /meetup",
+  [SERIES.TABLE]: "Table trimestral",
+  [SERIES.SUMMIT]: "Summit anual",
+  [SERIES.SKI]: "Ski & Business",
+};
 
 const localeLabel: Record<AppLocale, string> = {
   es: "Español",
@@ -31,6 +42,8 @@ const locationLabel: Record<EventLocationType, string> = {
 
 type Props = {
   event?: (Event & { translations: EventTranslation[] }) | null;
+  /** Invitados disponibles para asignar a la edición. */
+  guests?: { id: string; fullName: string; company: string | null }[];
   action: (formData: FormData) => Promise<void>;
   deleteAction?: (formData: FormData) => Promise<void>;
   saved?: boolean;
@@ -42,6 +55,7 @@ const toLocalInput = (d: Date | null | undefined) =>
 
 export function EventForm({
   event,
+  guests = [],
   action,
   deleteAction,
   saved,
@@ -114,6 +128,51 @@ export function EventForm({
               </div>
             );
           })}
+        </Card>
+
+        <Card title="Formato y edición">
+          <Select
+            label="Serie"
+            name="series"
+            defaultValue={event?.series ?? ""}
+            options={Object.entries(seriesLabel).map(([value, label]) => ({
+              value,
+              label,
+            }))}
+          />
+          <Select
+            label="Invitado"
+            name="guestId"
+            defaultValue={event?.guestId ?? ""}
+            options={[
+              { value: "", label: "Sin invitado (edición social)" },
+              ...guests.map((g) => ({
+                value: g.id,
+                label: g.company ? `${g.fullName} · ${g.company}` : g.fullName,
+              })),
+            ]}
+          />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field
+              label="Precio (€)"
+              name="price"
+              defaultValue={
+                event?.priceCents != null
+                  ? (event.priceCents / 100).toString().replace(".", ",")
+                  : ""
+              }
+              placeholder="20"
+              help="Vacío = no se publica precio."
+            />
+            <Field
+              label="Venta externa"
+              name="ticketUrl"
+              type="url"
+              defaultValue={event?.ticketUrl ?? ""}
+              placeholder="https://"
+              help="Si la rellenas, el botón lleva ahí en vez de al formulario propio."
+            />
+          </div>
         </Card>
 
         <Card title="Cuándo">
@@ -220,12 +279,11 @@ export function EventForm({
             defaultValue={event?.slug ?? ""}
             placeholder="se-genera-desde-el-titulo"
           />
-          <Field
-            label="URL de la portada"
+          <ImageUploader
+            label="Portada"
             name="coverImageUrl"
-            type="url"
             defaultValue={event?.coverImageUrl ?? ""}
-            placeholder="https://"
+            help="Sube una imagen o pega una URL externa."
           />
         </Card>
 

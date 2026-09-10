@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { EventForm } from "@/components/admin/EventForm";
 import { createEvent } from "@/app/admin/_actions/events";
+import { guestOptions } from "@/lib/guest-options";
 
 export default async function NewEventPage({
   searchParams,
@@ -13,6 +14,7 @@ export default async function NewEventPage({
   const session = await auth();
   if (!session?.user) redirect("/admin/login");
   const { error } = await searchParams;
+  const guests = await guestOptions();
 
   return (
     <AdminShell userName={session.user.name ?? session.user.email} userRole={session.user.role}>
@@ -25,7 +27,7 @@ export default async function NewEventPage({
       <h1 className="mb-8 font-display text-[1.8rem] font-bold text-text">
         Nuevo evento
       </h1>
-      <EventForm action={createEvent} error={error} />
+      <EventForm action={createEvent} guests={guests} error={error} />
     </AdminShell>
   );
 }
