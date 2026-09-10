@@ -36,6 +36,7 @@ const SINONIMOS: Record<string, string> = {
   cumplimiento: "regulacion",
   "cumplimiento-normativo": "regulacion",
   transparencia: "regulacion",
+  "regulacion-europea": "regulacion",
 
   // Unión Europea
   europa: "union-europea",
@@ -92,6 +93,12 @@ const SINONIMOS: Record<string, string> = {
 
   // Ayudas públicas
   subvenciones: "digitalizacion",
+
+  // Recaudación. Aduana y tabaco entran en fiscalidad porque hoy tienen una
+  // pieza cada una. Si los datos de la Duana pasan a ser una serie mensual,
+  // «aduana» se merecerá página propia: entonces se saca del mapa.
+  aduana: "fiscalidad",
+  tabaco: "fiscalidad",
 };
 
 /** Nombre visible de cada etiqueta canónica que no sale bien de un slug. */

@@ -100,6 +100,11 @@ describe("taxonomía de etiquetas", () => {
     // de salarios estrenaba dos páginas de etiqueta con una sola pieza.
     assert.equal(canonicalTagSlug("gestion-de-personas"), "talento");
     assert.equal(canonicalTagSlug("zona-euro"), "union-europea");
+    // Y con el del 5: aduana y tabaco entran en fiscalidad mientras tengan una
+    // pieza cada una. Si la Duana pasa a ser serie mensual, se sacan del mapa.
+    assert.equal(canonicalTagSlug("regulacion-europea"), "regulacion");
+    assert.equal(canonicalTagSlug("aduana"), "fiscalidad");
+    assert.equal(canonicalTagSlug("tabaco"), "fiscalidad");
   });
 
   it("deja pasar lo que no está en el mapa", () => {
