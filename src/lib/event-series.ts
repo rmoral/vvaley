@@ -51,8 +51,7 @@ export const NO_GUEST_CHOICE = "__none__";
 /**
  * Lee el desplegable de invitado. Son tres estados, no dos: vacío es «todavía
  * no hay» y la landing dice «por anunciar»; NO_GUEST_CHOICE es «no lleva» y la
- * landing no promete nada ni pinta la escaleta de la entrevista; cualquier
- * otro valor es el id del invitado.
+ * landing no promete nada; cualquier otro valor es el id del invitado.
  */
 export function parseGuestChoice(
   value: string | null,

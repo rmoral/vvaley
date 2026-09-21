@@ -13,7 +13,6 @@ import {
 import { EventGate } from "@/components/public/EventGate";
 import { MeetupGuest } from "@/components/public/MeetupGuest";
 import { NewsletterInline } from "@/components/public/NewsletterInline";
-import { ProcessStep } from "@/components/public/ProcessStep";
 import { RevealMount } from "@/components/public/RevealMount";
 import { JsonLd } from "@/components/public/JsonLd";
 import { Prose } from "@/components/public/DetailShell";
@@ -163,12 +162,20 @@ export async function SeriesLanding({
 
   const html = tr?.description ? renderMarkdown(tr.description) : "";
 
-  const escaleta = [
-    { t: t("f1_title"), d: t("f1_desc") },
-    { t: t("f2_title"), d: t("f2_desc") },
-    { t: t("f3_title"), d: t("f3_desc") },
-    { t: t("f4_title"), d: t("f4_desc") },
-  ];
+  // «30 de septiembre de 2026, de 17:30 a 19:00». La hora de fin sale de la
+  // edición, no de una escaleta fija: cada edición tiene su horario y la
+  // plantilla no debe suponerlo. Si el fin cae otro día, se escribe entero.
+  const cuando = (() => {
+    if (!edicion) return null;
+    const dia = fmt.dateTime(edicion.startsAt, { dateStyle: "long" });
+    const inicio = fmt.dateTime(edicion.startsAt, { timeStyle: "short" });
+    if (!edicion.endsAt) return `${dia}, ${inicio}`;
+    const mismoDia = edicion.endsAt.toDateString() === edicion.startsAt.toDateString();
+    const fin = mismoDia
+      ? fmt.dateTime(edicion.endsAt, { timeStyle: "short" })
+      : fmt.dateTime(edicion.endsAt, { dateStyle: "long", timeStyle: "short" });
+    return `${dia}, ${t("time_range", { start: inicio, end: fin })}`;
+  })();
 
   const url = localizedUrls(path, locale as AppLocale).canonical;
   const jsonLd = edicion
@@ -236,7 +243,7 @@ export async function SeriesLanding({
                   {t("when_label")}
                 </p>
                 <p className={`mt-1 font-display text-[1.05rem] font-bold ${hero.value}`}>
-                  {fmt.dateTime(edicion.startsAt, { dateStyle: "long", timeStyle: "short" })}
+                  {cuando}
                 </p>
               </div>
               {edicion.venueName ? (
@@ -324,30 +331,6 @@ export async function SeriesLanding({
             ) : null}
           </div>
         </section>
-      ) : null}
-
-      {/* Formato. Fijo en i18n: la escaleta no cambia de una edición a otra.
-          Salvo cuando la edición no lleva invitado: la escaleta describe la
-          entrevista, y en un meetup navideño o un café sin apertura sería
-          falsa. Entonces el programa de la tarde lo cuenta el texto libre de
-          la edición, que se escribe desde el back-office. */}
-      {!edicion?.noGuest ? (
-        <>
-          <Divider />
-          <section className="bg-bg2 px-6 py-20 md:px-16">
-            <div className="mx-auto max-w-5xl">
-              <SectionLabel>{t("format_tag")}</SectionLabel>
-              <h2 className="vv-reveal mb-10 mt-6 font-display text-section font-bold text-text text-pretty">
-                {t("format_title")}
-              </h2>
-              <div className="vv-seq grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                {escaleta.map((paso, i) => (
-                  <ProcessStep key={paso.t} num={String(i + 1)} title={paso.t} desc={paso.d} />
-                ))}
-              </div>
-            </div>
-          </section>
-        </>
       ) : null}
 
       <Divider />
