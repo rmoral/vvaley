@@ -8,7 +8,7 @@ import { requireAdmin, requireSession } from "@/lib/auth-helpers";
 import { assetUrl } from "@/lib/asset-url";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
-import { SERIES_VALUES } from "@/lib/event-series";
+import { SERIES_VALUES, parseGuestChoice } from "@/lib/event-series";
 import { routing } from "@/i18n/routing";
 
 const trim = (v: FormDataEntryValue | null) => {
@@ -63,6 +63,7 @@ const eventSchema = z.object({
     .enum(SERIES_VALUES as [string, ...string[]])
     .nullable(),
   guestId: z.string().nullable(),
+  noGuest: z.boolean(),
   priceCents: z.number().int().nonnegative().nullable(),
   ticketUrl: z
     .string()
@@ -110,7 +111,7 @@ function parseForm(formData: FormData) {
       (trim(formData.get("locationType")) as EventLocationType | null) ??
       EventLocationType.INPERSON,
     series: trim(formData.get("series")),
-    guestId: trim(formData.get("guestId")),
+    ...parseGuestChoice(trim(formData.get("guestId"))),
     priceCents: centsOrNull(formData.get("price")),
     ticketUrl: trim(formData.get("ticketUrl")),
     startsAt,
@@ -198,6 +199,7 @@ export async function createEvent(formData: FormData) {
       coverImageUrl: data.coverImageUrl,
       series: data.series,
       guestId: data.guestId,
+      noGuest: data.noGuest,
       priceCents: data.priceCents,
       ticketUrl: data.ticketUrl,
       authorId: session.user.id,
@@ -242,6 +244,7 @@ export async function updateEvent(id: string, formData: FormData) {
         coverImageUrl: data.coverImageUrl,
         series: data.series,
         guestId: data.guestId,
+        noGuest: data.noGuest,
         priceCents: data.priceCents,
         ticketUrl: data.ticketUrl,
         translations: { create: persisted },

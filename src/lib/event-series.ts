@@ -45,6 +45,24 @@ export const LANDINGS: Record<string, { path: string; ns: string; variant: Landi
   [SERIES.CAFE_IA]: { path: "/cafe-ia", ns: "cafeIa", variant: "river" },
 };
 
+/** Valor del desplegable del back-office que marca «no lleva invitado». */
+export const NO_GUEST_CHOICE = "__none__";
+
+/**
+ * Lee el desplegable de invitado. Son tres estados, no dos: vacío es «todavía
+ * no hay» y la landing dice «por anunciar»; NO_GUEST_CHOICE es «no lleva» y la
+ * landing no promete nada ni pinta la escaleta de la entrevista; cualquier
+ * otro valor es el id del invitado.
+ */
+export function parseGuestChoice(
+  value: string | null,
+): { guestId: string | null; noGuest: boolean } {
+  const v = value?.trim() ?? "";
+  if (v === NO_GUEST_CHOICE) return { guestId: null, noGuest: true };
+  if (v === "") return { guestId: null, noGuest: false };
+  return { guestId: v, noGuest: false };
+}
+
 /** Serie a la que pertenece una ruta de landing, o null si no es una. */
 export function seriesForPath(path: string): string | null {
   for (const [series, l] of Object.entries(LANDINGS)) {

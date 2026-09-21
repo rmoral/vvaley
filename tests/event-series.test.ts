@@ -8,6 +8,8 @@ import {
   LANDINGS,
   SERIES_VALUES,
   seriesForPath,
+  parseGuestChoice,
+  NO_GUEST_CHOICE,
 } from "@/lib/event-series";
 
 /**
@@ -146,5 +148,20 @@ describe("registro de landings", () => {
       Object.keys(es[l.ns]).sort(),
     );
     for (const b of bloques.slice(1)) assert.deepEqual(b, bloques[0]);
+  });
+});
+
+describe("desplegable de invitado", () => {
+  it("distingue «todavía no hay» de «no lleva»", () => {
+    // Antes los dos casos llegaban igual a la landing y la web decía «por
+    // anunciar» en un meetup navideño que nunca iba a tener entrevista.
+    assert.deepEqual(parseGuestChoice(""), { guestId: null, noGuest: false });
+    assert.deepEqual(parseGuestChoice(null), { guestId: null, noGuest: false });
+    assert.deepEqual(parseGuestChoice(NO_GUEST_CHOICE), { guestId: null, noGuest: true });
+  });
+
+  it("cualquier otro valor es un invitado", () => {
+    assert.deepEqual(parseGuestChoice("ckx123"), { guestId: "ckx123", noGuest: false });
+    assert.deepEqual(parseGuestChoice("  ckx123  "), { guestId: "ckx123", noGuest: false });
   });
 });

@@ -307,7 +307,10 @@ export async function SeriesLanding({
                 label={t("guest_label")}
                 linkLabel={t("guest_link")}
               />
-            ) : (
+            ) : edicion.noGuest ? null : (
+              // Sin invitado todavía: se deja el hueco con aviso. Si la edición
+              // no lleva invitado a propósito, no se pinta nada: prometer uno
+              // en el meetup navideño sería mentir.
               <div className="vv-reveal rounded-lg border border-dashed border-bg3 bg-bg2 p-8 text-center">
                 <p className="font-display text-sub font-bold text-text">{t("guest_tba_title")}</p>
                 <p className="mt-2 text-[0.95rem] leading-[1.7] text-text-2">{t("guest_tba_body")}</p>
@@ -323,22 +326,29 @@ export async function SeriesLanding({
         </section>
       ) : null}
 
-      <Divider />
-
-      {/* Formato. Fijo en i18n: la escaleta no cambia de una edición a otra. */}
-      <section className="bg-bg2 px-6 py-20 md:px-16">
-        <div className="mx-auto max-w-5xl">
-          <SectionLabel>{t("format_tag")}</SectionLabel>
-          <h2 className="vv-reveal mb-10 mt-6 font-display text-section font-bold text-text text-pretty">
-            {t("format_title")}
-          </h2>
-          <div className="vv-seq grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {escaleta.map((paso, i) => (
-              <ProcessStep key={paso.t} num={String(i + 1)} title={paso.t} desc={paso.d} />
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Formato. Fijo en i18n: la escaleta no cambia de una edición a otra.
+          Salvo cuando la edición no lleva invitado: la escaleta describe la
+          entrevista, y en un meetup navideño o un café sin apertura sería
+          falsa. Entonces el programa de la tarde lo cuenta el texto libre de
+          la edición, que se escribe desde el back-office. */}
+      {!edicion?.noGuest ? (
+        <>
+          <Divider />
+          <section className="bg-bg2 px-6 py-20 md:px-16">
+            <div className="mx-auto max-w-5xl">
+              <SectionLabel>{t("format_tag")}</SectionLabel>
+              <h2 className="vv-reveal mb-10 mt-6 font-display text-section font-bold text-text text-pretty">
+                {t("format_title")}
+              </h2>
+              <div className="vv-seq grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                {escaleta.map((paso, i) => (
+                  <ProcessStep key={paso.t} num={String(i + 1)} title={paso.t} desc={paso.d} />
+                ))}
+              </div>
+            </div>
+          </section>
+        </>
+      ) : null}
 
       <Divider />
 

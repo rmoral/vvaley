@@ -8,7 +8,7 @@ import {
   type EventTranslation,
 } from "@prisma/client";
 import { routing, type AppLocale } from "@/i18n/routing";
-import { SERIES, LANDINGS } from "@/lib/event-series";
+import { SERIES, LANDINGS, NO_GUEST_CHOICE } from "@/lib/event-series";
 import { ImageUploader } from "./ImageUploader";
 
 /** Nombre de cada formato recurrente del plan. */
@@ -155,9 +155,14 @@ export function EventForm({
           <Select
             label="Invitado"
             name="guestId"
-            defaultValue={event?.guestId ?? ""}
+            defaultValue={event?.noGuest ? NO_GUEST_CHOICE : (event?.guestId ?? "")}
             options={[
-              { value: "", label: "Sin invitado (edición social)" },
+              // Tres estados. «Por anunciar» deja el hueco en la landing con
+              // un aviso; «sin invitado» lo quita y con él la escaleta de la
+              // entrevista. Hasta ahora ambos eran la misma opción y la web
+              // prometía un invitado en las ediciones sociales.
+              { value: "", label: "Por anunciar (todavía no hay)" },
+              { value: NO_GUEST_CHOICE, label: "Sin invitado: esta edición no lleva entrevista" },
               ...guests.map((g) => ({
                 value: g.id,
                 label: g.company ? `${g.fullName} · ${g.company}` : g.fullName,

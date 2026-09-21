@@ -329,6 +329,12 @@ model Event {
   /// las ediciones sociales (navidad, verano) no llevan entrevista.
   guestId              String?
   guest                Guest?              @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  /// La edición no lleva invitado a propósito: el meetup navideño, un café en
+  /// el que la mesa es el formato. Es distinto de guestId null, que significa
+  /// «todavía no hay» y hace que la landing diga «por anunciar». Sin este
+  /// campo los dos casos se veían igual y la web prometía un invitado que en
+  /// las ediciones sociales no iba a llegar.
+  noGuest              Boolean             @default(false)
   authorId             String?
   author               User?               @relation(fields: [authorId], references: [id])
   createdAt            DateTime            @default(now())
