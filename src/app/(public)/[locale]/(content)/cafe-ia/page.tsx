@@ -3,8 +3,9 @@ import { setRequestLocale } from "next-intl/server";
 import { SERIES } from "@/lib/event-series";
 import { SeriesLanding, seriesLandingMetadata } from "@/components/public/SeriesLanding";
 
-// Landing del meetup mensual. La plantilla está en SeriesLanding; aquí solo
-// se dice qué serie es. Ver el registro LANDINGS en @/lib/event-series.
+// Landing del café quincenal de IA. Misma plantilla que /meetup con otro
+// bloque de textos y el estrato "river" en la cabecera. Ver LANDINGS en
+// @/lib/event-series.
 
 export const dynamic = "force-dynamic";
 
@@ -15,15 +16,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
-  return seriesLandingMetadata(locale, SERIES.MEETUP);
+  return seriesLandingMetadata(locale, SERIES.CAFE_IA);
 }
 
-export default async function MeetupLandingPage({
+export default async function CafeIaLandingPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <SeriesLanding locale={locale} series={SERIES.MEETUP} />;
+  return <SeriesLanding locale={locale} series={SERIES.CAFE_IA} />;
 }

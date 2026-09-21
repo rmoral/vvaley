@@ -16,6 +16,7 @@
 
 export const SERIES = {
   MEETUP: "meetup",
+  CAFE_IA: "cafe-ia",
   TABLE: "table",
   SUMMIT: "summit",
   SKI: "ski",
@@ -24,6 +25,33 @@ export const SERIES = {
 export type Series = (typeof SERIES)[keyof typeof SERIES];
 
 export const SERIES_VALUES: readonly string[] = Object.values(SERIES);
+
+/**
+ * Series que tienen landing pública. Es la plantilla: una entrada aquí más
+ * un bloque de textos en i18n bajo `ns` es todo lo que hace falta para que una
+ * serie nueva tenga su página. La ruta, la etiqueta del back-office, el
+ * sitemap y el bloque de descubrimiento en /eventos salen de este registro,
+ * así que no hay cuatro listas que mantener a mano.
+ *
+ * `variant` es el estrato visual de la cabecera: "ink" es el fondo oscuro del
+ * bloque comercial, que comparte el meetup con /servicios; "river" es el teal
+ * de marca a fondo completo, más llamativo, para las series que quieren
+ * destacar frente a las demás.
+ */
+export type LandingVariant = "ink" | "river";
+
+export const LANDINGS: Record<string, { path: string; ns: string; variant: LandingVariant }> = {
+  [SERIES.MEETUP]: { path: "/meetup", ns: "meetup", variant: "ink" },
+  [SERIES.CAFE_IA]: { path: "/cafe-ia", ns: "cafeIa", variant: "river" },
+};
+
+/** Serie a la que pertenece una ruta de landing, o null si no es una. */
+export function seriesForPath(path: string): string | null {
+  for (const [series, l] of Object.entries(LANDINGS)) {
+    if (l.path === path) return series;
+  }
+  return null;
+}
 
 /** Duración asumida cuando una edición no declara hora de fin. */
 const DURACION_POR_DEFECTO_MS = 4 * 60 * 60 * 1000;

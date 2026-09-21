@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { getSiteUrl } from "@/lib/site-url";
 import { routing } from "@/i18n/routing";
+import { LANDINGS } from "@/lib/event-series";
 
 // Always re-generate the sitemap on demand so newly published content
 // shows up without a redeploy.
@@ -15,6 +16,13 @@ const STATIC_PATHS = [
   { path: "/blog", priority: 0.9, changeFrequency: "weekly" as const },
   { path: "/noticias", priority: 0.8, changeFrequency: "weekly" as const },
   { path: "/eventos", priority: 0.8, changeFrequency: "weekly" as const },
+  // Landings de series: la edición cambia cada pocas semanas, así que la
+  // frecuencia es semanal y la prioridad, la de una página de captación.
+  ...Object.values(LANDINGS).map((l) => ({
+    path: l.path,
+    priority: 0.9,
+    changeFrequency: "weekly" as const,
+  })),
   { path: "/invitados", priority: 0.7, changeFrequency: "weekly" as const },
   { path: "/servicios", priority: 0.9, changeFrequency: "monthly" as const },
   { path: "/sobre", priority: 0.6, changeFrequency: "monthly" as const },

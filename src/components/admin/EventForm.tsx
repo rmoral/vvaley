@@ -8,16 +8,28 @@ import {
   type EventTranslation,
 } from "@prisma/client";
 import { routing, type AppLocale } from "@/i18n/routing";
-import { SERIES } from "@/lib/event-series";
+import { SERIES, LANDINGS } from "@/lib/event-series";
 import { ImageUploader } from "./ImageUploader";
 
-/** Formatos recurrentes del plan. "" = evento suelto, fuera de serie. */
-const seriesLabel: Record<string, string> = {
-  "": "Suelto (no aparece en ninguna landing)",
-  [SERIES.MEETUP]: "Meetup mensual — sale en /meetup",
+/** Nombre de cada formato recurrente del plan. */
+const seriesNombre: Record<string, string> = {
+  [SERIES.MEETUP]: "Meetup mensual",
+  [SERIES.CAFE_IA]: "Café IA quincenal",
   [SERIES.TABLE]: "Table trimestral",
   [SERIES.SUMMIT]: "Summit anual",
   [SERIES.SKI]: "Ski & Business",
+};
+
+// La coletilla "sale en /ruta" se deduce del registro de landings, así el
+// desplegable dice la verdad aunque mañana una serie gane o pierda página.
+const seriesLabel: Record<string, string> = {
+  "": "Suelto (no aparece en ninguna landing)",
+  ...Object.fromEntries(
+    Object.values(SERIES).map((s) => [
+      s,
+      LANDINGS[s] ? `${seriesNombre[s]} — sale en ${LANDINGS[s].path}` : seriesNombre[s],
+    ]),
+  ),
 };
 
 const localeLabel: Record<AppLocale, string> = {

@@ -229,6 +229,17 @@ body {
   opacity: 0.34;
 }
 
+/* Las mismas curvas sobre fondo teal: los anillos del color de marca no se
+   verían sobre él, así que van en blanco y con menos presencia todavía. */
+.topo-rings-light {
+  background-image: repeating-radial-gradient(
+    ellipse 62% 78% at 62% 46%,
+    transparent 0 34px,
+    rgb(255 255 255 / 0.5) 34px 35px
+  );
+  opacity: 0.22;
+}
+
 /* Portada generada cuando un episodio o artículo no tiene imagen. */
 .topo-tight {
   background-color: var(--color-bg2);

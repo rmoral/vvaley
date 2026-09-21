@@ -1,6 +1,14 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { haTerminado, proximaEdicion, formatearPrecio } from "@/lib/event-series";
+import { existsSync, readFileSync } from "node:fs";
+import {
+  haTerminado,
+  proximaEdicion,
+  formatearPrecio,
+  LANDINGS,
+  SERIES_VALUES,
+  seriesForPath,
+} from "@/lib/event-series";
 
 /**
  * Lógica de la landing del meetup: qué edición se pinta y cómo se enseña el
@@ -85,5 +93,58 @@ describe("precio", () => {
     assert.equal(formatearPrecio(null, "es"), null);
     assert.equal(formatearPrecio(undefined, "es"), null);
     assert.equal(formatearPrecio(0, "es")?.replace(/ /g, " "), "0 €");
+  });
+});
+
+describe("registro de landings", () => {
+  // La plantilla vive en SeriesLanding y cada serie con página es una entrada
+  // en LANDINGS. Estos tests atan los cabos que un despiste rompería en
+  // silencio: una serie registrada sin ruta en disco daría 404; un bloque de
+  // textos con una clave menos reventaría al pintar solo en un idioma.
+
+  it("toda landing pertenece a una serie conocida", () => {
+    for (const series of Object.keys(LANDINGS)) {
+      assert.ok(SERIES_VALUES.includes(series), `${series} no está en SERIES`);
+    }
+  });
+
+  it("toda landing tiene su página en disco", () => {
+    for (const [series, l] of Object.entries(LANDINGS) as [string, { path: string }][]) {
+      const fichero = `src/app/(public)/[locale]/(content)${l.path}/page.tsx`;
+      assert.ok(existsSync(fichero), `${series}: falta ${fichero}`);
+    }
+  });
+
+  it("resuelve la serie a partir de la ruta", () => {
+    assert.equal(seriesForPath("/meetup"), "meetup");
+    assert.equal(seriesForPath("/cafe-ia"), "cafe-ia");
+    assert.equal(seriesForPath("/no-existe"), null);
+  });
+
+  it("cada bloque de textos tiene las mismas claves en los cuatro idiomas", () => {
+    const es = JSON.parse(readFileSync("src/messages/es.json", "utf8"));
+    for (const l of Object.values(LANDINGS) as { ns: string }[]) {
+      const claves = Object.keys(es[l.ns] ?? {}).sort();
+      assert.ok(claves.length > 0, `es.json no tiene el bloque ${l.ns}`);
+      for (const loc of ["ca", "en", "fr"]) {
+        const m = JSON.parse(readFileSync(`src/messages/${loc}.json`, "utf8"));
+        assert.deepEqual(
+          Object.keys(m[l.ns] ?? {}).sort(),
+          claves,
+          `${loc}.json: el bloque ${l.ns} no coincide con es.json`,
+        );
+      }
+    }
+  });
+
+  it("las dos series comparten exactamente las claves que usa la plantilla", () => {
+    // SeriesLanding lee las mismas claves para cualquier serie. Si a un bloque
+    // le falta una, esa landing revienta al pintar y la otra no: el fallo se
+    // vería solo en una página.
+    const es = JSON.parse(readFileSync("src/messages/es.json", "utf8"));
+    const bloques = (Object.values(LANDINGS) as { ns: string }[]).map((l) =>
+      Object.keys(es[l.ns]).sort(),
+    );
+    for (const b of bloques.slice(1)) assert.deepEqual(b, bloques[0]);
   });
 });
