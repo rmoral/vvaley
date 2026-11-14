@@ -1,5 +1,6 @@
 import type { Episode, Guest } from "@prisma/client";
 import { sendEmail } from "@/lib/email";
+import { addressOf, mailFrom } from "@/lib/email-config";
 import { buildIcs } from "@/lib/ical";
 import { getSiteUrl } from "@/lib/site-url";
 
@@ -63,9 +64,7 @@ export function buildEpisodeIcs(episode: EpisodeForInvite, sequence = 0): string
   const start = episode.recordingAt;
   const end = new Date(start.getTime() + durationSec * 1000);
 
-  const fromEnv = process.env.EMAIL_FROM ?? "Valira Valley <noreply@valiravalley.com>";
-  const organizerEmail =
-    /<([^>]+)>/.exec(fromEnv)?.[1] ?? "noreply@valiravalley.com";
+  const organizerEmail = addressOf(mailFrom());
 
   const description = [
     episode.summary ?? "",

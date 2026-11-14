@@ -10,7 +10,7 @@ Web pública multilingüe y backoffice de Valira Valley (valiravalley.com), el m
 ## Pila
 - Next.js 15 (App Router), TypeScript, Tailwind v4, Prisma + PostgreSQL, Auth.js, next-intl.
 - Gestor de paquetes: **pnpm** (no npm).
-- Correo con Resend; analítica con Plausible.
+- Correo transaccional por SMTP propio con Nodemailer (`src/lib/email.ts`, variables `SMTP_*` y `MAIL_FROM`, las mismas en todos los sitios de Level Five). Resend solo para las campañas de newsletter (`sendCampaignEmail`). Analítica con Plausible.
 
 ## Despliegue: servidor propio, no Vercel
 - Producción es un servidor Ubuntu con Apache como proxy inverso, Node bajo systemd (`vvaley.service`) y PostgreSQL local.
