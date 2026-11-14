@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { addressOf, mailFrom } from "@/lib/email-config";
 import { getSiteUrl } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
@@ -84,7 +85,7 @@ export async function GET() {
     <itunes:category text="Technology" />
     <itunes:owner>
       <itunes:name>Valira Valley</itunes:name>
-      <itunes:email>${escape(process.env.EMAIL_FROM?.match(/<([^>]+)>/)?.[1] ?? "noreply@valiravalley.com")}</itunes:email>
+      <itunes:email>${escape(addressOf(mailFrom()))}</itunes:email>
     </itunes:owner>
 ${items}
   </channel>

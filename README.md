@@ -84,11 +84,12 @@ Ver `.env.example`. Las imprescindibles:
 - `NEXTAUTH_URL` — URL pública del site (`http://localhost:3000` en dev, el dominio en prod).
 - `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` — credenciales del primer admin que crea `prisma:seed`.
 
-Newsletter (opcional pero recomendado en producción):
+Correo (necesario en producción):
 
 - `PUBLIC_SITE_URL` — URL canónica del site (ej. `https://valiravalley.com`). Si no se define se usa `NEXTAUTH_URL`. Se utiliza para construir los enlaces de confirmación y baja del email.
-- `RESEND_API_KEY` — clave de [Resend](https://resend.com). Sin esta variable, los emails de confirmación se imprimen en la consola del servidor (útil en desarrollo, copia/pega el enlace para probar).
-- `EMAIL_FROM` — remitente de los emails (ej. `Valira Valley <noreply@valiravalley.com>`). El dominio debe estar verificado en Resend.
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` — servidor SMTP propio y buzón de envío del correo transaccional (confirmación de newsletter, inscripciones, avisos de contacto, invitaciones de calendario). Puerto 465 o 587, siempre con TLS. Sin estas variables, en desarrollo los correos se imprimen en la consola del servidor (copia/pega el enlace para probar); en producción no se envían. `pnpm mail:test` comprueba la configuración.
+- `MAIL_FROM` — remitente (ej. `Valira Valley <noreply@valiravalley.com>`). Se sigue aceptando `EMAIL_FROM`.
+- `RESEND_API_KEY` — clave de [Resend](https://resend.com), solo para las campañas de newsletter que se envían desde `/admin/campanas`.
 
 ## Despliegue en EC2 (Ubuntu + Apache)
 

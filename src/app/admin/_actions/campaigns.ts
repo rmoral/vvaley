@@ -6,7 +6,7 @@ import { CampaignStatus, SubscriberStatus } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, requireSession } from "@/lib/auth-helpers";
-import { sendEmail } from "@/lib/email";
+import { sendCampaignEmail } from "@/lib/email";
 import { renderCampaign } from "@/lib/campaign-emails";
 import { buildCampaignBody, defaultSubject } from "@/lib/campaign-builder";
 import { routing, type AppLocale } from "@/i18n/routing";
@@ -270,7 +270,7 @@ export async function sendCampaign(id: string) {
   let failed = 0;
   for (const subscriber of subscribers) {
     const { subject, html, text } = renderCampaign(campaign, subscriber);
-    const result = await sendEmail({
+    const result = await sendCampaignEmail({
       to: subscriber.email,
       subject,
       html,
