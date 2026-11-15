@@ -12,7 +12,7 @@ export function SiteFooter() {
       <img
         src="/logo.svg"
         alt="Valira Valley"
-        width={232}
+        width={242}
         height={32}
         className="block h-6 w-auto"
       />
