@@ -46,18 +46,19 @@ export function SiteNav({ locale }: { locale: AppLocale }) {
     <nav className="vv-drop fixed inset-x-0 top-0 z-50 border-b border-bg3 bg-bg/[0.94] backdrop-blur-md">
       <div className="flex items-center justify-between gap-4 px-6 py-[1.1rem] md:px-16">
         {/* El logotipo va como <img> y no inline: es el mismo fichero en la
-            barra, el pie y el favicon, así el navegador lo cachea una vez.
+            barra y en el pie, así el navegador lo cachea una vez. El símbolo
+            es el logo definitivo (15 nov 2026): un trazado del original.
             Lleva su propio texto alternativo, así que el enlace no necesita
             aria-label. width/height evitan el salto de maquetación. */}
         <Link href="/" className="shrink-0 no-underline">
           {/* eslint-disable-next-line @next/next/no-img-element -- next/image
               no optimiza SVG: lo serviría tal cual detrás de un envoltorio y
-              de la maquinaria de /_next/image. Son 527 bytes; el <img> directo
+              de la maquinaria de /_next/image. Son unos 15 kB; el <img> directo
               es más rápido y más simple. */}
           <img
             src="/logo.svg"
             alt="Valira Valley"
-            width={232}
+            width={242}
             height={32}
             className="block h-7 w-auto"
           />
