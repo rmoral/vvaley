@@ -17,6 +17,7 @@ export function EventGate({
   open,
   reason,
   seatsLeft,
+  priceLabel = null,
 }: {
   slug: string;
   open: boolean;
@@ -24,6 +25,8 @@ export function EventGate({
   reason?: GateReason;
   /** null = aforo ilimitado. 0 = completo (el API pasará a lista de espera). */
   seatsLeft?: number | null;
+  /** Precio formateado si la inscripción se cobra online; null = gratuita. */
+  priceLabel?: string | null;
 }) {
   const t = useTranslations("eventDetail");
 
@@ -56,7 +59,7 @@ export function EventGate({
           {full ? t("seats_full") : t("seats_left", { count: seatsLeft })}
         </p>
       ) : null}
-      <EventRegistrationForm slug={slug} />
+      <EventRegistrationForm slug={slug} priceLabel={full ? null : priceLabel} />
     </>
   );
 }

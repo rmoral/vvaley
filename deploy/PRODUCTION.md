@@ -154,6 +154,8 @@ Rellena así (sustituye `$DB_PASSWORD` por el valor del paso 2 y
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | servidor SMTP propio y buzón de envío; puerto 465 (TLS implícito) o 587 (STARTTLS). Comprueba con `pnpm mail:test` |
 | `MAIL_FROM` | `Valira Valley <noreply@valiravalley.com>` (remitente del correo transaccional) |
 | `RESEND_API_KEY` | solo para las campañas de newsletter; vacío si no se envían campañas |
+| `KUNFUPAY_API_KEY` | clave secreta `kfp_live_…` de Kunfupay; necesaria para los eventos que cobran la inscripción online |
+| `KUNFUPAY_WEBHOOK_SECRET` | secreto de firma del webhook de Kunfupay (endpoint `https://valiravalley.com/api/kunfupay/webhook`, eventos `payment.completed` y `payment.failed`) |
 
 Permisos restrictivos:
 

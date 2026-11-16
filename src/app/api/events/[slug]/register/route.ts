@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
+import type { Event, EventTranslation } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { registrationGate } from "@/lib/event-registration";
-import { sendEmail } from "@/lib/email";
+import { sendRegistrationConfirmedEmail } from "@/lib/event-registration-emails";
+import { eventTitle } from "@/lib/event-payments";
+import { registrationGate, requiresOnlinePayment } from "@/lib/event-registration";
+import { createCheckoutSession, getKunfupayConfig, KunfupayError } from "@/lib/kunfupay";
+import { getSiteUrl } from "@/lib/site-url";
 import { routing, type AppLocale } from "@/i18n/routing";
 
 const schema = z.object({
@@ -18,32 +22,6 @@ function asLocale(value: string | undefined): AppLocale {
     ? (value as AppLocale)
     : routing.defaultLocale;
 }
-
-const registeredCopy: Record<
-  AppLocale,
-  { subject: (title: string) => string; body: (title: string) => string }
-> = {
-  es: {
-    subject: (t) => `Inscripción confirmada: ${t}`,
-    body: (t) =>
-      `Te has inscrito a "${t}". Te enviaremos los detalles antes del evento. Si quieres cancelar, responde a este correo.`,
-  },
-  ca: {
-    subject: (t) => `Inscripció confirmada: ${t}`,
-    body: (t) =>
-      `T'has inscrit a "${t}". T'enviarem els detalls abans de l'esdeveniment. Si vols cancel·lar, respon aquest correu.`,
-  },
-  en: {
-    subject: (t) => `Registration confirmed: ${t}`,
-    body: (t) =>
-      `You're registered for "${t}". We'll send the details before the event. Reply to this email to cancel.`,
-  },
-  fr: {
-    subject: (t) => `Inscription confirmée : ${t}`,
-    body: (t) =>
-      `Vous êtes inscrit(e) à « ${t} ». Nous vous enverrons les détails avant l'événement. Répondez à cet e-mail pour annuler.`,
-  },
-};
 
 export async function POST(
   req: Request,
@@ -91,6 +69,11 @@ export async function POST(
   // otherwise.
   const overCapacity =
     event.capacity != null && event._count.registrations >= event.capacity;
+
+  if (requiresOnlinePayment(event)) {
+    return startPaidRegistration(event, { email, fullName, company, notes, locale }, overCapacity);
+  }
+
   const status = overCapacity ? "WAITLIST" : "CONFIRMED";
 
   const registration = await prisma.eventRegistration.upsert({
@@ -115,22 +98,138 @@ export async function POST(
     },
   });
 
-  // Best-effort confirmation email — don't block the response on this.
-  const titleForEmail =
-    event.translations.find((t) => t.locale === locale)?.title ??
-    event.translations.find((t) => t.locale === "es")?.title ??
-    event.translations[0]?.title ??
-    event.slug;
-  const copy = registeredCopy[locale];
-  await sendEmail({
+  await sendRegistrationConfirmedEmail({
     to: email,
-    subject: copy.subject(titleForEmail),
-    text: copy.body(titleForEmail),
-    html: `<p>${copy.body(titleForEmail)}</p>`,
+    locale,
+    eventTitle: eventTitle(event, locale),
   });
 
   return NextResponse.json({
     ok: true,
     status: registration.status,
   });
+}
+
+type Attendee = {
+  email: string;
+  fullName: string;
+  company: string | null;
+  notes: string | null;
+  locale: AppLocale;
+};
+
+type EventWithTranslations = Event & { translations: EventTranslation[] };
+
+/**
+ * Inscripción a un evento de pago: guarda la inscripción pendiente, crea el
+ * checkout en Kunfupay y devuelve su URL para redirigir. La plaza no se
+ * confirma ni se envía correo hasta que Kunfupay confirma el pago.
+ */
+async function startPaidRegistration(
+  event: EventWithTranslations,
+  who: Attendee,
+  overCapacity: boolean,
+) {
+  const config = getKunfupayConfig();
+  if (!config || event.priceCents == null) {
+    console.error("[kunfupay] evento de pago sin KUNFUPAY_API_KEY configurada", event.slug);
+    return NextResponse.json({ ok: false, error: "payment_unavailable" }, { status: 503 });
+  }
+
+  const existing = await prisma.eventRegistration.findUnique({
+    where: { eventId_email: { eventId: event.id, email: who.email } },
+  });
+  // Quien ya pagó no vuelve a pagar. Si además el equipo la canceló, se
+  // resuelve a mano (reembolso o reactivación), no con un segundo cobro.
+  if (existing?.paymentStatus === "PAID") {
+    return existing.status === "CONFIRMED"
+      ? NextResponse.json({ ok: true, status: "CONFIRMED" })
+      : NextResponse.json({ ok: false, error: "already_paid" }, { status: 409 });
+  }
+
+  // Aforo completo: lista de espera sin cobrar. Si se libera una plaza, el
+  // equipo la confirma a mano y gestiona el cobro.
+  if (overCapacity) {
+    const fields = {
+      fullName: who.fullName,
+      company: who.company,
+      notes: who.notes,
+      locale: who.locale,
+      status: "WAITLIST" as const,
+    };
+    await prisma.eventRegistration.upsert({
+      where: { eventId_email: { eventId: event.id, email: who.email } },
+      update: fields,
+      create: { eventId: event.id, email: who.email, ...fields },
+    });
+    return NextResponse.json({ ok: true, status: "WAITLIST" });
+  }
+
+  const registration = await prisma.eventRegistration.upsert({
+    where: { eventId_email: { eventId: event.id, email: who.email } },
+    update: {
+      fullName: who.fullName,
+      company: who.company,
+      notes: who.notes,
+      locale: who.locale,
+      status: "PENDING_PAYMENT",
+      paymentStatus: "PENDING",
+      amountCents: event.priceCents,
+      currency: "EUR",
+      paymentAttempts: { increment: 1 },
+    },
+    create: {
+      eventId: event.id,
+      email: who.email,
+      fullName: who.fullName,
+      company: who.company,
+      notes: who.notes,
+      locale: who.locale,
+      status: "PENDING_PAYMENT",
+      paymentStatus: "PENDING",
+      amountCents: event.priceCents,
+      currency: "EUR",
+      paymentAttempts: 1,
+    },
+  });
+
+  const returnUrl = `${getSiteUrl()}/${who.locale}/eventos/${event.slug}/pago?r=${registration.id}`;
+  const title = eventTitle(event, who.locale);
+
+  try {
+    const session = await createCheckoutSession(config, {
+      amountCents: event.priceCents,
+      currency: "EUR",
+      description: title.slice(0, 200),
+      externalReference: registration.id,
+      metadata: {
+        registrationId: registration.id,
+        eventId: event.id,
+        eventSlug: event.slug,
+      },
+      successUrl: returnUrl,
+      cancelUrl: `${returnUrl}&cancelled=1`,
+      // Un intento = una sesión. Reintentar la misma petición recupera la
+      // misma sesión en vez de crear otra.
+      idempotencyKey: `vv-reg-${registration.id}-${registration.paymentAttempts}`,
+    });
+
+    await prisma.eventRegistration.update({
+      where: { id: registration.id },
+      data: { kunfupaySessionId: session.id },
+    });
+
+    return NextResponse.json({
+      ok: true,
+      status: "PENDING_PAYMENT",
+      checkoutUrl: session.checkoutUrl,
+    });
+  } catch (err) {
+    console.error(
+      "[kunfupay] no se pudo crear el checkout",
+      registration.id,
+      err instanceof KunfupayError ? { status: err.status, body: err.body } : err,
+    );
+    return NextResponse.json({ ok: false, error: "payment_unavailable" }, { status: 502 });
+  }
 }

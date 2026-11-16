@@ -4,7 +4,7 @@ import { setRequestLocale, getTranslations, getFormatter } from "next-intl/serve
 import { prisma } from "@/lib/prisma";
 import { pickTranslation } from "@/lib/translations";
 import { renderMarkdown } from "@/lib/markdown";
-import { registrationGate } from "@/lib/event-registration";
+import { registrationGate, requiresOnlinePayment } from "@/lib/event-registration";
 import { DetailShell, Prose } from "@/components/public/DetailShell";
 import { EventGate } from "@/components/public/EventGate";
 import { JsonLd } from "@/components/public/JsonLd";
@@ -112,6 +112,12 @@ export default async function EventDetailPage({
       ? Math.max(0, event.capacity - event._count.registrations)
       : null;
 
+  const onlinePayment = requiresOnlinePayment(event);
+  const priceLabel =
+    onlinePayment && event.priceCents != null
+      ? fmt.number(event.priceCents / 100, { style: "currency", currency: "EUR" })
+      : null;
+
   const locationCopy =
     event.locationType === "ONLINE"
       ? t("loc_online")
@@ -144,6 +150,7 @@ export default async function EventDetailPage({
           open={gate.open}
           reason={gate.open ? undefined : gate.reason}
           seatsLeft={seatsLeft}
+          priceLabel={priceLabel}
         />
       }
       footer={<JsonLd data={jsonLd} />}
