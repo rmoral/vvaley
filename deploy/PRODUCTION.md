@@ -1,8 +1,9 @@
 # Despliegue en producción
 
 Guía paso a paso para llevar el proyecto a un servidor Ubuntu con
-Apache + PostgreSQL + Node + systemd. Pensada para el primer
-despliegue; los siguientes son una sola línea (`bash deploy/deploy.sh`).
+Apache + Node + systemd y la base de datos en Amazon RDS (PostgreSQL).
+Pensada para el primer despliegue; los siguientes son una sola línea
+(`bash deploy/deploy.sh`).
 
 **Arquitectura:**
 
@@ -23,12 +24,41 @@ despliegue; los siguientes son una sola línea (`bash deploy/deploy.sh`).
 │  systemd: vvaley.service  │
 │  · /home/ubuntu/web/vvaley│
 └──────┬────────────────────┘
-       │ localhost:5432
+       │ DATABASE_URL (:5432, fuera de la instancia)
 ┌──────▼────────────────────┐
-│  PostgreSQL 16            │
+│  Amazon RDS · PostgreSQL  │
+│  instancia: vvaley-prod   │
+│  región: us-east-2        │
 │  database: vvaley         │
 └───────────────────────────┘
 ```
+
+> **Base de datos en RDS.** Al principio PostgreSQL corría en la propia
+> instancia EC2; hoy la base de producción es la instancia RDS
+> `vvaley-prod`. Consecuencias:
+>
+> - Los pasos 1.4 y 2 (instalar PostgreSQL y crear base y usuario con
+>   `sudo -u postgres psql`) son del montaje original. En RDS la base y el
+>   usuario se gestionan desde la consola de AWS o con `psql` contra el
+>   endpoint, y `DATABASE_URL` apunta al endpoint de RDS.
+> - `vvaley-pg-watchdog` (comprueba `127.0.0.1:5432` y reinicia vvaley si
+>   no responde), `postgresql-auto-restart.conf` y
+>   `POSTGRES_17_MIGRATION.md` no aplican a RDS. Comprueba en el servidor
+>   que el watchdog no sigue activo: `systemctl list-timers | grep vvaley`.
+> - La copia diaria (`vvaley-db-backup`) hace `pg_dump "$DATABASE_URL"`.
+>   Contra RDS solo funciona si el `pg_dump` del servidor es de la misma
+>   versión mayor que RDS o superior, y si la URL no lleva parámetros que
+>   `libpq` no entienda (Prisma admite `?schema=public`; `pg_dump` no).
+>   Comprueba que sigue generando copias:
+>   `journalctl -u vvaley-db-backup -n 20` y `ls -lh /var/backups/vvaley/`.
+> - Para conectar con `psql`, carga la URL del `.env` sin los parámetros
+>   de Prisma (lo usan los comandos de esta guía):
+>
+>   ```bash
+>   cd /home/ubuntu/web/vvaley
+>   DB_URL="$(grep -E '^DATABASE_URL=' .env | cut -d= -f2- | tr -d "\"'" | sed 's/?.*//')"
+>   psql "$DB_URL" -c "SELECT version();"
+>   ```
 
 Asumimos host EC2 Ubuntu en `18.217.132.43`, usuario `ubuntu`, código
 en `/home/ubuntu/web/vvaley`, dominio `valiravalley.com`.
@@ -82,7 +112,10 @@ sudo a2enmod proxy proxy_http headers rewrite ssl
 sudo systemctl reload apache2
 ```
 
-### 1.4 · PostgreSQL
+### 1.4 · PostgreSQL (montaje original, sin RDS)
+
+> Con la base en RDS no hace falta instalar el servidor, solo el cliente
+> (`psql`, `pg_dump`) en la versión mayor de RDS o superior.
 
 ```bash
 sudo apt install -y postgresql
@@ -92,7 +125,11 @@ psql --version  # esperado: 16.x
 
 ---
 
-## 2 · Crear base de datos y usuario
+## 2 · Crear base de datos y usuario (montaje original, sin RDS)
+
+> En RDS, crea la base `vvaley` y su usuario conectando con `psql` al
+> endpoint con el usuario maestro de la instancia, y pon esa cadena en
+> `DATABASE_URL`.
 
 Genera una contraseña fuerte y guárdala (la usarás en `.env`):
 
@@ -144,7 +181,7 @@ Rellena así (sustituye `$DB_PASSWORD` por el valor del paso 2 y
 
 | Variable | Valor |
 |---|---|
-| `DATABASE_URL` | `postgresql://vvaley:DB_PASSWORD@localhost:5432/vvaley?schema=public` |
+| `DATABASE_URL` | `postgresql://vvaley:DB_PASSWORD@<endpoint-de-RDS>:5432/vvaley?schema=public` (en el montaje original, `localhost` en lugar del endpoint) |
 | `AUTH_SECRET` | output de `openssl rand -base64 32` |
 | `NEXTAUTH_URL` | `https://valiravalley.com` |
 | `PUBLIC_SITE_URL` | `https://valiravalley.com` |
@@ -370,14 +407,14 @@ No hay UI de cambio aún. Vía SQL:
 cd /home/ubuntu/web/vvaley
 node -e "require('bcryptjs').hash(process.argv[1], 10).then(h => console.log(h))" 'NUEVA_CONTRASEÑA'
 # copia el hash y:
-PGPASSWORD="$DB_PASSWORD" psql -h localhost -U vvaley -d vvaley \
+psql "$DB_URL" \
   -c "UPDATE \"User\" SET \"passwordHash\"='HASH_PEGADO' WHERE email='tu@email';"
 ```
 
 Borra el suscriptor de prueba:
 
 ```bash
-PGPASSWORD="$DB_PASSWORD" psql -h localhost -U vvaley -d vvaley \
+psql "$DB_URL" \
   -c "DELETE FROM \"NewsletterSubscriber\" WHERE email='deploytest@example.com';"
 ```
 
@@ -418,8 +455,9 @@ ssh ubuntu@18.217.132.43 "cd /home/ubuntu/web/vvaley && bash deploy/deploy.sh"
 | Reiniciar (si algo se cuelga) | `sudo systemctl restart vvaley` |
 | Recargar tras cambio en `.env` | `sudo systemctl restart vvaley` (no hay reload "soft" para Node) |
 | Ver últimos errores Apache | `sudo tail -f /var/log/apache2/valiravalley_error.log` |
-| Acceder a la BD | `PGPASSWORD=… psql -h localhost -U vvaley -d vvaley` |
-| Backup manual de BD | `pg_dump postgresql://vvaley:$DB_PASSWORD@localhost/vvaley > backup-$(date +%F).sql` |
+| Acceder a la BD (RDS) | `psql "$DB_URL"` (cómo cargar `DB_URL`: nota bajo la arquitectura) |
+| Backup manual de BD | `pg_dump "$DB_URL" > backup-$(date +%F).sql` |
+| Estado de las migraciones | `pnpm prisma migrate status` |
 | Renovación cert SSL | automática vía `certbot.timer`; verifica con `sudo certbot renew --dry-run` |
 
 ---
@@ -450,8 +488,9 @@ sudo systemctl restart vvaley
 ```
 
 Migraciones Prisma **no se revierten automáticamente**. Si una
-migración rompe la BD: restaura desde un backup `pg_dump` o revisa
-`prisma/migrations/` y aplica un fix manual con `psql`.
+migración rompe la BD: restaura desde un backup `pg_dump` (o desde un
+snapshot de RDS) o revisa `prisma/migrations/` y aplica un fix manual
+con `psql "$DB_URL"`.
 
 ---
 

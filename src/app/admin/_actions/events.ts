@@ -8,7 +8,11 @@ import { requireAdmin, requireSession } from "@/lib/auth-helpers";
 import { assetUrl } from "@/lib/asset-url";
 import { prisma } from "@/lib/prisma";
 import { MIN_ONLINE_PRICE_CENTS } from "@/lib/event-registration";
-import { sendPaidConfirmation } from "@/lib/event-payments";
+import { eventTitle, sendPaidConfirmation } from "@/lib/event-payments";
+import {
+  sendPaidRegistrationTeamNotice,
+  sendRegistrationConfirmedEmail,
+} from "@/lib/event-registration-emails";
 import { slugify } from "@/lib/slug";
 import { SERIES_VALUES, parseGuestChoice } from "@/lib/event-series";
 import { routing } from "@/i18n/routing";
@@ -322,4 +326,50 @@ export async function resendRegistrationEmail(eventId: string, regId: string) {
     await sendPaidConfirmation(reg);
   }
   revalidatePath(`/admin/eventos/${eventId}/inscripciones`);
+}
+
+/**
+ * Envía al admin que lo pide, y solo a él, los dos correos de una inscripción
+ * pagada con los datos reales del evento: la confirmación que recibe quien
+ * paga (en el idioma elegido) y el aviso al equipo con una persona de
+ * ejemplo. No crea inscripciones ni pasa por Kunfupay. Sale del sitio: ADMIN.
+ */
+export async function sendTestPaymentEmails(eventId: string, formData: FormData) {
+  const session = await requireAdmin();
+  const to = session.user.email;
+  const requested = String(formData.get("locale") ?? "");
+  const locale = (routing.locales as readonly string[]).includes(requested)
+    ? (requested as (typeof routing.locales)[number])
+    : routing.defaultLocale;
+
+  const event = await prisma.event.findUnique({
+    where: { id: eventId },
+    include: { translations: true },
+  });
+  if (!event || !to) redirect(`/admin/eventos/${eventId}?test_email=error`);
+
+  // Sin precio todavía, se usa uno de ejemplo para ver la línea del pago.
+  const cents = event.priceCents && event.priceCents > 0 ? event.priceCents : 3000;
+
+  const buyer = await sendRegistrationConfirmedEmail({
+    to,
+    locale,
+    eventTitle: eventTitle(event, locale),
+    paid: { cents, currency: "EUR" },
+  });
+  const team = await sendPaidRegistrationTeamNotice({
+    to,
+    eventId: event.id,
+    eventTitle: eventTitle(event, "es"),
+    fullName: "Persona de prueba",
+    email: "persona.de.prueba@example.com",
+    company: "Empresa de ejemplo",
+    notes: "Correo de prueba enviado desde el admin; no hay inscripción ni pago real.",
+    status: "CONFIRMED",
+    cents,
+    currency: "EUR",
+  });
+
+  const ok = buyer.ok && !buyer.dryRun && team.ok;
+  redirect(`/admin/eventos/${eventId}?test_email=${ok ? "ok" : "error"}`);
 }

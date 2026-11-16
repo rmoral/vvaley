@@ -112,11 +112,9 @@ Flujo: en `/admin/eventos/<id>` se pone el precio y se marca «Cobrar la inscrip
 Una sola vez, en el servidor:
 
 ```bash
-# 1. Postgres: crear base y usuario
-sudo -u postgres psql <<SQL
-CREATE USER vvaley WITH PASSWORD 'CHANGE_ME';
-CREATE DATABASE vvaley OWNER vvaley;
-SQL
+# 1. Base de datos: en producción es Amazon RDS (instancia vvaley-prod).
+#    Crea la base y el usuario en RDS y pon su cadena en DATABASE_URL.
+#    Ver deploy/PRODUCTION.md.
 
 # 2. pnpm global
 sudo npm i -g pnpm

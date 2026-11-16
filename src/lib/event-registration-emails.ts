@@ -86,8 +86,10 @@ export async function sendPaidRegistrationTeamNotice(input: {
   status: string;
   cents: number;
   currency: string;
+  /** Destino explícito (pruebas desde el admin). Por defecto, el del equipo. */
+  to?: string;
 }) {
-  const to = eventNotifyAddress();
+  const to = input.to ?? eventNotifyAddress();
   if (!to) {
     console.error("[kunfupay] aviso al equipo no enviado: falta EVENT_NOTIFY_EMAIL");
     return { ok: false as const, error: "not_configured" };
