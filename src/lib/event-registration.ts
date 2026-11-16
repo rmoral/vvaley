@@ -28,3 +28,29 @@ export function registrationGate(
   }
   return { open: true };
 }
+
+/** Mínimo que acepta Kunfupay tras descuentos: 0,99. */
+export const MIN_ONLINE_PRICE_CENTS = 99;
+
+export type PaidEventFields = Pick<Event, "onlinePayment" | "priceCents" | "ticketUrl">;
+
+/**
+ * ¿El formulario propio de este evento cobra online? La venta externa
+ * (ticketUrl) manda sobre el cobro propio, igual que en la landing.
+ */
+export function requiresOnlinePayment(event: PaidEventFields): boolean {
+  return (
+    event.onlinePayment &&
+    !event.ticketUrl &&
+    event.priceCents != null &&
+    event.priceCents >= MIN_ONLINE_PRICE_CENTS
+  );
+}
+
+/** Id de nuestra inscripción a partir de un webhook o una sesión. */
+export function registrationIdFrom(source: {
+  externalReference?: string;
+  metadata?: Record<string, string>;
+}): string | null {
+  return source.metadata?.registrationId || source.externalReference || null;
+}

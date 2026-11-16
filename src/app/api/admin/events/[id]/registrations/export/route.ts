@@ -37,6 +37,11 @@ export async function GET(
     "locale",
     "notes",
     "created_at",
+    "payment_status",
+    "amount",
+    "currency",
+    "paid_at",
+    "kunfupay_session_id",
   ].join(",");
 
   const lines = registrations.map((r) =>
@@ -48,6 +53,17 @@ export async function GET(
       csvCell(r.locale),
       csvCell(r.notes),
       csvCell(r.createdAt.toISOString()),
+      csvCell(r.paymentStatus),
+      csvCell(
+        r.paidCents != null
+          ? (r.paidCents / 100).toFixed(2)
+          : r.amountCents != null
+            ? (r.amountCents / 100).toFixed(2)
+            : null,
+      ),
+      csvCell(r.currency),
+      csvCell(r.paidAt?.toISOString()),
+      csvCell(r.kunfupaySessionId),
     ].join(","),
   );
 

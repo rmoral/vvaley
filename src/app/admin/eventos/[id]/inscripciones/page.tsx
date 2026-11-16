@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { RegistrationStatus } from "@prisma/client";
+import { PaymentStatus, RegistrationStatus } from "@prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { AdminShell } from "@/components/admin/AdminShell";
@@ -14,12 +14,25 @@ const statusLabel: Record<RegistrationStatus, string> = {
   CONFIRMED: "Confirmado",
   WAITLIST: "Lista de espera",
   CANCELLED: "Cancelado",
+  PENDING_PAYMENT: "Pendiente de pago",
 };
+
+const paymentLabel: Record<PaymentStatus, string> = {
+  PENDING: "Pendiente",
+  PAID: "Pagado",
+  FAILED: "Fallido",
+};
+
+const money = (cents: number, currency: string | null) =>
+  new Intl.NumberFormat("es", { style: "currency", currency: currency ?? "EUR" }).format(
+    cents / 100,
+  );
 
 const statusClass: Record<RegistrationStatus, string> = {
   CONFIRMED: "bg-[rgba(39,117,119,0.1)] text-river",
   WAITLIST: "bg-amber-50 text-amber-700",
   CANCELLED: "bg-bg2 text-text-3",
+  PENDING_PAYMENT: "bg-bg2 text-stone",
 };
 
 export default async function EventRegistrationsPage({
@@ -69,7 +82,8 @@ export default async function EventRegistrationsPage({
           </h1>
           <p className="text-[0.9rem] text-text-2">
             {counts.CONFIRMED ?? 0} confirmados · {counts.WAITLIST ?? 0} en espera ·{" "}
-            {counts.CANCELLED ?? 0} cancelados{" "}
+            {counts.CANCELLED ?? 0} cancelados
+            {counts.PENDING_PAYMENT ? ` · ${counts.PENDING_PAYMENT} pendientes de pago` : ""}{" "}
             {event.capacity ? `· aforo ${event.capacity}` : ""}
           </p>
         </div>
@@ -89,6 +103,7 @@ export default async function EventRegistrationsPage({
               <th className="px-4 py-3">Email</th>
               <th className="px-4 py-3">Empresa</th>
               <th className="px-4 py-3">Estado</th>
+              <th className="px-4 py-3">Pago</th>
               <th className="px-4 py-3">Fecha</th>
               <th className="px-4 py-3"></th>
             </tr>
@@ -96,7 +111,7 @@ export default async function EventRegistrationsPage({
           <tbody>
             {event.registrations.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-text-3">
+                <td colSpan={7} className="px-4 py-12 text-center text-text-3">
                   Aún no hay inscripciones.
                 </td>
               </tr>
@@ -119,6 +134,22 @@ export default async function EventRegistrationsPage({
                   >
                     {statusLabel[r.status]}
                   </span>
+                </td>
+                <td className="px-4 py-3 text-text-3">
+                  {r.paymentStatus ? (
+                    <>
+                      <span className={r.paymentStatus === "PAID" ? "font-semibold text-river" : ""}>
+                        {paymentLabel[r.paymentStatus]}
+                      </span>
+                      {(r.paidCents ?? r.amountCents) != null && (
+                        <span className="block text-[0.78rem]">
+                          {money((r.paidCents ?? r.amountCents)!, r.currency)}
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    "—"
+                  )}
                 </td>
                 <td className="px-4 py-3 text-text-3">
                   {new Intl.DateTimeFormat("es", { dateStyle: "short" }).format(
