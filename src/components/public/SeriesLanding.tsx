@@ -3,7 +3,7 @@ import { getTranslations, getFormatter } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { pickTranslation } from "@/lib/translations";
 import { renderMarkdown } from "@/lib/markdown";
-import { registrationGate } from "@/lib/event-registration";
+import { registrationGate, requiresOnlinePayment } from "@/lib/event-registration";
 import {
   LANDINGS,
   proximaEdicion,
@@ -358,6 +358,7 @@ export async function SeriesLanding({
                 open={gate.open}
                 reason={gate.open ? undefined : gate.reason}
                 seatsLeft={plazasLibres}
+                priceLabel={requiresOnlinePayment(edicion) ? precio : null}
               />
             )
           ) : (

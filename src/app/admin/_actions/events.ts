@@ -7,6 +7,7 @@ import { z } from "zod";
 import { requireAdmin, requireSession } from "@/lib/auth-helpers";
 import { assetUrl } from "@/lib/asset-url";
 import { prisma } from "@/lib/prisma";
+import { MIN_ONLINE_PRICE_CENTS } from "@/lib/event-registration";
 import { slugify } from "@/lib/slug";
 import { SERIES_VALUES, parseGuestChoice } from "@/lib/event-series";
 import { routing } from "@/i18n/routing";
@@ -65,6 +66,7 @@ const eventSchema = z.object({
   guestId: z.string().nullable(),
   noGuest: z.boolean(),
   priceCents: z.number().int().nonnegative().nullable(),
+  onlinePayment: z.boolean(),
   ticketUrl: z
     .string()
     .url()
@@ -113,6 +115,7 @@ function parseForm(formData: FormData) {
     series: trim(formData.get("series")),
     ...parseGuestChoice(trim(formData.get("guestId"))),
     priceCents: centsOrNull(formData.get("price")),
+    onlinePayment: formData.get("onlinePayment") === "on",
     ticketUrl: trim(formData.get("ticketUrl")),
     startsAt,
     endsAt: dateOrNull(formData.get("endsAt")),
@@ -170,6 +173,11 @@ function persistedTranslations(
     }));
 }
 
+/** Kunfupay no acepta cobros por debajo de 0,99. */
+function onlinePaymentWithoutPrice(data: { onlinePayment: boolean; priceCents: number | null }) {
+  return data.onlinePayment && (data.priceCents == null || data.priceCents < MIN_ONLINE_PRICE_CENTS);
+}
+
 export async function createEvent(formData: FormData) {
   const session = await requireSession();
   const data = parseForm(formData);
@@ -177,6 +185,9 @@ export async function createEvent(formData: FormData) {
   const persisted = persistedTranslations(data.translations);
   if (persisted.length === 0) {
     redirect("/admin/eventos/nuevo?error=missing_title");
+  }
+  if (onlinePaymentWithoutPrice(data)) {
+    redirect("/admin/eventos/nuevo?error=online_payment_price");
   }
 
   const titleForSlug = data.slug ?? defaultTitle(data.translations);
@@ -201,6 +212,7 @@ export async function createEvent(formData: FormData) {
       guestId: data.guestId,
       noGuest: data.noGuest,
       priceCents: data.priceCents,
+      onlinePayment: data.onlinePayment,
       ticketUrl: data.ticketUrl,
       authorId: session.user.id,
       translations: { create: persisted },
@@ -219,6 +231,9 @@ export async function updateEvent(id: string, formData: FormData) {
   const persisted = persistedTranslations(data.translations);
   if (persisted.length === 0) {
     redirect(`/admin/eventos/${id}?error=missing_title`);
+  }
+  if (onlinePaymentWithoutPrice(data)) {
+    redirect(`/admin/eventos/${id}?error=online_payment_price`);
   }
 
   const titleForSlug = data.slug ?? defaultTitle(data.translations);
@@ -246,6 +261,7 @@ export async function updateEvent(id: string, formData: FormData) {
         guestId: data.guestId,
         noGuest: data.noGuest,
         priceCents: data.priceCents,
+        onlinePayment: data.onlinePayment,
         ticketUrl: data.ticketUrl,
         translations: { create: persisted },
       },

@@ -228,7 +228,30 @@
     "error_invalid_json": "Hi ha hagut un problema enviant les dades.",
     "error_not_found": "Aquest esdeveniment ja no existeix.",
     "error_network": "Sense connexió. Torna-ho a intentar.",
-    "error_unknown": "No hem pogut processar la teva inscripció. Torna-ho a intentar."
+    "error_unknown": "No hem pogut processar la teva inscripció. Torna-ho a intentar.",
+    "price_label": "Preu: {price}",
+    "pay_note": "En confirmar aniràs a la passarel·la segura de Kunfupay per pagar. La teva plaça queda confirmada tan bon punt es completa el pagament.",
+    "form_cta_pay": "Continuar al pagament",
+    "redirecting": "Obrint el pagament…",
+    "error_payment_unavailable": "Ara mateix no podem iniciar el pagament. Torna-ho a provar d'aquí a uns minuts.",
+    "error_already_paid": "Ja consta un pagament amb aquest correu. Escriu-nos i ho revisem.",
+    "price_meta": "Entrada: {price}"
+  },
+  "eventPayment": {
+    "paid_eyebrow": "Pagament completat",
+    "paid_title": "Tens la teva plaça!",
+    "paid_body": "Hem rebut el teu pagament i la teva inscripció està confirmada. T'hem enviat un correu amb la confirmació.",
+    "pending_eyebrow": "Confirmant el pagament",
+    "pending_title": "Estem comprovant el teu pagament",
+    "pending_body": "Pot trigar uns segons. Aquesta pàgina s'actualitza sola i, quan es confirmi, t'arribarà un correu.",
+    "failed_eyebrow": "Pagament no completat",
+    "failed_title": "El pagament no s'ha completat",
+    "failed_body": "No s'ha fet cap càrrec i la teva plaça encara no està reservada. Pots tornar-ho a provar.",
+    "unknown_eyebrow": "Inscripció",
+    "unknown_title": "No trobem aquesta inscripció",
+    "unknown_body": "Si acabes de pagar, revisa el correu: t'hi arribarà la confirmació. Si no, torna a la pàgina de l'esdeveniment.",
+    "retry_cta": "Tornar-ho a provar",
+    "back_to_event": "Tornar a l'esdeveniment"
   },
   "meetup": {
     "meta_title": "Valira Valley Meetup",

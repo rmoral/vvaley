@@ -67,6 +67,7 @@ URLs útiles en local:
 | `/noticias/<slug>`         | Detalle de una noticia                     |
 | `/eventos`                 | Listado de eventos (próximos + pasados)    |
 | `/eventos/<slug>`          | Detalle del evento + formulario de inscripción |
+| `/eventos/<slug>/pago`     | Vuelta del checkout de Kunfupay (estado del pago) |
 | `/admin/invitados`         | Gestión de invitados                      |
 | `/admin/episodios`         | Gestión de episodios                      |
 | `/admin/blog`              | Gestión del blog (CRUD multilingüe)       |
@@ -90,6 +91,14 @@ Correo (necesario en producción):
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` — servidor SMTP propio y buzón de envío del correo transaccional (confirmación de newsletter, inscripciones, avisos de contacto, invitaciones de calendario). Puerto 465 o 587, siempre con TLS. Sin estas variables, en desarrollo los correos se imprimen en la consola del servidor (copia/pega el enlace para probar); en producción no se envían. `pnpm mail:test` comprueba la configuración.
 - `MAIL_FROM` — remitente (ej. `Valira Valley <noreply@valiravalley.com>`). Se sigue aceptando `EMAIL_FROM`.
 - `RESEND_API_KEY` — clave de [Resend](https://resend.com), solo para las campañas de newsletter que se envían desde `/admin/campanas`.
+
+Cobro de eventos (Kunfupay):
+
+- `KUNFUPAY_API_KEY` — clave secreta de la API de Kunfupay (`kfp_live_…`). Sin ella, los eventos marcados como «Cobrar la inscripción online» rechazan las inscripciones.
+- `KUNFUPAY_WEBHOOK_SECRET` — secreto de firma del webhook. En el panel de Kunfupay (Webhooks) se da de alta `https://valiravalley.com/api/kunfupay/webhook` con los eventos `payment.completed` y `payment.failed`.
+- `KUNFUPAY_API_URL` — opcional; por defecto `https://api.kunfupay.com`.
+
+Flujo: en `/admin/eventos/<id>` se pone el precio y se marca «Cobrar la inscripción online». El formulario público crea la inscripción en «Pendiente de pago», abre un checkout de Kunfupay y redirige a él; al pagar, la persona vuelve a `/eventos/<slug>/pago`. La plaza se confirma, y sale el correo, cuando llega el webhook `payment.completed`; si se retrasa, la página de vuelta consulta la sesión a la API. Kunfupay solo ofrece checkout alojado en su dominio, sin formulario embebible.
 
 ## Despliegue en EC2 (Ubuntu + Apache)
 

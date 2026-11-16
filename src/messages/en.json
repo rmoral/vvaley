@@ -228,7 +228,30 @@
     "error_invalid_json": "There was a problem sending the data.",
     "error_not_found": "This event doesn't exist anymore.",
     "error_network": "No connection. Please try again.",
-    "error_unknown": "We couldn't process your registration. Please try again."
+    "error_unknown": "We couldn't process your registration. Please try again.",
+    "price_label": "Price: {price}",
+    "pay_note": "You'll be taken to Kunfupay's secure checkout to pay. Your spot is confirmed as soon as the payment goes through.",
+    "form_cta_pay": "Continue to payment",
+    "redirecting": "Opening checkout…",
+    "error_payment_unavailable": "We can't start the payment right now. Please try again in a few minutes.",
+    "error_already_paid": "We already have a payment with this email. Get in touch and we'll look into it.",
+    "price_meta": "Ticket: {price}"
+  },
+  "eventPayment": {
+    "paid_eyebrow": "Payment complete",
+    "paid_title": "Your spot is booked!",
+    "paid_body": "We've received your payment and your registration is confirmed. We've sent you a confirmation email.",
+    "pending_eyebrow": "Confirming payment",
+    "pending_title": "We're checking your payment",
+    "pending_body": "This can take a few seconds. This page updates itself, and you'll get an email as soon as it's confirmed.",
+    "failed_eyebrow": "Payment not completed",
+    "failed_title": "The payment didn't go through",
+    "failed_body": "You haven't been charged and your spot isn't reserved yet. You can try again.",
+    "unknown_eyebrow": "Registration",
+    "unknown_title": "We can't find this registration",
+    "unknown_body": "If you've just paid, check your email: the confirmation will arrive there. Otherwise, go back to the event page.",
+    "retry_cta": "Try again",
+    "back_to_event": "Back to the event"
   },
   "meetup": {
     "meta_title": "Valira Valley Meetup",

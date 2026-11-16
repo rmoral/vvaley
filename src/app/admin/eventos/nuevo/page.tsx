@@ -3,6 +3,7 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { EventForm } from "@/components/admin/EventForm";
+import { getKunfupayConfig } from "@/lib/kunfupay";
 import { createEvent } from "@/app/admin/_actions/events";
 import { guestOptions } from "@/lib/guest-options";
 
@@ -27,7 +28,12 @@ export default async function NewEventPage({
       <h1 className="mb-8 font-display text-[1.8rem] font-bold text-text">
         Nuevo evento
       </h1>
-      <EventForm action={createEvent} guests={guests} error={error} />
+      <EventForm
+        action={createEvent}
+        guests={guests}
+        error={error}
+        paymentsConfigured={getKunfupayConfig() != null}
+      />
     </AdminShell>
   );
 }

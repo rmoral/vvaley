@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { EventForm } from "@/components/admin/EventForm";
+import { getKunfupayConfig } from "@/lib/kunfupay";
 import { updateEvent, deleteEvent } from "@/app/admin/_actions/events";
 import { guestOptions } from "@/lib/guest-options";
 
@@ -73,6 +74,7 @@ export default async function EditEventPage({
         </div>
       </header>
       <EventForm
+        paymentsConfigured={getKunfupayConfig() != null}
         event={event}
         guests={guests}
         action={update}

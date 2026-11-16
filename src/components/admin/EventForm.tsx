@@ -60,6 +60,8 @@ type Props = {
   deleteAction?: (formData: FormData) => Promise<void>;
   saved?: boolean;
   error?: string;
+  /** Hay KUNFUPAY_API_KEY en el servidor. */
+  paymentsConfigured?: boolean;
 };
 
 const toLocalInput = (d: Date | null | undefined) =>
@@ -72,6 +74,7 @@ export function EventForm({
   deleteAction,
   saved,
   error,
+  paymentsConfigured = false,
 }: Props) {
   const [activeLocale, setActiveLocale] = useState<AppLocale>(
     routing.defaultLocale,
@@ -190,6 +193,28 @@ export function EventForm({
               help="Si la rellenas, el botón lleva ahí en vez de al formulario propio."
             />
           </div>
+          <label className="flex items-start gap-2 text-[0.85rem] text-text-2">
+            <input
+              type="checkbox"
+              name="onlinePayment"
+              defaultChecked={event?.onlinePayment ?? false}
+              className="mt-0.5"
+            />
+            <span>
+              <strong className="block text-text">Cobrar la inscripción online (Kunfupay)</strong>
+              <span className="text-[0.78rem] text-text-3">
+                Al inscribirse, la persona paga el precio de arriba en el checkout de
+                Kunfupay y su plaza se confirma cuando se completa el pago. Necesita un
+                precio de al menos 0,99 €. Si hay venta externa, manda la venta externa.
+              </span>
+              {!paymentsConfigured && (
+                <span className="mt-1 block text-[0.78rem] font-semibold text-alert">
+                  El servidor no tiene KUNFUPAY_API_KEY: el formulario rechazará las
+                  inscripciones de pago hasta que se configure.
+                </span>
+              )}
+            </span>
+          </label>
         </Card>
 
         <Card title="Cuándo">
@@ -305,6 +330,11 @@ export function EventForm({
         </Card>
 
         <Card title="Acciones">
+          {error === "online_payment_price" && (
+            <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[0.78rem] text-red-700">
+              Para cobrar online el evento necesita un precio de al menos 0,99 €.
+            </div>
+          )}
           {error === "missing_title" && (
             <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[0.78rem] text-red-700">
               Necesitas al menos un título en cualquier idioma.

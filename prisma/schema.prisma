@@ -298,6 +298,17 @@ enum RegistrationStatus {
   CONFIRMED
   WAITLIST
   CANCELLED
+  /// Inscripción a un evento de pago que aún no ha completado el pago en
+  /// Kunfupay. No ocupa plaza ni recibe correo de confirmación hasta que
+  /// llega el webhook payment.completed.
+  PENDING_PAYMENT
+}
+
+/// Estado del cobro de una inscripción. null = el evento no se cobra online.
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
 }
 
 model Event {
@@ -324,6 +335,10 @@ model Event {
   /// Venta externa (Eventbrite, Stripe…). Si está, el CTA lleva ahí en vez
   /// de al formulario propio: permite cobrar sin montar pasarela.
   ticketUrl            String?
+  /// Cobrar la inscripción online con Kunfupay usando priceCents. Si está
+  /// activo, el formulario propio crea la inscripción pendiente de pago y
+  /// redirige al checkout; la plaza se confirma con el webhook de Kunfupay.
+  onlinePayment        Boolean             @default(false)
   /// Invitado de la edición. Es el mismo Guest del podcast a propósito: la
   /// regla editorial es que invitado de meetup = episodio. Nullable porque
   /// las ediciones sociales (navidad, verano) no llevan entrevista.
@@ -371,10 +386,38 @@ model EventRegistration {
   status    RegistrationStatus @default(CONFIRMED)
   createdAt DateTime           @default(now())
 
+  /// Cobro online (Kunfupay). Todo null en eventos gratuitos.
+  paymentStatus     PaymentStatus?
+  /// Importe que se pidió, en céntimos, congelado al crear el checkout.
+  amountCents       Int?
+  /// Importe que Kunfupay notificó como cobrado, en céntimos.
+  paidCents         Int?
+  currency          String?
+  /// Sesión de checkout más reciente. Las anteriores también confirman la
+  /// inscripción porque el webhook se cruza por externalReference (= id).
+  kunfupaySessionId String?   @unique
+  /// Contador de intentos: forma parte de la Idempotency-Key de Kunfupay.
+  paymentAttempts   Int       @default(0)
+  paidAt            DateTime?
+
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, email])
   @@index([eventId, status])
+}
+
+/// Bandeja de entrada de webhooks de Kunfupay. eventId es único: Kunfupay
+/// entrega al menos una vez y reintenta, así que se deduplica aquí.
+model KunfupayWebhookEvent {
+  id          String    @id @default(cuid())
+  eventId     String    @unique
+  eventType   String
+  payload     Json
+  receivedAt  DateTime  @default(now())
+  processedAt DateTime?
+  error       String?
+
+  @@index([eventType])
 }
 
 // ---------- Social publishing ---------- //

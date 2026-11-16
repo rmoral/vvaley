@@ -1,25 +1,15 @@
 "use client";
 // ---------------------------------------------------------------------------
-// REESCRITO sobre el namespace `eventDetail` existente. No introduce ninguna
-// clave nueva: usa exactamente las que ya están en los cuatro JSON.
+// Formulario de inscripción (namespace `eventDetail`).
 //
-// Claves consumidas (todas ya existentes):
-//   form_title · field_name · field_email · field_company · field_notes
-//   form_cta · registered_eyebrow · registered_title · registered_body
-//   waitlist_eyebrow · waitlist_title · waitlist_body
-//   error_not_open_yet · error_closed · error_event_passed · error_not_published
-//   error_invalid_input · error_invalid_json · error_not_found · error_network
-//   error_unknown
+// El POST a /api/events/[slug]/register devuelve:
+//   · CONFIRMED / WAITLIST → se pinta el estado aquí mismo.
+//   · PENDING_PAYMENT + checkoutUrl → evento de pago: se redirige al checkout
+//     de Kunfupay, que devuelve a /eventos/[slug]/pago.
+// Los errores se resuelven por `error_${reason}` con caída a error_unknown.
 //
-// Se conserva íntegra la lógica original: el POST a /api/events/[slug]/register
-// devuelve status CONFIRMED o WAITLIST, y el mensaje de error se resuelve por
-// `error_${reason}` con caída a error_unknown.
-//
-// Qué cambia respecto al componente actual del repo:
-//   · Campos vía <TextField> (etiqueta visible, foco teal, radius del sistema)
-//   · Botón vía <Button> (una sola definición de estilo en todo el sitio)
-//   · Error en --color-alert en lugar de text-red-700, y con role="alert"
-//   · El estado de éxito no salta de layout y anuncia con aria-live
+// Con priceLabel (evento de pago) se muestra el precio, una nota sobre el
+// pago y el botón cambia a «Continuar al pago».
 // ---------------------------------------------------------------------------
 
 import { useState } from "react";
@@ -30,6 +20,7 @@ import { Button } from "@/components/ui/Button";
 type Result =
   | { kind: "idle" }
   | { kind: "loading" }
+  | { kind: "redirecting" }
   | { kind: "ok"; status: "CONFIRMED" | "WAITLIST" }
   | { kind: "error"; reason: string };
 
@@ -42,6 +33,8 @@ const KNOWN_ERRORS = [
   "invalid_input",
   "invalid_json",
   "not_found",
+  "payment_unavailable",
+  "already_paid",
   "network",
   "unknown",
 ] as const;
@@ -54,7 +47,14 @@ function errorKey(reason: string): `error_${KnownError}` {
     : "error_unknown";
 }
 
-export function EventRegistrationForm({ slug }: { slug: string }) {
+export function EventRegistrationForm({
+  slug,
+  priceLabel = null,
+}: {
+  slug: string;
+  /** Precio formateado si la inscripción se cobra online. */
+  priceLabel?: string | null;
+}) {
   const t = useTranslations("eventDetail");
   const locale = useLocale();
 
@@ -71,7 +71,7 @@ export function EventRegistrationForm({ slug }: { slug: string }) {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (result.kind === "loading") return;
+    if (result.kind === "loading" || result.kind === "redirecting") return;
     setResult({ kind: "loading" });
     try {
       const res = await fetch(`/api/events/${slug}/register`, {
@@ -80,10 +80,18 @@ export function EventRegistrationForm({ slug }: { slug: string }) {
         body: JSON.stringify({ ...fields, locale }),
       });
       const data = (await res.json().catch(() => null)) as
-        | { ok?: boolean; status?: "CONFIRMED" | "WAITLIST"; error?: string }
+        | {
+            ok?: boolean;
+            status?: "CONFIRMED" | "WAITLIST" | "PENDING_PAYMENT";
+            checkoutUrl?: string;
+            error?: string;
+          }
         | null;
 
-      if (res.ok && data?.ok) {
+      if (res.ok && data?.ok && data.status === "PENDING_PAYMENT" && data.checkoutUrl) {
+        setResult({ kind: "redirecting" });
+        window.location.assign(data.checkoutUrl);
+      } else if (res.ok && data?.ok && data.status !== "PENDING_PAYMENT") {
         setResult({ kind: "ok", status: data.status ?? "CONFIRMED" });
       } else {
         setResult({ kind: "error", reason: data?.error ?? "unknown" });
@@ -113,7 +121,7 @@ export function EventRegistrationForm({ slug }: { slug: string }) {
     );
   }
 
-  const loading = result.kind === "loading";
+  const loading = result.kind === "loading" || result.kind === "redirecting";
 
   return (
     <form
@@ -124,6 +132,13 @@ export function EventRegistrationForm({ slug }: { slug: string }) {
       <h3 className="mb-4 font-display text-card font-bold text-text">
         {t("form_title")}
       </h3>
+
+      {priceLabel ? (
+        <p className="mb-4 text-[0.92rem] text-text-2">
+          <span className="font-semibold text-text">{t("price_label", { price: priceLabel })}</span>
+          <span className="mt-1 block text-[0.82rem] leading-[1.6]">{t("pay_note")}</span>
+        </p>
+      ) : null}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <TextField
@@ -168,7 +183,11 @@ export function EventRegistrationForm({ slug }: { slug: string }) {
 
       <div className="mt-5">
         <Button type="submit" disabled={loading} fullWidthMobile>
-          {loading ? "…" : t("form_cta")}
+          {result.kind === "redirecting"
+            ? t("redirecting")
+            : loading
+              ? "…"
+              : t(priceLabel ? "form_cta_pay" : "form_cta")}
         </Button>
       </div>
 
