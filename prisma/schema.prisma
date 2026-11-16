@@ -399,6 +399,9 @@ model EventRegistration {
   /// Contador de intentos: forma parte de la Idempotency-Key de Kunfupay.
   paymentAttempts   Int       @default(0)
   paidAt            DateTime?
+  /// Cuándo salió de verdad el correo de confirmación a la persona. null =
+  /// no se ha enviado (o falló el SMTP): el admin lo marca y deja reenviarlo.
+  confirmationEmailSentAt DateTime?
 
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 

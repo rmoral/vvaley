@@ -2,7 +2,10 @@ import type { Event, EventRegistration, EventTranslation } from "@prisma/client"
 import { registrationIdFrom } from "@/lib/event-registration";
 import { prisma } from "@/lib/prisma";
 import { routing, type AppLocale } from "@/i18n/routing";
-import { sendRegistrationConfirmedEmail } from "@/lib/event-registration-emails";
+import {
+  sendPaidRegistrationTeamNotice,
+  sendRegistrationConfirmedEmail,
+} from "@/lib/event-registration-emails";
 import {
   amountToCents,
   getCheckoutSession,
@@ -93,17 +96,52 @@ export async function confirmPaidRegistration(
     where: { id: regId },
     include: { event: { include: { translations: true } } },
   });
-  if (!reg || reg.status !== "CONFIRMED") return true;
+  if (!reg) return true;
 
+  // Al equipo siempre, aunque la inscripción estuviera cancelada: hay un
+  // cobro que conocer.
+  await sendPaidRegistrationTeamNotice({
+    eventId: reg.eventId,
+    eventTitle: eventTitle(reg.event, "es"),
+    fullName: reg.fullName,
+    email: reg.email,
+    company: reg.company,
+    notes: reg.notes,
+    status: reg.status,
+    cents: reg.paidCents ?? reg.amountCents ?? 0,
+    currency: reg.currency ?? "EUR",
+  });
+
+  if (reg.status === "CONFIRMED") await sendPaidConfirmation(reg);
+  return true;
+}
+
+type RegistrationWithEvent = EventRegistration & {
+  event: Pick<Event, "slug"> & { translations: Pick<EventTranslation, "locale" | "title">[] };
+};
+
+/**
+ * Correo de confirmación a quien ha pagado. Guarda cuándo salió: si el SMTP
+ * falla queda a null y el admin lo ve y puede reenviarlo.
+ */
+export async function sendPaidConfirmation(reg: RegistrationWithEvent): Promise<boolean> {
   const locale = asLocale(reg.locale);
-  await sendRegistrationConfirmedEmail({
+  const result = await sendRegistrationConfirmedEmail({
     to: reg.email,
     locale,
     eventTitle: eventTitle(reg.event, locale),
-    paid: {
-      cents: reg.paidCents ?? reg.amountCents ?? 0,
-      currency: reg.currency ?? "EUR",
-    },
+    paid:
+      reg.paymentStatus === "PAID"
+        ? { cents: reg.paidCents ?? reg.amountCents ?? 0, currency: reg.currency ?? "EUR" }
+        : undefined,
+  });
+  if (!result.ok || result.dryRun) {
+    console.error(`[kunfupay] correo de confirmación no enviado (${result.ok ? "dry_run" : result.error})`, reg.id);
+    return false;
+  }
+  await prisma.eventRegistration.update({
+    where: { id: reg.id },
+    data: { confirmationEmailSentAt: new Date() },
   });
   return true;
 }

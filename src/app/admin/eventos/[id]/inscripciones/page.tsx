@@ -8,6 +8,7 @@ import {
   cancelRegistration,
   confirmRegistration,
   deleteRegistration,
+  resendRegistrationEmail,
 } from "@/app/admin/_actions/events";
 
 const statusLabel: Record<RegistrationStatus, string> = {
@@ -146,6 +147,13 @@ export default async function EventRegistrationsPage({
                           {money((r.paidCents ?? r.amountCents)!, r.currency)}
                         </span>
                       )}
+                      {r.paymentStatus === "PAID" &&
+                        r.status === "CONFIRMED" &&
+                        !r.confirmationEmailSentAt && (
+                          <span className="mt-1 block text-[0.74rem] font-semibold text-alert">
+                            Correo de confirmación no enviado
+                          </span>
+                        )}
                     </>
                   ) : (
                     "—"
@@ -161,6 +169,7 @@ export default async function EventRegistrationsPage({
                     eventId={event.id}
                     regId={r.id}
                     status={r.status}
+                    canResend={r.paymentStatus === "PAID" && r.status === "CONFIRMED"}
                   />
                 </td>
               </tr>
@@ -176,17 +185,30 @@ function RowActions({
   eventId,
   regId,
   status,
+  canResend,
 }: {
   eventId: string;
   regId: string;
   status: RegistrationStatus;
+  canResend: boolean;
 }) {
   const cancel = cancelRegistration.bind(null, eventId, regId);
   const confirm = confirmRegistration.bind(null, eventId, regId);
   const remove = deleteRegistration.bind(null, eventId, regId);
+  const resend = resendRegistrationEmail.bind(null, eventId, regId);
 
   return (
     <div className="flex flex-wrap justify-end gap-2 text-[0.76rem]">
+      {canResend && (
+        <form action={resend}>
+          <button
+            type="submit"
+            className="rounded-md border border-bg3 bg-white px-2 py-1 text-text-2 transition-colors hover:border-river hover:text-river"
+          >
+            Reenviar correo
+          </button>
+        </form>
+      )}
       {status !== "CONFIRMED" && (
         <form action={confirm}>
           <button
