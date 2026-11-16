@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { Event, EventTranslation } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { sendRegistrationConfirmedEmail } from "@/lib/event-registration-emails";
+import { sendRegistrationEmail } from "@/lib/event-registration-emails";
 import { eventTitle } from "@/lib/event-payments";
 import { registrationGate, requiresOnlinePayment } from "@/lib/event-registration";
 import { createCheckoutSession, getKunfupayConfig, KunfupayError } from "@/lib/kunfupay";
@@ -98,10 +98,13 @@ export async function POST(
     },
   });
 
-  await sendRegistrationConfirmedEmail({
+  // Confirmación o lista de espera, según cómo haya quedado la inscripción.
+  await sendRegistrationEmail({
     to: email,
     locale,
-    eventTitle: eventTitle(event, locale),
+    event,
+    registration,
+    kind: registration.status === "WAITLIST" ? "waitlist" : "confirmed",
   });
 
   return NextResponse.json({

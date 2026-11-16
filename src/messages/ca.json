@@ -450,5 +450,52 @@
     "error_invalid": "Revisa els camps marcats: falta informació o el correu no és vàlid.",
     "privacy": "Fem servir les teves dades únicament per respondre't. No t'afegim a cap llista sense el teu permís.",
     "other_ways": "També pots escriure'ns directament a"
+  },
+  "emails": {
+    "common": {
+      "sign": "L'equip de Valira Valley",
+      "place": "Andorra"
+    },
+    "registration": {
+      "tag": "Esdeveniments",
+      "subject_confirmed": "Inscripció confirmada: {title}",
+      "subject_waitlist": "Llista d'espera: {title}",
+      "preheader_confirmed": "La teva plaça per a {title} està confirmada.",
+      "preheader_waitlist": "Ets a la llista d'espera de {title}.",
+      "eyebrow_confirmed": "Inscripció confirmada",
+      "eyebrow_waitlist": "Llista d'espera",
+      "greeting": "Hola, {name}:",
+      "body_confirmed": "La teva plaça està confirmada. Abans de l'esdeveniment t'enviarem els detalls finals.",
+      "body_paid": "La teva plaça està confirmada i hem rebut el teu pagament. Abans de l'esdeveniment t'enviarem els detalls finals.",
+      "body_waitlist": "L'aforament és complet i t'hem apuntat a la llista d'espera. Si s'allibera una plaça, t'avisarem per correu.",
+      "date": "Data",
+      "time": "Hora",
+      "place": "Lloc",
+      "online": "En línia",
+      "online_link": "Enllaç de connexió",
+      "attendee": "Assistent",
+      "paid": "Import pagat",
+      "reference": "Referència d'inscripció: {ref}",
+      "cta": "Veure l'esdeveniment",
+      "cancel": "No pots venir? Respon aquest correu i ho gestionem.",
+      "footer_note": "Reps aquest correu perquè t'has inscrit a un esdeveniment de Valira Valley."
+    },
+    "newsletter": {
+      "tag": "Newsletter",
+      "subject": "Confirma la teva subscripció a Valira Valley",
+      "preheader": "Un clic i començaràs a rebre la newsletter.",
+      "eyebrow": "Newsletter",
+      "title": "Confirma la teva subscripció",
+      "intro": "Gràcies per subscriure't a la newsletter de Valira Valley. Només falta un pas: confirma el teu correu amb el botó.",
+      "cta": "Confirmar subscripció",
+      "fallback": "Si el botó no funciona, copia aquest enllaç al navegador:",
+      "ignore": "Si no t'hi has subscrit tu, ignora aquest correu: no t'enviarem res més.",
+      "footer_note": "Reps aquest correu perquè algú ha demanat subscriure aquesta adreça a la newsletter de Valira Valley."
+    },
+    "campaign": {
+      "tag": "Newsletter",
+      "footer_note": "Reps aquest correu perquè et vas subscriure a la newsletter de Valira Valley.",
+      "unsubscribe": "Donar-me de baixa"
+    }
   }
 }

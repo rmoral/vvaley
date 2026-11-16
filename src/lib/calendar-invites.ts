@@ -3,53 +3,54 @@ import { sendEmail } from "@/lib/email";
 import { addressOf, mailFrom } from "@/lib/email-config";
 import { buildIcs } from "@/lib/ical";
 import { getSiteUrl } from "@/lib/site-url";
+import { renderEmail, type EmailDetail } from "@/lib/email-layout";
 
 const ORGANIZER_NAME = "Valira Valley";
 
 const subject = (episodeTitle: string) =>
   `Grabación Valira Valley: ${episodeTitle}`;
 
-const bodyText = (
-  guestName: string,
-  episodeTitle: string,
-  whenLabel: string,
-  recordingUrl: string | null,
-) => {
-  const lines = [
-    `Hola ${guestName},`,
-    "",
-    `Confirmamos la grabación del podcast "${episodeTitle}".`,
-    `Fecha: ${whenLabel}`,
+/**
+ * Invitación a grabar, con la plantilla común. Solo en castellano, como hasta
+ * ahora. Pura: la usa también la previsualización del admin.
+ */
+export function buildEpisodeInviteEmail(input: {
+  guestName: string;
+  episodeTitle: string;
+  whenLabel: string;
+  recordingUrl: string | null;
+}) {
+  const firstName = input.guestName.trim().split(/\s+/)[0] || input.guestName;
+  const details: EmailDetail[] = [
+    { label: "Episodio", value: input.episodeTitle },
+    { label: "Fecha", value: input.whenLabel },
   ];
-  if (recordingUrl) lines.push(`Conexión: ${recordingUrl}`);
-  lines.push(
-    "",
-    "Adjuntamos un evento de calendario para que lo añadas a Google Calendar / Outlook / Apple Calendar.",
-    "",
-    "— Equipo de Valira Valley",
-  );
-  return lines.join("\n");
-};
-
-const bodyHtml = (
-  guestName: string,
-  episodeTitle: string,
-  whenLabel: string,
-  recordingUrl: string | null,
-) => `<!doctype html>
-<html><body style="font-family:system-ui,sans-serif;background:#F4F8F8;padding:32px;color:#142E30;">
-  <div style="max-width:520px;margin:0 auto;background:#fff;border:1px solid #C8D8DA;border-radius:8px;padding:32px;">
-    <div style="font-family:Georgia,serif;font-weight:900;font-size:18px;letter-spacing:.05em;">
-      VALIRA<span style="color:#2E8B8F"> · </span>VALLEY
-    </div>
-    <p style="margin-top:24px;line-height:1.6;color:#3A5557;">Hola ${guestName},</p>
-    <p style="line-height:1.6;color:#3A5557;">Confirmamos la grabación del podcast <strong>${episodeTitle}</strong>.</p>
-    <p style="line-height:1.6;color:#3A5557;"><strong>Fecha:</strong> ${whenLabel}</p>
-    ${recordingUrl ? `<p style="line-height:1.6;color:#3A5557;"><strong>Conexión:</strong> <a href="${recordingUrl}" style="color:#2E8B8F">${recordingUrl}</a></p>` : ""}
-    <p style="line-height:1.6;color:#3A5557;margin-top:24px;">Adjuntamos un evento de calendario (.ics) para que lo añadas a Google Calendar, Outlook o Apple Calendar.</p>
-    <p style="font-size:13px;color:#6A8688;margin-top:32px;">— Equipo de Valira Valley</p>
-  </div>
-</body></html>`;
+  if (input.recordingUrl) {
+    details.push({ label: "Conexión", value: input.recordingUrl, href: input.recordingUrl });
+  }
+  const mailSubject = subject(input.episodeTitle);
+  const { html, text } = renderEmail({
+    lang: "es",
+    subject: mailSubject,
+    preheader: `Grabación confirmada: ${input.whenLabel}.`,
+    headerTag: "Podcast",
+    eyebrow: "Grabación confirmada",
+    title: input.episodeTitle,
+    paragraphs: [
+      `Hola, ${firstName}:`,
+      "Confirmamos la grabación del podcast. Te adjuntamos un evento de calendario (.ics) para que lo añadas a Google Calendar, Outlook o Apple Calendar.",
+    ],
+    details,
+    cta: input.recordingUrl ? { label: "Unirse a la grabación", url: input.recordingUrl } : undefined,
+    afterCta: ["Si necesitas cambiar la fecha, responde a este correo."],
+    footer: {
+      sign: "El equipo de Valira Valley",
+      place: "Andorra",
+      note: "Recibes este correo porque vas a participar en un episodio de Valira Valley.",
+    },
+  });
+  return { subject: mailSubject, html, text };
+}
 
 export type EpisodeForInvite = Episode & {
   guests: { guest: Guest }[];
@@ -114,21 +115,15 @@ export async function sendEpisodeInvites(episode: EpisodeForInvite) {
 
   let sent = 0;
   for (const { guest } of guestsWithEmail) {
+    const mail = buildEpisodeInviteEmail({
+      guestName: guest.fullName,
+      episodeTitle: episode.title,
+      whenLabel,
+      recordingUrl: episode.recordingUrl,
+    });
     const result = await sendEmail({
       to: guest.email!,
-      subject: subject(episode.title),
-      text: bodyText(
-        guest.fullName,
-        episode.title,
-        whenLabel,
-        episode.recordingUrl,
-      ),
-      html: bodyHtml(
-        guest.fullName,
-        episode.title,
-        whenLabel,
-        episode.recordingUrl,
-      ),
+      ...mail,
       attachments: [
         {
           filename: "valira-valley.ics",

@@ -8,11 +8,12 @@ import { requireAdmin, requireSession } from "@/lib/auth-helpers";
 import { assetUrl } from "@/lib/asset-url";
 import { prisma } from "@/lib/prisma";
 import { MIN_ONLINE_PRICE_CENTS } from "@/lib/event-registration";
-import { eventTitle, sendPaidConfirmation } from "@/lib/event-payments";
+import { sendPaidConfirmation } from "@/lib/event-payments";
 import {
   sendPaidRegistrationTeamNotice,
-  sendRegistrationConfirmedEmail,
+  sendRegistrationEmail,
 } from "@/lib/event-registration-emails";
+import { sampleRegistration } from "@/lib/email-samples";
 import { slugify } from "@/lib/slug";
 import { SERIES_VALUES, parseGuestChoice } from "@/lib/event-series";
 import { routing } from "@/i18n/routing";
@@ -352,23 +353,24 @@ export async function sendTestPaymentEmails(eventId: string, formData: FormData)
   // Sin precio todavía, se usa uno de ejemplo para ver la línea del pago.
   const cents = event.priceCents && event.priceCents > 0 ? event.priceCents : 3000;
 
-  const buyer = await sendRegistrationConfirmedEmail({
+  const sample = sampleRegistration(locale);
+  const buyer = await sendRegistrationEmail({
     to,
     locale,
-    eventTitle: eventTitle(event, locale),
+    event,
+    registration: sample,
+    kind: "confirmed",
     paid: { cents, currency: "EUR" },
+  });
+  const confirmedCount = await prisma.eventRegistration.count({
+    where: { eventId: event.id, status: "CONFIRMED" },
   });
   const team = await sendPaidRegistrationTeamNotice({
     to,
-    eventId: event.id,
-    eventTitle: eventTitle(event, "es"),
-    fullName: "Persona de prueba",
-    email: "persona.de.prueba@example.com",
-    company: "Empresa de ejemplo",
-    notes: "Correo de prueba enviado desde el admin; no hay inscripción ni pago real.",
-    status: "CONFIRMED",
-    cents,
-    currency: "EUR",
+    event,
+    registration: sample,
+    paid: { cents, currency: "EUR" },
+    confirmedCount,
   });
 
   // El motivo es el código técnico de sendEmail (not_configured, smtp_config,

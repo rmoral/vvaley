@@ -450,5 +450,52 @@
     "error_invalid": "Check the highlighted fields: something is missing or the email is not valid.",
     "privacy": "We only use your details to reply to you. We never add you to a mailing list without permission.",
     "other_ways": "You can also write to us directly at"
+  },
+  "emails": {
+    "common": {
+      "sign": "The Valira Valley team",
+      "place": "Andorra"
+    },
+    "registration": {
+      "tag": "Events",
+      "subject_confirmed": "Registration confirmed: {title}",
+      "subject_waitlist": "Waiting list: {title}",
+      "preheader_confirmed": "Your place at {title} is confirmed.",
+      "preheader_waitlist": "You're on the waiting list for {title}.",
+      "eyebrow_confirmed": "Registration confirmed",
+      "eyebrow_waitlist": "Waiting list",
+      "greeting": "Hi {name},",
+      "body_confirmed": "Your place is confirmed. We'll send you the final details before the event.",
+      "body_paid": "Your place is confirmed and we've received your payment. We'll send you the final details before the event.",
+      "body_waitlist": "The event is full and we've added you to the waiting list. If a place opens up, we'll let you know by email.",
+      "date": "Date",
+      "time": "Time",
+      "place": "Venue",
+      "online": "Online",
+      "online_link": "Joining link",
+      "attendee": "Attendee",
+      "paid": "Amount paid",
+      "reference": "Registration reference: {ref}",
+      "cta": "View the event",
+      "cancel": "Can't make it? Reply to this email and we'll sort it out.",
+      "footer_note": "You're receiving this email because you registered for a Valira Valley event."
+    },
+    "newsletter": {
+      "tag": "Newsletter",
+      "subject": "Confirm your Valira Valley subscription",
+      "preheader": "One click and you'll start receiving the newsletter.",
+      "eyebrow": "Newsletter",
+      "title": "Confirm your subscription",
+      "intro": "Thanks for subscribing to the Valira Valley newsletter. One last step: confirm your email with the button.",
+      "cta": "Confirm subscription",
+      "fallback": "If the button doesn't work, copy this link into your browser:",
+      "ignore": "If you didn't subscribe, ignore this email: we won't send you anything else.",
+      "footer_note": "You're receiving this email because someone asked to subscribe this address to the Valira Valley newsletter."
+    },
+    "campaign": {
+      "tag": "Newsletter",
+      "footer_note": "You're receiving this email because you subscribed to the Valira Valley newsletter.",
+      "unsubscribe": "Unsubscribe"
+    }
   }
 }

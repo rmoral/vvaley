@@ -83,7 +83,12 @@ export default async function PublicLocaleLayout({
   if (!isAppLocale(locale)) notFound();
 
   setRequestLocale(locale);
-  const messages = await getMessages();
+  // Los textos de los correos («emails») solo se usan en el servidor: no se
+  // mandan al navegador con el resto.
+  const allMessages = await getMessages();
+  const messages = Object.fromEntries(
+    Object.entries(allMessages).filter(([namespace]) => namespace !== "emails"),
+  );
 
   return (
     <html lang={locale} className={`${fraunces.variable} ${jakarta.variable}`}>

@@ -3,7 +3,7 @@ import { ContactTopic } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
-import { getSiteUrl } from "@/lib/site-url";
+import { buildContactNotice } from "@/lib/contact-emails";
 import { routing, type AppLocale } from "@/i18n/routing";
 
 export const runtime = "nodejs";
@@ -34,13 +34,6 @@ function asLocale(value: string | undefined): AppLocale {
     : routing.defaultLocale;
 }
 
-const topicLabel: Record<ContactTopic, string> = {
-  SERVICES: "Servicios para empresas",
-  GUEST: "Propuesta de invitado",
-  SPONSOR: "Patrocinio",
-  PRESS: "Prensa",
-  OTHER: "Otro",
-};
 
 export async function POST(req: Request) {
   let body: unknown;
@@ -79,38 +72,19 @@ export async function POST(req: Request) {
   // mail outage never loses a lead.
   const notify = process.env.CONTACT_NOTIFY_EMAIL;
   if (notify) {
-    const adminUrl = `${getSiteUrl()}/admin/contacto`;
-    const lines = [
-      `Tema: ${topicLabel[data.topic]}`,
-      `Nombre: ${data.name}`,
-      `Email: ${data.email}`,
-      data.company ? `Empresa: ${data.company}` : null,
-      data.phone ? `Teléfono: ${data.phone}` : null,
-      "",
-      data.message,
-      "",
-      `Ver en el backoffice: ${adminUrl}`,
-    ].filter(Boolean) as string[];
-
-    await sendEmail({
-      to: notify,
-      subject: `[Contacto] ${topicLabel[data.topic]} — ${data.name}`,
-      text: lines.join("\n"),
-      html: lines
-        .map((l) => (l ? `<p>${escapeHtml(l)}</p>` : "<br/>"))
-        .join(""),
-    }).catch(() => {
+    const mail = buildContactNotice({
+      topic: data.topic,
+      name: data.name,
+      email: data.email,
+      company: data.company,
+      phone: data.phone,
+      message: data.message,
+      locale: asLocale(data.locale),
+    });
+    await sendEmail({ to: notify, ...mail }).catch(() => {
       // Swallow: the submission is stored either way.
     });
   }
 
   return NextResponse.json({ ok: true, id: request.id });
-}
-
-function escapeHtml(input: string): string {
-  return input
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }
