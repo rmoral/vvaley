@@ -9,18 +9,37 @@ import { updateEvent, deleteEvent, sendTestPaymentEmails } from "@/app/admin/_ac
 import { isAdmin } from "@/lib/auth-helpers";
 import { guestOptions } from "@/lib/guest-options";
 
+/** Explicación de los códigos que devuelve sendTestPaymentEmails. */
+const testEmailHint: Record<string, string> = {
+  not_configured: "faltan las variables SMTP_* en el .env del servidor o el servicio no se ha reiniciado",
+  smtp_config: "las variables SMTP_* están incompletas o mal (el log dice cuál)",
+  dry_run: "el servidor no está en modo producción y solo imprime los correos",
+  no_admin_email: "tu usuario de admin no tiene email",
+  event_not_found: "el evento ya no existe",
+  smtp_EAUTH: "el servidor de correo rechaza el usuario o la contraseña",
+  smtp_ECONNECTION: "no se puede conectar con el servidor de correo",
+  smtp_ETIMEDOUT: "el servidor de correo no responde",
+  smtp_ESOCKET: "fallo de conexión o de TLS con el servidor de correo",
+  smtp_EENVELOPE: "remitente o destinatario no válidos (revisa MAIL_FROM)",
+};
+
 export default async function EditEventPage({
   params,
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ saved?: string; error?: string; test_email?: string }>;
+  searchParams: Promise<{
+    saved?: string;
+    error?: string;
+    test_email?: string;
+    reason?: string;
+  }>;
 }) {
   const session = await auth();
   if (!session?.user) redirect("/admin/login");
 
   const { id } = await params;
-  const { saved, error, test_email: testEmail } = await searchParams;
+  const { saved, error, test_email: testEmail, reason } = await searchParams;
 
   const event = await prisma.event.findUnique({
     where: { id },
@@ -125,10 +144,24 @@ export default async function EditEventPage({
             </p>
           )}
           {testEmail === "error" && (
-            <p role="alert" className="mt-3 text-[0.8rem] font-semibold text-alert">
-              No se han podido enviar. Revisa el SMTP con <code>pnpm mail:test</code> y el
-              log: <code>journalctl -u vvaley | grep &quot;\[email\]&quot;</code>.
-            </p>
+            <div role="alert" className="mt-3 text-[0.8rem] text-alert">
+              <p className="font-semibold">
+                No se han podido enviar.
+                {reason ? (
+                  <>
+                    {" "}Motivo: <code>{reason}</code>
+                    {testEmailHint[reason] ? ` — ${testEmailHint[reason]}` : ""}
+                  </>
+                ) : null}
+              </p>
+              <p className="mt-2 text-text-2">En el servidor, por separado:</p>
+              <pre className="mt-1 overflow-x-auto rounded-md bg-bg2 px-3 py-2 text-[0.78rem] text-text">
+                pnpm mail:test {session.user.email}
+              </pre>
+              <pre className="mt-1 overflow-x-auto rounded-md bg-bg2 px-3 py-2 text-[0.78rem] text-text">
+                journalctl -u vvaley --since &quot;1 hour ago&quot; | grep &quot;\[email\]&quot;
+              </pre>
+            </div>
           )}
         </section>
       )}
