@@ -1,5 +1,6 @@
 import type { AppLocale } from "@/i18n/routing";
 import { sendEmail } from "@/lib/email";
+import { getSiteUrl } from "@/lib/site-url";
 
 // Correo de inscripción confirmada, en los cuatro idiomas. Lo usan el alta
 // gratuita (/api/events/[slug]/register) y la confirmación tras el pago
@@ -63,4 +64,56 @@ export async function sendRegistrationConfirmedEmail(input: {
     text: lines.join("\n\n"),
     html: lines.map((l) => `<p>${escapeHtml(l)}</p>`).join(""),
   });
+}
+
+/** Destino de los avisos internos de eventos. */
+export function eventNotifyAddress(): string | null {
+  return process.env.EVENT_NOTIFY_EMAIL?.trim() || process.env.CONTACT_NOTIFY_EMAIL?.trim() || null;
+}
+
+/**
+ * Aviso al equipo de que alguien ha pagado su inscripción. Va a
+ * EVENT_NOTIFY_EMAIL (o, si no está, a CONTACT_NOTIFY_EMAIL). Sin ninguna de
+ * las dos no se envía nada, pero el pago queda en el admin igualmente.
+ */
+export async function sendPaidRegistrationTeamNotice(input: {
+  eventId: string;
+  eventTitle: string;
+  fullName: string;
+  email: string;
+  company: string | null;
+  notes: string | null;
+  status: string;
+  cents: number;
+  currency: string;
+}) {
+  const to = eventNotifyAddress();
+  if (!to) {
+    console.error("[kunfupay] aviso al equipo no enviado: falta EVENT_NOTIFY_EMAIL");
+    return { ok: false as const, error: "not_configured" };
+  }
+  const amount = formatMoney(input.cents, input.currency, "es");
+  const lines = [
+    `Nueva inscripción pagada en «${input.eventTitle}».`,
+    "",
+    `Nombre: ${input.fullName}`,
+    `Email: ${input.email}`,
+    input.company ? `Empresa: ${input.company}` : null,
+    `Importe: ${amount}`,
+    input.status !== "CONFIRMED"
+      ? `Atención: la inscripción está en estado ${input.status}; revisa si hay que reactivarla o reembolsar.`
+      : null,
+    input.notes ? `Notas: ${input.notes}` : null,
+    "",
+    `Inscritos: ${getSiteUrl()}/admin/eventos/${input.eventId}/inscripciones`,
+  ].filter((l): l is string => l !== null);
+
+  const result = await sendEmail({
+    to,
+    subject: `[Evento] Pago recibido: ${input.fullName} — ${input.eventTitle} (${amount})`,
+    text: lines.join("\n"),
+    html: lines.map((l) => (l ? `<p>${escapeHtml(l)}</p>` : "<br/>")).join(""),
+  });
+  if (!result.ok) console.error(`[kunfupay] aviso al equipo no enviado (${result.error})`);
+  return result;
 }

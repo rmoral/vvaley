@@ -156,6 +156,7 @@ Rellena así (sustituye `$DB_PASSWORD` por el valor del paso 2 y
 | `RESEND_API_KEY` | solo para las campañas de newsletter; vacío si no se envían campañas |
 | `KUNFUPAY_API_KEY` | clave secreta `kfp_live_…` de Kunfupay; necesaria para los eventos que cobran la inscripción online |
 | `KUNFUPAY_WEBHOOK_SECRET` | secreto de firma del webhook de Kunfupay (endpoint `https://valiravalley.com/api/kunfupay/webhook`, eventos `payment.completed` y `payment.failed`) |
+| `EVENT_NOTIFY_EMAIL` | buzón del equipo para los avisos de inscripción pagada; si se deja vacío se usa `CONTACT_NOTIFY_EMAIL` |
 
 Permisos restrictivos:
 

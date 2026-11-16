@@ -8,6 +8,7 @@ import { requireAdmin, requireSession } from "@/lib/auth-helpers";
 import { assetUrl } from "@/lib/asset-url";
 import { prisma } from "@/lib/prisma";
 import { MIN_ONLINE_PRICE_CENTS } from "@/lib/event-registration";
+import { sendPaidConfirmation } from "@/lib/event-payments";
 import { slugify } from "@/lib/slug";
 import { SERIES_VALUES, parseGuestChoice } from "@/lib/event-series";
 import { routing } from "@/i18n/routing";
@@ -304,5 +305,21 @@ export async function confirmRegistration(eventId: string, regId: string) {
 export async function deleteRegistration(eventId: string, regId: string) {
   await requireAdmin();
   await prisma.eventRegistration.delete({ where: { id: regId } });
+  revalidatePath(`/admin/eventos/${eventId}/inscripciones`);
+}
+
+/**
+ * Reenvía el correo de confirmación de una inscripción pagada (por ejemplo,
+ * si el SMTP falló al confirmar el pago). Sale del sitio: solo ADMIN.
+ */
+export async function resendRegistrationEmail(eventId: string, regId: string) {
+  await requireAdmin();
+  const reg = await prisma.eventRegistration.findUnique({
+    where: { id: regId },
+    include: { event: { include: { translations: true } } },
+  });
+  if (reg && reg.eventId === eventId && reg.status === "CONFIRMED") {
+    await sendPaidConfirmation(reg);
+  }
   revalidatePath(`/admin/eventos/${eventId}/inscripciones`);
 }
