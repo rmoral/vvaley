@@ -346,7 +346,8 @@ export async function sendTestPaymentEmails(eventId: string, formData: FormData)
     where: { id: eventId },
     include: { translations: true },
   });
-  if (!event || !to) redirect(`/admin/eventos/${eventId}?test_email=error`);
+  if (!event) redirect(`/admin/eventos/${eventId}?test_email=error&reason=event_not_found`);
+  if (!to) redirect(`/admin/eventos/${eventId}?test_email=error&reason=no_admin_email`);
 
   // Sin precio todavía, se usa uno de ejemplo para ver la línea del pago.
   const cents = event.priceCents && event.priceCents > 0 ? event.priceCents : 3000;
@@ -370,6 +371,16 @@ export async function sendTestPaymentEmails(eventId: string, formData: FormData)
     currency: "EUR",
   });
 
-  const ok = buyer.ok && !buyer.dryRun && team.ok;
-  redirect(`/admin/eventos/${eventId}?test_email=${ok ? "ok" : "error"}`);
+  // El motivo es el código técnico de sendEmail (not_configured, smtp_config,
+  // smtp_EAUTH…): no lleva credenciales ni direcciones, y lo ve solo un ADMIN.
+  const reason = !buyer.ok
+    ? buyer.error
+    : buyer.dryRun
+      ? "dry_run"
+      : !team.ok
+        ? team.error
+        : null;
+  redirect(
+    `/admin/eventos/${eventId}?test_email=${reason ? `error&reason=${encodeURIComponent(reason)}` : "ok"}`,
+  );
 }
