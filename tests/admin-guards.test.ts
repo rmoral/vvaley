@@ -22,6 +22,7 @@ const DIR = "src/app/admin/_actions";
 const SOLO_ADMIN: Record<string, string[]> = {
   campaigns: ["deleteCampaign", "sendCampaign"],
   contact: ["deleteContactRequest"],
+  emails: ["sendAllEmailSamples"],
   episodes: ["deleteEpisode"],
   events: ["deleteEvent", "deleteRegistration", "resendRegistrationEmail", "sendTestPaymentEmails"],
   guests: ["deleteGuest"],

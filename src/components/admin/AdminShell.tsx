@@ -21,6 +21,7 @@ const navItems: NavItem[] = [
   { href: "/admin/campanas", label: "Campañas" },
   { href: "/admin/social", label: "Redes sociales" },
   { href: "/admin/contacto", label: "Contacto" },
+  { href: "/admin/correos", label: "Correos" },
   { href: "/admin/usuarios", label: "Usuarios", adminOnly: true },
 ];
 

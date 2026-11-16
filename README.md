@@ -75,6 +75,7 @@ URLs útiles en local:
 | `/admin/eventos`           | Gestión de eventos                         |
 | `/admin/eventos/<id>/inscripciones` | Lista de inscritos + export CSV   |
 | `/admin/newsletter`        | Suscriptores, filtros y export CSV        |
+| `/admin/correos`           | Vista previa de todos los correos y envío de prueba |
 
 ## Variables de entorno
 
@@ -98,6 +99,8 @@ Cobro de eventos (Kunfupay):
 - `KUNFUPAY_WEBHOOK_SECRET` — secreto de firma del webhook. En el panel de Kunfupay (Webhooks) se da de alta `https://valiravalley.com/api/kunfupay/webhook` con los eventos `payment.completed` y `payment.failed`.
 - `KUNFUPAY_API_URL` — opcional; por defecto `https://api.kunfupay.com`.
 - `EVENT_NOTIFY_EMAIL` — buzón del equipo que recibe un aviso con cada inscripción pagada. Si no se define se usa `CONTACT_NOTIFY_EMAIL`.
+
+Todos los correos (inscripciones, avisos al equipo, newsletter, campañas, contacto e invitaciones a grabar) usan una plantilla común con el sistema Cota: `src/lib/email-layout.ts`, con los textos públicos en el namespace `emails` de `src/messages` y el logo en `public/email/logo-invert@2x.png` (PNG: Gmail y Outlook no muestran SVG). En `/admin/correos` se ven todos con datos de ejemplo y se pueden enviar de prueba al propio admin.
 
 Los correos, tanto el de confirmación a quien paga como el aviso al equipo, salen por el SMTP propio (`SMTP_*`). Si el SMTP falla, el pago se confirma igualmente, la lista de inscritos marca «Correo de confirmación no enviado» y ofrece «Reenviar correo».
 
