@@ -234,7 +234,8 @@
     "form_cta_pay": "Continue to payment",
     "redirecting": "Opening checkout…",
     "error_payment_unavailable": "We can't start the payment right now. Please try again in a few minutes.",
-    "error_already_paid": "We already have a payment with this email. Get in touch and we'll look into it."
+    "error_already_paid": "We already have a payment with this email. Get in touch and we'll look into it.",
+    "price_meta": "Ticket: {price}"
   },
   "eventPayment": {
     "paid_eyebrow": "Payment complete",

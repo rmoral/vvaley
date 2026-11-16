@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { pickTranslation } from "@/lib/translations";
 import { renderMarkdown } from "@/lib/markdown";
 import { registrationGate, requiresOnlinePayment } from "@/lib/event-registration";
+import { formatearPrecio } from "@/lib/event-series";
 import { DetailShell, Prose } from "@/components/public/DetailShell";
 import { EventGate } from "@/components/public/EventGate";
 import { JsonLd } from "@/components/public/JsonLd";
@@ -113,10 +114,7 @@ export default async function EventDetailPage({
       : null;
 
   const onlinePayment = requiresOnlinePayment(event);
-  const priceLabel =
-    onlinePayment && event.priceCents != null
-      ? fmt.number(event.priceCents / 100, { style: "currency", currency: "EUR" })
-      : null;
+  const priceLabel = onlinePayment ? formatearPrecio(event.priceCents, locale) : null;
 
   const locationCopy =
     event.locationType === "ONLINE"
@@ -142,6 +140,12 @@ export default async function EventDetailPage({
           <span>{locationCopy}</span>
           {event.venueName ? <span>{event.venueName}</span> : null}
           {event.venueAddress ? <span>{event.venueAddress}</span> : null}
+          {/* Solo si el evento cuesta algo: gratuito o sin precio, no se dice nada. */}
+          {event.priceCents != null && event.priceCents > 0 ? (
+            <span>
+              {t("price_meta", { price: formatearPrecio(event.priceCents, locale as AppLocale) ?? "" })}
+            </span>
+          ) : null}
         </>
       }
       aside={

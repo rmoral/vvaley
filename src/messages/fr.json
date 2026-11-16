@@ -234,7 +234,8 @@
     "form_cta_pay": "Continuer vers le paiement",
     "redirecting": "Ouverture du paiement…",
     "error_payment_unavailable": "Impossible de lancer le paiement pour le moment. Réessayez dans quelques minutes.",
-    "error_already_paid": "Un paiement existe déjà avec cet e-mail. Écrivez-nous et nous vérifierons."
+    "error_already_paid": "Un paiement existe déjà avec cet e-mail. Écrivez-nous et nous vérifierons.",
+    "price_meta": "Entrée : {price}"
   },
   "eventPayment": {
     "paid_eyebrow": "Paiement effectué",

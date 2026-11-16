@@ -234,7 +234,8 @@
     "form_cta_pay": "Continuar al pagament",
     "redirecting": "Obrint el pagament…",
     "error_payment_unavailable": "Ara mateix no podem iniciar el pagament. Torna-ho a provar d'aquí a uns minuts.",
-    "error_already_paid": "Ja consta un pagament amb aquest correu. Escriu-nos i ho revisem."
+    "error_already_paid": "Ja consta un pagament amb aquest correu. Escriu-nos i ho revisem.",
+    "price_meta": "Entrada: {price}"
   },
   "eventPayment": {
     "paid_eyebrow": "Pagament completat",
