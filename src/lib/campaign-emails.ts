@@ -1,5 +1,7 @@
 import { renderMarkdown } from "@/lib/markdown";
 import { getSiteUrl } from "@/lib/site-url";
+import { renderEmail } from "@/lib/email-layout";
+import { asEmailLocale, emailCopy } from "@/lib/email-copy";
 
 type CampaignContent = {
   subject: string;
@@ -10,6 +12,8 @@ type CampaignContent = {
 type SubscriberContext = {
   email: string;
   name: string | null;
+  /** Idioma del suscriptor: el del pie y el enlace de baja. */
+  locale?: string | null;
   /** Reused as the unsubscribe token. */
   confirmToken: string | null;
 };
@@ -22,6 +26,9 @@ type SubscriberContext = {
  *   {{name}}            → subscriber.name (or "amigo/a" if missing)
  *   {{email}}           → subscriber.email
  *   {{unsubscribe_url}} → /api/newsletter/unsubscribe?token=…
+ *
+ * El cuerpo va dentro de la plantilla común (cabecera tinta, pie con firma y
+ * enlace de baja). El asunto hace de titular.
  */
 export function renderCampaign(
   content: CampaignContent,
@@ -40,30 +47,31 @@ export function renderCampaign(
       .replaceAll("{{unsubscribe_url}}", unsubscribeUrl);
 
   const subject = interpolate(content.subject);
-  const preheader = content.preheader ? interpolate(content.preheader) : null;
+  const preheader = content.preheader ? interpolate(content.preheader) : undefined;
   const replaced = interpolate(content.bodyMarkdown);
+  // Markdown escrito por el equipo en el admin: es la única entrada que la
+  // plantilla incrusta sin escapar.
   const bodyHtml = renderMarkdown(replaced);
 
-  // Wrap the rendered markdown in a minimal email-friendly shell.
-  const html = `<!doctype html>
-<html><body style="font-family:system-ui,-apple-system,sans-serif;background:#F4F8F8;color:#142E30;margin:0;padding:32px;">
-  <div style="max-width:600px;margin:0 auto;background:#fff;border:1px solid #C8D8DA;border-radius:8px;padding:32px;">
-    <div style="font-family:Georgia,serif;font-weight:900;font-size:18px;letter-spacing:.05em;margin-bottom:24px;">
-      VALIRA<span style="color:#2E8B8F"> · </span>VALLEY
-    </div>
-    ${
-      preheader
-        ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;color:#fff;">${preheader}</div>`
-        : ""
-    }
-    <div style="line-height:1.65;color:#3A5557;">${bodyHtml}</div>
-    <hr style="border:none;border-top:1px solid #EBF2F2;margin:32px 0;">
-    <p style="font-size:12px;color:#6A8688;line-height:1.6;">
-      Recibes este correo porque te suscribiste a la newsletter de Valira Valley.
-      <br><a href="${unsubscribeUrl}" style="color:#2E8B8F">Darme de baja</a>
-    </p>
-  </div>
-</body></html>`;
+  const locale = asEmailLocale(subscriber.locale);
+  const t = emailCopy(locale, "campaign");
+  const common = emailCopy(locale, "common");
 
-  return { subject, html, text: replaced };
+  const { html } = renderEmail({
+    lang: locale,
+    subject,
+    preheader,
+    headerTag: t("tag"),
+    title: subject,
+    bodyHtml,
+    footer: {
+      sign: common("sign"),
+      place: common("place"),
+      note: t("footer_note"),
+      unsubscribe: { label: t("unsubscribe"), url: unsubscribeUrl },
+    },
+  });
+
+  const text = `${replaced}\n\n—\n${common("sign")}\n\n${t("footer_note")}\n${t("unsubscribe")}: ${unsubscribeUrl}`;
+  return { subject, html, text };
 }

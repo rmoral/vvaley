@@ -4,7 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { routing, type AppLocale } from "@/i18n/routing";
 import {
   sendPaidRegistrationTeamNotice,
-  sendRegistrationConfirmedEmail,
+  sendRegistrationEmail,
+  type EventForEmail,
 } from "@/lib/event-registration-emails";
 import {
   amountToCents,
@@ -100,25 +101,21 @@ export async function confirmPaidRegistration(
 
   // Al equipo siempre, aunque la inscripción estuviera cancelada: hay un
   // cobro que conocer.
+  const confirmedCount = await prisma.eventRegistration.count({
+    where: { eventId: reg.eventId, status: "CONFIRMED" },
+  });
   await sendPaidRegistrationTeamNotice({
-    eventId: reg.eventId,
-    eventTitle: eventTitle(reg.event, "es"),
-    fullName: reg.fullName,
-    email: reg.email,
-    company: reg.company,
-    notes: reg.notes,
-    status: reg.status,
-    cents: reg.paidCents ?? reg.amountCents ?? 0,
-    currency: reg.currency ?? "EUR",
+    event: reg.event,
+    registration: reg,
+    paid: { cents: reg.paidCents ?? reg.amountCents ?? 0, currency: reg.currency ?? "EUR" },
+    confirmedCount,
   });
 
   if (reg.status === "CONFIRMED") await sendPaidConfirmation(reg);
   return true;
 }
 
-type RegistrationWithEvent = EventRegistration & {
-  event: Pick<Event, "slug"> & { translations: Pick<EventTranslation, "locale" | "title">[] };
-};
+type RegistrationWithEvent = EventRegistration & { event: EventForEmail };
 
 /**
  * Correo de confirmación a quien ha pagado. Guarda cuándo salió: si el SMTP
@@ -126,10 +123,12 @@ type RegistrationWithEvent = EventRegistration & {
  */
 export async function sendPaidConfirmation(reg: RegistrationWithEvent): Promise<boolean> {
   const locale = asLocale(reg.locale);
-  const result = await sendRegistrationConfirmedEmail({
+  const result = await sendRegistrationEmail({
     to: reg.email,
     locale,
-    eventTitle: eventTitle(reg.event, locale),
+    event: reg.event,
+    registration: reg,
+    kind: "confirmed",
     paid:
       reg.paymentStatus === "PAID"
         ? { cents: reg.paidCents ?? reg.amountCents ?? 0, currency: reg.currency ?? "EUR" }

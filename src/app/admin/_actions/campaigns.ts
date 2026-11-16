@@ -253,7 +253,7 @@ export async function sendCampaign(id: string) {
       status: SubscriberStatus.CONFIRMED,
       ...(campaign.audienceLocale ? { locale: campaign.audienceLocale } : {}),
     },
-    select: { email: true, name: true, confirmToken: true },
+    select: { email: true, name: true, locale: true, confirmToken: true },
   });
 
   await prisma.campaign.update({
