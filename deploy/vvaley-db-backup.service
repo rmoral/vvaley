@@ -1,15 +1,15 @@
 [Unit]
-Description=Valira Valley — Postgres daily backup
-Wants=postgresql.service
-After=postgresql.service
+Description=Valira Valley — copia diaria (base en RDS + imágenes subidas)
+# La base está en Amazon RDS: solo hace falta red, no un Postgres local.
+Wants=network-online.target
+After=network-online.target
 
 [Service]
 Type=oneshot
-User=postgres
-Group=postgres
+# Corre como el dueño del .env (chmod 600) y de public/uploads.
+User=ubuntu
+Group=ubuntu
 ExecStart=/usr/local/sbin/vvaley-db-backup
-# Don't fail the timer if a single run hits a transient error.
-SuccessExitStatus=0
 Nice=10
 IOSchedulingClass=best-effort
 IOSchedulingPriority=7

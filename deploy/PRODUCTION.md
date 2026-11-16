@@ -45,12 +45,10 @@ Pensada para el primer despliegue; los siguientes son una sola línea
 >   no responde), `postgresql-auto-restart.conf` y
 >   `POSTGRES_17_MIGRATION.md` no aplican a RDS. Comprueba en el servidor
 >   que el watchdog no sigue activo: `systemctl list-timers | grep vvaley`.
-> - La copia diaria (`vvaley-db-backup`) hace `pg_dump "$DATABASE_URL"`.
->   Contra RDS solo funciona si el `pg_dump` del servidor es de la misma
->   versión mayor que RDS o superior, y si la URL no lleva parámetros que
->   `libpq` no entienda (Prisma admite `?schema=public`; `pg_dump` no).
->   Comprueba que sigue generando copias:
->   `journalctl -u vvaley-db-backup -n 20` y `ls -lh /var/backups/vvaley/`.
+> - La copia diaria (`vvaley-db-backup`, sección 9.1) vuelca la base de
+>   RDS y archiva las imágenes subidas. Para volcar RDS hace falta un
+>   `pg_dump` de la misma versión mayor que RDS o superior; el script
+>   elige el más moderno instalado y, si no basta, lo dice en el log.
 > - Para conectar con `psql`, carga la URL del `.env` sin los parámetros
 >   de Prisma (lo usan los comandos de esta guía):
 >
@@ -459,6 +457,66 @@ ssh ubuntu@18.217.132.43 "cd /home/ubuntu/web/vvaley && bash deploy/deploy.sh"
 | Backup manual de BD | `pg_dump "$DB_URL" > backup-$(date +%F).sql` |
 | Estado de las migraciones | `pnpm prisma migrate status` |
 | Renovación cert SSL | automática vía `certbot.timer`; verifica con `sudo certbot renew --dry-run` |
+
+---
+
+### 9.1 · Copia de seguridad diaria (base + imágenes)
+
+`deploy/backup-db.sh` corre cada noche a las 03:30 UTC
+(`vvaley-db-backup.timer`) como `ubuntu`:
+
+1. `pg_dump` de la base de RDS a `/var/backups/vvaley/vvaley-<fecha>.sql.gz`.
+   Quita de `DATABASE_URL` los parámetros de Prisma que `pg_dump` no
+   entiende (`schema`, `connection_limit`…) y conserva `sslmode`.
+2. `tar` de `public/uploads/` (las imágenes subidas desde el admin, que
+   solo viven en el disco de la instancia) a
+   `/var/backups/vvaley/vvaley-uploads-<fecha>.tar.gz`.
+3. Opcional: sube los dos ficheros a S3 si el `.env` tiene
+   `VVALEY_BACKUP_S3_URI` (p. ej. `s3://mi-bucket/vvaley`). Necesita la CLI
+   `aws` y que la instancia tenga un rol IAM con `s3:PutObject` sobre ese
+   prefijo. **Sin S3, las copias están en el mismo disco que lo que
+   protegen**: no sirven si se pierde la instancia.
+4. Borra las copias locales de más de 14 días.
+
+Con `VVALEY_BACKUP_DB=0` en el `.env` se omite el volcado y solo se copian
+las imágenes (si basta con las copias automáticas de RDS: consola de AWS →
+RDS → `vvaley-prod` → Mantenimiento y copias de seguridad → retención).
+
+Instalación (una vez) y primera copia:
+
+```bash
+cd /home/ubuntu/web/vvaley
+sudo install -o root -g root -m 0755 deploy/backup-db.sh /usr/local/sbin/vvaley-db-backup
+sudo install -o root -g root -m 0644 deploy/vvaley-db-backup.service /etc/systemd/system/
+sudo install -o root -g root -m 0644 deploy/vvaley-db-backup.timer   /etc/systemd/system/
+sudo mkdir -p /var/backups/vvaley && sudo chown ubuntu:ubuntu /var/backups/vvaley
+sudo systemctl daemon-reload
+sudo systemctl enable --now vvaley-db-backup.timer
+sudo systemctl start vvaley-db-backup.service
+journalctl -u vvaley-db-backup -n 30
+ls -lh /var/backups/vvaley/
+```
+
+Cuando cambie `deploy/backup-db.sh` en el repo hay que repetir el primer
+`install`: el despliegue no lo copia.
+
+Si el log dice que `pg_dump` es más antiguo que RDS, instala el cliente de
+la versión de RDS desde el repositorio oficial de PostgreSQL (PGDG):
+
+```bash
+sudo apt install -y postgresql-common
+sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
+sudo apt install -y postgresql-client-<versión de RDS>
+```
+
+Restaurar:
+
+```bash
+# Base (en una base vacía; el volcado incluye DROP … IF EXISTS)
+zcat /var/backups/vvaley/vvaley-<fecha>.sql.gz | psql "$DB_URL"
+# Imágenes
+tar -xzf /var/backups/vvaley/vvaley-uploads-<fecha>.tar.gz -C /home/ubuntu/web/vvaley/public
+```
 
 ---
 

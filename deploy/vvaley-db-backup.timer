@@ -1,5 +1,5 @@
 [Unit]
-Description=Valira Valley — Postgres daily backup (timer)
+Description=Valira Valley — copia diaria (timer)
 
 [Timer]
 # Every night at 03:30 UTC. Persistent so a missed run after reboot
