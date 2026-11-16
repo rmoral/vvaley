@@ -23,7 +23,7 @@ const SOLO_ADMIN: Record<string, string[]> = {
   campaigns: ["deleteCampaign", "sendCampaign"],
   contact: ["deleteContactRequest"],
   episodes: ["deleteEpisode"],
-  events: ["deleteEvent", "deleteRegistration", "resendRegistrationEmail"],
+  events: ["deleteEvent", "deleteRegistration", "resendRegistrationEmail", "sendTestPaymentEmails"],
   guests: ["deleteGuest"],
   news: ["deleteNews"],
   newsletter: ["deleteSubscriber"],
