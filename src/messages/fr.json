@@ -450,5 +450,52 @@
     "error_invalid": "Vérifiez les champs signalés : une information manque ou l'e-mail n'est pas valide.",
     "privacy": "Nous utilisons vos données uniquement pour vous répondre. Aucune inscription à une liste sans votre accord.",
     "other_ways": "Vous pouvez aussi nous écrire directement à"
+  },
+  "emails": {
+    "common": {
+      "sign": "L'équipe Valira Valley",
+      "place": "Andorre"
+    },
+    "registration": {
+      "tag": "Événements",
+      "subject_confirmed": "Inscription confirmée : {title}",
+      "subject_waitlist": "Liste d'attente : {title}",
+      "preheader_confirmed": "Votre place pour {title} est confirmée.",
+      "preheader_waitlist": "Vous êtes sur la liste d'attente de {title}.",
+      "eyebrow_confirmed": "Inscription confirmée",
+      "eyebrow_waitlist": "Liste d'attente",
+      "greeting": "Bonjour {name},",
+      "body_confirmed": "Votre place est confirmée. Nous vous enverrons les derniers détails avant l'événement.",
+      "body_paid": "Votre place est confirmée et nous avons bien reçu votre paiement. Nous vous enverrons les derniers détails avant l'événement.",
+      "body_waitlist": "L'événement est complet et nous vous avons inscrit(e) sur la liste d'attente. Si une place se libère, nous vous préviendrons par e-mail.",
+      "date": "Date",
+      "time": "Heure",
+      "place": "Lieu",
+      "online": "En ligne",
+      "online_link": "Lien de connexion",
+      "attendee": "Participant(e)",
+      "paid": "Montant payé",
+      "reference": "Référence d'inscription : {ref}",
+      "cta": "Voir l'événement",
+      "cancel": "Vous ne pouvez pas venir ? Répondez à cet e-mail et nous nous en occupons.",
+      "footer_note": "Vous recevez cet e-mail parce que vous vous êtes inscrit(e) à un événement Valira Valley."
+    },
+    "newsletter": {
+      "tag": "Newsletter",
+      "subject": "Confirmez votre abonnement à Valira Valley",
+      "preheader": "Un clic et vous commencerez à recevoir la newsletter.",
+      "eyebrow": "Newsletter",
+      "title": "Confirmez votre abonnement",
+      "intro": "Merci de vous être abonné(e) à la newsletter de Valira Valley. Il ne reste qu'une étape : confirmez votre adresse avec le bouton.",
+      "cta": "Confirmer l'abonnement",
+      "fallback": "Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :",
+      "ignore": "Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail : nous ne vous enverrons rien d'autre.",
+      "footer_note": "Vous recevez cet e-mail parce que quelqu'un a demandé l'abonnement de cette adresse à la newsletter de Valira Valley."
+    },
+    "campaign": {
+      "tag": "Newsletter",
+      "footer_note": "Vous recevez cet e-mail parce que vous êtes abonné(e) à la newsletter de Valira Valley.",
+      "unsubscribe": "Me désabonner"
+    }
   }
 }
