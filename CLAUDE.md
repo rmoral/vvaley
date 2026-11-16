@@ -13,10 +13,11 @@ Web pública multilingüe y backoffice de Valira Valley (valiravalley.com), el m
 - Correo transaccional por SMTP propio con Nodemailer (`src/lib/email.ts`, variables `SMTP_*` y `MAIL_FROM`, las mismas en todos los sitios de Level Five). Resend solo para las campañas de newsletter (`sendCampaignEmail`). Analítica con Plausible.
 
 ## Despliegue: servidor propio, no Vercel
-- Producción es un servidor Ubuntu con Apache como proxy inverso, Node bajo systemd (`vvaley.service`) y PostgreSQL local.
+- Producción es un servidor Ubuntu (EC2) con Apache como proxy inverso y Node bajo systemd (`vvaley.service`). La base de datos **no** está en el servidor: es PostgreSQL en Amazon RDS (instancia `vvaley-prod`, región us-east-2), y `DATABASE_URL` del `.env` apunta ahí.
+- `deploy/vvaley-pg-watchdog.*`, `deploy/postgresql-auto-restart.conf` y `deploy/POSTGRES_17_MIGRATION.md` son del montaje anterior, con PostgreSQL en la propia instancia; no aplican a RDS.
 - **Un merge a `main` no publica nada.** Se publica ejecutando `bash deploy/deploy.sh` en el servidor, que hace `git reset --hard origin/main`, instala, aplica migraciones de Prisma, compila y reinicia el servicio.
 - Consecuencia: todo lo que esté en `main` debe poder desplegarse, y cualquier cambio hecho a mano en el servidor se pierde en el siguiente despliegue.
-- Los archivos de `deploy/` (unidades systemd, vhost de Apache, sudoers, copias de seguridad, vigilancia de Postgres) se instalan a mano en el servidor: cambiarlos en el repo no los aplica. Si se tocan, hay que decirlo expresamente en el PR.
+- Los archivos de `deploy/` (unidades systemd, vhost de Apache, sudoers, copias de seguridad) se instalan a mano en el servidor: cambiarlos en el repo no los aplica. Si se tocan, hay que decirlo expresamente en el PR.
 - Las imágenes subidas viven en el disco del servidor, no en el repo.
 
 ## Estructura
