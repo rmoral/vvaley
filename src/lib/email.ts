@@ -36,6 +36,10 @@ type SendEmailInput = {
   html: string;
   text?: string;
   attachments?: EmailAttachment[];
+  /** Remitente distinto de MAIL_FROM (p. ej. hola@ para los correos a inscritos). */
+  from?: string;
+  /** Responder a; por defecto MAIL_REPLY_TO. */
+  replyTo?: string;
 };
 
 type SendResult =
@@ -59,14 +63,14 @@ function transportFor(config: SmtpConfig): Transporter {
  */
 function withoutProvider(
   missing: string,
-  { to, subject, html, text, attachments }: SendEmailInput,
+  { to, subject, html, text, attachments, from }: SendEmailInput,
 ): SendResult {
   if (process.env.NODE_ENV === "production") {
     console.error(`[email] not sent, ${missing} is not configured. Subject: ${subject}`);
     return { ok: false, error: "not_configured" };
   }
   console.log(`\n──── [email · dev mode, no ${missing}] ────`);
-  console.log(`From:    ${mailFrom()}`);
+  console.log(`From:    ${from ?? mailFrom()}`);
   console.log(`To:      ${to}`);
   console.log(`Subject: ${subject}`);
   if (attachments && attachments.length > 0) {
@@ -93,9 +97,9 @@ export async function sendEmail(input: SendEmailInput): Promise<SendResult> {
 
   try {
     await transportFor(config).sendMail({
-      from: config.from,
+      from: input.from ?? config.from,
       to: input.to,
-      replyTo: config.replyTo,
+      replyTo: input.replyTo ?? config.replyTo,
       subject: input.subject,
       html: input.html,
       text: input.text,
@@ -104,7 +108,7 @@ export async function sendEmail(input: SendEmailInput): Promise<SendResult> {
         content: a.content,
         contentType: a.contentType,
       })),
-      messageId: `<${randomUUID()}@${addressOf(config.from).split("@")[1]}>`,
+      messageId: `<${randomUUID()}@${addressOf(input.from ?? config.from).split("@")[1]}>`,
     });
   } catch (error) {
     // Nodemailer errors carry the recipients; log only the technical part.

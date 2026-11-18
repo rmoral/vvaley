@@ -7,6 +7,8 @@
 //   SMTP_PASS   contraseña del buzón
 //   MAIL_FROM   "correo@dominio" o "Nombre <correo@dominio>" (se acepta EMAIL_FROM, el nombre anterior)
 //   MAIL_REPLY_TO  opcional
+//   EVENT_MAIL_FROM  remitente de los correos que el equipo escribe a los
+//                    inscritos de un evento (por defecto hola@valiravalley.com)
 
 export type SmtpConfig = {
   host: string;
@@ -28,6 +30,18 @@ const DEFAULT_FROM = "Valira Valley <noreply@valiravalley.com>";
 
 /** Remitente: MAIL_FROM (nombre común del grupo), EMAIL_FROM (nombre anterior) o el de por defecto. */
 export const mailFrom = (env: Env = process.env) => env.MAIL_FROM?.trim() || env.EMAIL_FROM?.trim() || DEFAULT_FROM;
+
+const DEFAULT_EVENT_FROM = "Valira Valley <hola@valiravalley.com>";
+
+/**
+ * Remitente de los correos que el equipo escribe a mano a los inscritos. Las
+ * respuestas vuelven a esta misma dirección. Si EVENT_MAIL_FROM no es una
+ * dirección válida se usa la de por defecto.
+ */
+export const eventMessageFrom = (env: Env = process.env) => {
+  const value = env.EVENT_MAIL_FROM?.trim();
+  return value && ADDRESS.test(addressOf(value)) ? value : DEFAULT_EVENT_FROM;
+};
 
 /** Los mensajes nombran la variable y el problema, nunca su valor. */
 export class MailConfigError extends Error {
