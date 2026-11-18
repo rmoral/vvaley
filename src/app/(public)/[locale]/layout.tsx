@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
-import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
+import { fraunces, jakarta } from "@/fonts";
 import { routing, type AppLocale } from "@/i18n/routing";
 import { getSiteUrl } from "@/lib/site-url";
 import { localizedUrls, ogAlternateLocales, ogLocale } from "@/lib/seo";
@@ -18,21 +18,6 @@ import {
 } from "@/components/GoogleTagManager";
 import { SiteNav } from "@/components/public/SiteNav";
 import { SiteFooter } from "@/components/public/SiteFooter";
-
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-display",
-  display: "swap",
-  weight: ["400", "600", "700", "900"],
-  style: ["normal", "italic"],
-});
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: "swap",
-  weight: ["300", "400", "500", "600"],
-});
 
 export async function generateMetadata({
   params,
