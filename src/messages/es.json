@@ -253,6 +253,24 @@
     "retry_cta": "Volver a intentarlo",
     "back_to_event": "Volver al evento"
   },
+  "eventPayLink": {
+    "eyebrow": "Enlace de pago",
+    "back_to_event": "Ver el evento",
+    "invalid_title": "Este enlace de pago no es válido",
+    "invalid_body": "Puede que esté incompleto o que ya no sirva. Copia el enlace entero del correo o escríbenos a hola@valiravalley.com.",
+    "cancelled_title": "Esta inscripción está cancelada",
+    "cancelled_body": "No se puede pagar una inscripción cancelada. Si quieres volver a apuntarte, hazlo desde la página del evento o escríbenos a hola@valiravalley.com.",
+    "waitlist_title": "Estás en la lista de espera",
+    "waitlist_body": "Todavía no hay plaza para ti, así que no hace falta pagar. Si se libera una, te escribiremos.",
+    "full_title": "El aforo está completo",
+    "full_body": "Mientras tanto se han ocupado todas las plazas y no te hemos cobrado nada. Escríbenos a hola@valiravalley.com y te avisamos si se libera una.",
+    "closed_title": "Este evento ya no admite pagos",
+    "closed_body": "El evento ya ha pasado o no está abierto. No se te ha cobrado nada.",
+    "not_payable_title": "Este evento no se paga online",
+    "not_payable_body": "No hace falta pagar desde aquí. Si tienes dudas, escríbenos a hola@valiravalley.com.",
+    "unavailable_title": "El pago no está disponible ahora mismo",
+    "unavailable_body": "No hemos podido abrir la página de pago y no se te ha cobrado nada. Vuelve a probar con el mismo enlace dentro de un rato."
+  },
   "meetup": {
     "meta_title": "Valira Valley Meetup",
     "meta_desc": "El encuentro mensual del ecosistema empresarial de Andorra: una entrevista en directo y dos horas de conversación. Aforo limitado.",

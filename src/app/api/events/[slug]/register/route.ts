@@ -3,10 +3,9 @@ import type { Event, EventTranslation } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { sendRegistrationEmail } from "@/lib/event-registration-emails";
-import { eventTitle } from "@/lib/event-payments";
+import { openRegistrationCheckout } from "@/lib/event-payments";
 import { registrationGate, requiresOnlinePayment } from "@/lib/event-registration";
-import { createCheckoutSession, getKunfupayConfig, KunfupayError } from "@/lib/kunfupay";
-import { getSiteUrl } from "@/lib/site-url";
+import { getKunfupayConfig } from "@/lib/kunfupay";
 import { routing, type AppLocale } from "@/i18n/routing";
 
 const schema = z.object({
@@ -196,43 +195,9 @@ async function startPaidRegistration(
     },
   });
 
-  const returnUrl = `${getSiteUrl()}/${who.locale}/eventos/${event.slug}/pago?r=${registration.id}`;
-  const title = eventTitle(event, who.locale);
-
-  try {
-    const session = await createCheckoutSession(config, {
-      amountCents: event.priceCents,
-      currency: "EUR",
-      description: title.slice(0, 200),
-      externalReference: registration.id,
-      metadata: {
-        registrationId: registration.id,
-        eventId: event.id,
-        eventSlug: event.slug,
-      },
-      successUrl: returnUrl,
-      cancelUrl: `${returnUrl}&cancelled=1`,
-      // Un intento = una sesión. Reintentar la misma petición recupera la
-      // misma sesión en vez de crear otra.
-      idempotencyKey: `vv-reg-${registration.id}-${registration.paymentAttempts}`,
-    });
-
-    await prisma.eventRegistration.update({
-      where: { id: registration.id },
-      data: { kunfupaySessionId: session.id },
-    });
-
-    return NextResponse.json({
-      ok: true,
-      status: "PENDING_PAYMENT",
-      checkoutUrl: session.checkoutUrl,
-    });
-  } catch (err) {
-    console.error(
-      "[kunfupay] no se pudo crear el checkout",
-      registration.id,
-      err instanceof KunfupayError ? { status: err.status, body: err.body } : err,
-    );
+  const checkoutUrl = await openRegistrationCheckout(event, registration, "registration_form");
+  if (!checkoutUrl) {
     return NextResponse.json({ ok: false, error: "payment_unavailable" }, { status: 502 });
   }
+  return NextResponse.json({ ok: true, status: "PENDING_PAYMENT", checkoutUrl });
 }

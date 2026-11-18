@@ -39,6 +39,7 @@ const REASON_HINT: Record<string, string> = {
 export function EventEmailComposer({
   templates,
   counts,
+  unpaidCounts,
   single,
   from,
   canSend,
@@ -49,6 +50,8 @@ export function EventEmailComposer({
   templates: ComposerTemplate[];
   /** Inscripciones por estado. */
   counts: Record<string, number>;
+  /** Las mismas, sin las ya pagadas: a quien va un correo con {{enlace_pago}}. */
+  unpaidCounts: Record<string, number>;
   /** Si está, el correo va solo a esta persona. */
   single?: { id: string; fullName: string; email: string } | null;
   from: string;
@@ -88,7 +91,9 @@ export function EventEmailComposer({
     startTransition(() => dispatch(formData));
   }
 
-  const recipients = single ? 1 : statuses.reduce((n, s) => n + (counts[s] ?? 0), 0);
+  const paymentLink = /\{\{\s*enlace_pago\s*\}\}/.test(`${subject}\n${body}`);
+  const shownCounts = paymentLink ? unpaidCounts : counts;
+  const recipients = single ? 1 : statuses.reduce((n, s) => n + (shownCounts[s] ?? 0), 0);
 
   function pickTemplate(id: string) {
     setTemplateId(id);
@@ -152,10 +157,16 @@ export function EventEmailComposer({
                     checked={statuses.includes(s.value)}
                     onChange={(e) => toggleStatus(s.value, e.target.checked)}
                   />
-                  {s.label} ({counts[s.value] ?? 0})
+                  {s.label} ({shownCounts[s.value] ?? 0})
                 </label>
               ))}
             </div>
+          )}
+          {paymentLink && (
+            <p className="mt-2 text-[0.76rem] font-semibold text-river">
+              Lleva enlace de pago: no se envía a quien ya ha pagado, y solo sirve a
+              confirmados y pendientes de pago. Cada persona recibe el suyo.
+            </p>
           )}
           <p className="mt-2 text-[0.76rem] text-text-3">
             Desde <strong className="text-text-2">{from}</strong>. Cada persona recibe su propio

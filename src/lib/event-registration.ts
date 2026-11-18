@@ -1,4 +1,4 @@
-import type { Event } from "@prisma/client";
+import type { Event, EventRegistration } from "@prisma/client";
 
 export type RegistrationGate =
   | { open: true }
@@ -53,4 +53,43 @@ export function registrationIdFrom(source: {
   metadata?: Record<string, string>;
 }): string | null {
   return source.metadata?.registrationId || source.externalReference || null;
+}
+
+/**
+ * Qué pasa al abrir el enlace de pago de una inscripción:
+ *   · ok           → se abre el checkout de Kunfupay;
+ *   · already_paid → se manda a la página de gracias, sin volver a cobrar;
+ *   · el resto     → no se cobra y se explica por qué.
+ * La lista de espera no paga con el enlace: si se libera una plaza, el
+ * equipo la confirma antes y entonces el enlace funciona. Una pendiente de
+ * pago sí, mientras quede aforo (las confirmadas ya tienen su plaza).
+ */
+export type PaymentLinkState =
+  | "ok"
+  | "already_paid"
+  | "cancelled"
+  | "waitlist"
+  | "full"
+  | "closed"
+  | "not_payable";
+
+export function paymentLinkState(
+  event: PaidEventFields & Pick<Event, "status" | "startsAt" | "capacity">,
+  registration: Pick<EventRegistration, "status" | "paymentStatus">,
+  confirmedCount: number,
+  now: Date = new Date(),
+): PaymentLinkState {
+  if (registration.paymentStatus === "PAID") return "already_paid";
+  if (registration.status === "CANCELLED") return "cancelled";
+  if (registration.status === "WAITLIST") return "waitlist";
+  if (!requiresOnlinePayment(event)) return "not_payable";
+  if (event.status !== "PUBLISHED" || event.startsAt.getTime() < now.getTime()) return "closed";
+  if (
+    registration.status === "PENDING_PAYMENT" &&
+    event.capacity != null &&
+    confirmedCount >= event.capacity
+  ) {
+    return "full";
+  }
+  return "ok";
 }

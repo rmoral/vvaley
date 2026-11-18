@@ -68,6 +68,7 @@ URLs útiles en local:
 | `/eventos`                 | Listado de eventos (próximos + pasados)    |
 | `/eventos/<slug>`          | Detalle del evento + formulario de inscripción |
 | `/eventos/<slug>/pago`     | Vuelta del checkout de Kunfupay (estado del pago) |
+| `/eventos/<slug>/pagar`    | Enlace de pago firmado de una inscripción: abre el checkout de Kunfupay |
 | `/admin/invitados`         | Gestión de invitados                      |
 | `/admin/episodios`         | Gestión de episodios                      |
 | `/admin/blog`              | Gestión del blog (CRUD multilingüe)       |
@@ -98,6 +99,7 @@ Cobro de eventos (Kunfupay):
 - `KUNFUPAY_API_KEY` — clave secreta de la API de Kunfupay (`kfp_live_…`). Sin ella, los eventos marcados como «Cobrar la inscripción online» rechazan las inscripciones.
 - `KUNFUPAY_WEBHOOK_SECRET` — secreto de firma del webhook. En el panel de Kunfupay (Webhooks) se da de alta `https://valiravalley.com/api/kunfupay/webhook` con los eventos `payment.completed` y `payment.failed`.
 - `KUNFUPAY_API_URL` — opcional; por defecto `https://api.kunfupay.com`.
+- `PAYMENT_LINK_SECRET` — opcional; firma los enlaces de pago. Sin ella se usa `AUTH_SECRET`. Cambiarla invalida los enlaces ya enviados.
 - `EVENT_NOTIFY_EMAIL` — buzón del equipo que recibe un aviso con cada inscripción pagada. Si no se define se usa `CONTACT_NOTIFY_EMAIL`.
 
 Todos los correos (inscripciones, avisos al equipo, newsletter, campañas, contacto e invitaciones a grabar) usan una plantilla común con el sistema Cota: `src/lib/email-layout.ts`, con los textos públicos en el namespace `emails` de `src/messages` y el logo en `public/email/logo-invert@2x.png` (PNG: Gmail y Outlook no muestran SVG). En `/admin/correos` se ven todos con datos de ejemplo y se pueden enviar de prueba al propio admin.
@@ -105,6 +107,8 @@ Todos los correos (inscripciones, avisos al equipo, newsletter, campañas, conta
 Los correos, tanto el de confirmación a quien paga como el aviso al equipo, salen por el SMTP propio (`SMTP_*`). Si el SMTP falla, el pago se confirma igualmente, la lista de inscritos marca «Correo de confirmación no enviado» y ofrece «Reenviar correo».
 
 Flujo: en `/admin/eventos/<id>` se pone el precio y se marca «Cobrar la inscripción online». El formulario público crea la inscripción en «Pendiente de pago», abre un checkout de Kunfupay y redirige a él; al pagar, la persona vuelve a `/eventos/<slug>/pago`. La plaza se confirma, y sale el correo, cuando llega el webhook `payment.completed`; si se retrasa, la página de vuelta consulta la sesión a la API. Kunfupay solo ofrece checkout alojado en su dominio, sin formulario embebible.
+
+Enlace de pago: para quien se inscribió y no ha pagado (pendiente de pago, o confirmada a mano sin cobrar), el hueco `{{enlace_pago}}` de los correos a inscritos (`/admin/eventos/<id>/correo`) y el botón «Copiar enlace de pago» de la lista de inscritos dan un enlace firmado a `/eventos/<slug>/pagar`. Abre un checkout nuevo (o reutiliza el que siga abierto) y, al pagar, sigue el mismo camino: vuelta a `/eventos/<slug>/pago`, inscripción confirmada y pagada, correo a la persona y aviso al equipo. No cobra a quien ya pagó, a la lista de espera, a canceladas, si el aforo se ha llenado o si el evento ya pasó.
 
 ## Despliegue en EC2 (Ubuntu + Apache)
 

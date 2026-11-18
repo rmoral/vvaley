@@ -253,6 +253,24 @@
     "retry_cta": "Try again",
     "back_to_event": "Back to the event"
   },
+  "eventPayLink": {
+    "eyebrow": "Payment link",
+    "back_to_event": "View the event",
+    "invalid_title": "This payment link isn't valid",
+    "invalid_body": "It may be incomplete or no longer in use. Copy the whole link from the email or write to us at hola@valiravalley.com.",
+    "cancelled_title": "This registration has been cancelled",
+    "cancelled_body": "A cancelled registration can't be paid. If you'd like to sign up again, do it from the event page or write to us at hola@valiravalley.com.",
+    "waitlist_title": "You're on the waiting list",
+    "waitlist_body": "There's no place for you yet, so there's nothing to pay. If one frees up, we'll write to you.",
+    "full_title": "The event is full",
+    "full_body": "All places have been taken in the meantime and you haven't been charged. Write to us at hola@valiravalley.com and we'll let you know if one frees up.",
+    "closed_title": "This event no longer accepts payments",
+    "closed_body": "The event has already taken place or isn't open. You haven't been charged.",
+    "not_payable_title": "This event isn't paid online",
+    "not_payable_body": "There's no need to pay here. If you have any questions, write to us at hola@valiravalley.com.",
+    "unavailable_title": "Payment isn't available right now",
+    "unavailable_body": "We couldn't open the payment page and you haven't been charged. Try the same link again in a little while."
+  },
   "meetup": {
     "meta_title": "Valira Valley Meetup",
     "meta_desc": "Andorra's monthly business gathering: one live interview and two hours of conversation. Limited seats.",
