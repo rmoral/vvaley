@@ -253,6 +253,24 @@
     "retry_cta": "Réessayer",
     "back_to_event": "Retour à l'événement"
   },
+  "eventPayLink": {
+    "eyebrow": "Lien de paiement",
+    "back_to_event": "Voir l'événement",
+    "invalid_title": "Ce lien de paiement n'est pas valide",
+    "invalid_body": "Il est peut-être incomplet ou n'est plus utilisable. Copiez le lien complet depuis l'e-mail ou écrivez-nous à hola@valiravalley.com.",
+    "cancelled_title": "Cette inscription a été annulée",
+    "cancelled_body": "Une inscription annulée ne peut pas être payée. Pour vous inscrire à nouveau, passez par la page de l'événement ou écrivez-nous à hola@valiravalley.com.",
+    "waitlist_title": "Vous êtes sur liste d'attente",
+    "waitlist_body": "Il n'y a pas encore de place pour vous : inutile de payer. Si une place se libère, nous vous écrirons.",
+    "full_title": "L'événement est complet",
+    "full_body": "Toutes les places ont été prises entre-temps et rien ne vous a été débité. Écrivez-nous à hola@valiravalley.com et nous vous préviendrons si une place se libère.",
+    "closed_title": "Cet événement n'accepte plus de paiements",
+    "closed_body": "L'événement a déjà eu lieu ou n'est pas ouvert. Rien ne vous a été débité.",
+    "not_payable_title": "Cet événement ne se paie pas en ligne",
+    "not_payable_body": "Inutile de payer ici. Pour toute question, écrivez-nous à hola@valiravalley.com.",
+    "unavailable_title": "Le paiement n'est pas disponible pour le moment",
+    "unavailable_body": "Nous n'avons pas pu ouvrir la page de paiement et rien ne vous a été débité. Réessayez avec le même lien dans un moment."
+  },
   "meetup": {
     "meta_title": "Valira Valley Meetup",
     "meta_desc": "La rencontre mensuelle de l'écosystème entrepreneurial andorran : un entretien en direct et deux heures de conversation. Places limitées.",

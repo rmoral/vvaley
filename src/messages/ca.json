@@ -253,6 +253,24 @@
     "retry_cta": "Tornar-ho a provar",
     "back_to_event": "Tornar a l'esdeveniment"
   },
+  "eventPayLink": {
+    "eyebrow": "Enllaç de pagament",
+    "back_to_event": "Veure l'esdeveniment",
+    "invalid_title": "Aquest enllaç de pagament no és vàlid",
+    "invalid_body": "Pot ser que estigui incomplet o que ja no serveixi. Copia l'enllaç sencer del correu o escriu-nos a hola@valiravalley.com.",
+    "cancelled_title": "Aquesta inscripció està cancel·lada",
+    "cancelled_body": "No es pot pagar una inscripció cancel·lada. Si et vols tornar a apuntar, fes-ho des de la pàgina de l'esdeveniment o escriu-nos a hola@valiravalley.com.",
+    "waitlist_title": "Ets a la llista d'espera",
+    "waitlist_body": "Encara no hi ha plaça per a tu, així que no cal pagar. Si se n'allibera una, t'escriurem.",
+    "full_title": "L'aforament és complet",
+    "full_body": "Mentrestant s'han ocupat totes les places i no t'hem cobrat res. Escriu-nos a hola@valiravalley.com i t'avisarem si se n'allibera una.",
+    "closed_title": "Aquest esdeveniment ja no admet pagaments",
+    "closed_body": "L'esdeveniment ja ha passat o no està obert. No se t'ha cobrat res.",
+    "not_payable_title": "Aquest esdeveniment no es paga en línia",
+    "not_payable_body": "No cal pagar des d'aquí. Si tens dubtes, escriu-nos a hola@valiravalley.com.",
+    "unavailable_title": "El pagament no està disponible ara mateix",
+    "unavailable_body": "No hem pogut obrir la pàgina de pagament i no se t'ha cobrat res. Torna-ho a provar amb el mateix enllaç d'aquí a una estona."
+  },
   "meetup": {
     "meta_title": "Valira Valley Meetup",
     "meta_desc": "La trobada mensual de l'ecosistema empresarial d'Andorra: una entrevista en directe i dues hores de conversa. Aforament limitat.",
