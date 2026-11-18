@@ -53,12 +53,20 @@ export default async function EventsListAdminPage({
             {events.length} {events.length === 1 ? "evento" : "eventos"}.
           </p>
         </div>
-        <Link
-          href="/admin/eventos/nuevo"
-          className="rounded-md bg-river px-4 py-2 text-[0.85rem] font-semibold text-white no-underline transition-all hover:-translate-y-0.5 hover:bg-text"
-        >
-          + Nuevo evento
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href="/admin/eventos/plantillas"
+            className="rounded-md border border-bg3 bg-white px-4 py-2 text-[0.85rem] font-semibold text-text-2 no-underline transition-colors hover:border-river hover:text-river"
+          >
+            Plantillas de correo
+          </Link>
+          <Link
+            href="/admin/eventos/nuevo"
+            className="rounded-md bg-river px-4 py-2 text-[0.85rem] font-semibold text-white no-underline transition-all hover:-translate-y-0.5 hover:bg-text"
+          >
+            + Nuevo evento
+          </Link>
+        </div>
       </div>
 
       <div className="mb-4 flex flex-wrap gap-2 text-[0.78rem]">

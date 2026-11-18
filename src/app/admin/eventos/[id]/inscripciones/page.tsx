@@ -88,12 +88,20 @@ export default async function EventRegistrationsPage({
             {event.capacity ? `· aforo ${event.capacity}` : ""}
           </p>
         </div>
-        <a
-          href={`/api/admin/events/${event.id}/registrations/export`}
-          className="rounded-md border border-bg3 bg-white px-4 py-2 text-[0.85rem] font-semibold text-text-2 no-underline transition-colors hover:border-river hover:text-river"
-        >
-          Exportar CSV
-        </a>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={`/admin/eventos/${event.id}/correo`}
+            className="rounded-md bg-river px-4 py-2 text-[0.85rem] font-semibold text-white no-underline transition-all hover:-translate-y-0.5 hover:bg-text"
+          >
+            Escribir a los inscritos
+          </Link>
+          <a
+            href={`/api/admin/events/${event.id}/registrations/export`}
+            className="rounded-md border border-bg3 bg-white px-4 py-2 text-[0.85rem] font-semibold text-text-2 no-underline transition-colors hover:border-river hover:text-river"
+          >
+            Exportar CSV
+          </a>
+        </div>
       </div>
 
       <div className="overflow-hidden rounded-lg border border-bg3 bg-white">
@@ -199,6 +207,12 @@ function RowActions({
 
   return (
     <div className="flex flex-wrap justify-end gap-2 text-[0.76rem]">
+      <Link
+        href={`/admin/eventos/${eventId}/correo?a=${regId}`}
+        className="rounded-md border border-bg3 bg-white px-2 py-1 text-text-2 no-underline transition-colors hover:border-river hover:text-river"
+      >
+        Escribir
+      </Link>
       {canResend && (
         <form action={resend}>
           <button
