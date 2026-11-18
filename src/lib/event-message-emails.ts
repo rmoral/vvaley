@@ -31,6 +31,7 @@ export const MESSAGE_PLACEHOLDERS = {
   enlace_evento: "Página pública del evento",
   enlace_online: "Enlace de conexión (eventos online o híbridos)",
   referencia: "Referencia de la inscripción (VV-XXXXXXXX)",
+  enlace_pago: "Enlace para pagar la inscripción (eventos con cobro online; no se envía a quien ya ha pagado)",
   motivo: "Texto libre que se escribe en cada envío",
 } as const;
 
@@ -64,6 +65,8 @@ export function placeholderValues(
   registration: Pick<RegistrationForEmail, "id" | "fullName" | "company">,
   locale: string,
   reason: string,
+  /** Enlace de pago firmado de esta persona (payment-links), si hace falta. */
+  paymentUrl = "",
 ): Record<Placeholder, string> {
   const lang = asEmailLocale(locale);
   const t = emailCopy(lang, "registration");
@@ -89,6 +92,7 @@ export function placeholderValues(
     enlace_evento: eventUrl(event, lang),
     enlace_online: event.onlineUrl ?? "",
     referencia: registrationReference(registration.id),
+    enlace_pago: paymentUrl,
     motivo: reason.trim(),
   };
 }
@@ -121,12 +125,20 @@ export type EventMessageInput = {
   body: string;
   /** Texto libre del envío, para el hueco {{motivo}}. */
   reason: string;
+  /** Enlace de pago de esta persona, para el hueco {{enlace_pago}}. */
+  paymentUrl?: string;
 };
 
 /** Asunto, HTML y texto de un correo personalizado para una persona. */
 export function buildEventMessage(input: EventMessageInput) {
   const lang = asEmailLocale(input.locale);
-  const values = placeholderValues(input.event, input.registration, lang, input.reason);
+  const values = placeholderValues(
+    input.event,
+    input.registration,
+    lang,
+    input.reason,
+    input.paymentUrl,
+  );
   const t = emailCopy(lang, "registration");
   const common = emailCopy(lang, "common");
 

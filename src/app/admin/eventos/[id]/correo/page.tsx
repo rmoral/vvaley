@@ -39,10 +39,15 @@ export default async function EventEmailPage({
   });
   if (!event) notFound();
 
-  const [grouped, templates, single, history] = await Promise.all([
+  const [grouped, unpaidGrouped, templates, single, history] = await Promise.all([
     prisma.eventRegistration.groupBy({
       by: ["status"],
       where: { eventId: id },
+      _count: { _all: true },
+    }),
+    prisma.eventRegistration.groupBy({
+      by: ["status"],
+      where: { eventId: id, OR: [{ paymentStatus: null }, { paymentStatus: { not: "PAID" } }] },
       _count: { _all: true },
     }),
     prisma.eventEmailTemplate.findMany({
@@ -64,6 +69,7 @@ export default async function EventEmailPage({
   ]);
 
   const counts = Object.fromEntries(grouped.map((g) => [g.status, g._count._all]));
+  const unpaidCounts = Object.fromEntries(unpaidGrouped.map((g) => [g.status, g._count._all]));
   const titleEs =
     event.translations.find((t) => t.locale === "es")?.title ??
     event.translations[0]?.title ??
@@ -98,6 +104,7 @@ export default async function EventEmailPage({
       <EventEmailComposer
         templates={templates}
         counts={counts}
+        unpaidCounts={unpaidCounts}
         single={single}
         from={eventMessageFrom()}
         canSend={isAdmin(session.user.role)}

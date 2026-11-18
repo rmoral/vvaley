@@ -4,6 +4,10 @@ import { PaymentStatus, RegistrationStatus } from "@prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { CopyLinkButton } from "@/components/admin/CopyLinkButton";
+import { requiresOnlinePayment } from "@/lib/event-registration";
+import { getKunfupayConfig } from "@/lib/kunfupay";
+import { paymentLinkUrl } from "@/lib/payment-links";
 import {
   cancelRegistration,
   confirmRegistration,
@@ -58,6 +62,15 @@ export default async function EventRegistrationsPage({
     event.translations.find((t) => t.locale === "es")?.title ??
     event.translations[0]?.title ??
     "(Sin título)";
+
+  // Enlace de pago para quien puede pagar y no lo ha hecho (ver payment-links).
+  const payable = requiresOnlinePayment(event) && getKunfupayConfig() != null;
+  const payLinkFor = (r: (typeof event.registrations)[number]) =>
+    payable &&
+    r.paymentStatus !== "PAID" &&
+    (r.status === "CONFIRMED" || r.status === "PENDING_PAYMENT")
+      ? paymentLinkUrl(r, event)
+      : null;
 
   const counts = event.registrations.reduce(
     (acc, r) => {
@@ -178,6 +191,7 @@ export default async function EventRegistrationsPage({
                     regId={r.id}
                     status={r.status}
                     canResend={r.paymentStatus === "PAID" && r.status === "CONFIRMED"}
+                    payLink={payLinkFor(r)}
                   />
                 </td>
               </tr>
@@ -194,11 +208,14 @@ function RowActions({
   regId,
   status,
   canResend,
+  payLink,
 }: {
   eventId: string;
   regId: string;
   status: RegistrationStatus;
   canResend: boolean;
+  /** Enlace de pago firmado, si esta persona puede pagar y no ha pagado. */
+  payLink: string | null;
 }) {
   const cancel = cancelRegistration.bind(null, eventId, regId);
   const confirm = confirmRegistration.bind(null, eventId, regId);
@@ -213,6 +230,7 @@ function RowActions({
       >
         Escribir
       </Link>
+      {payLink && <CopyLinkButton url={payLink} label="Copiar enlace de pago" />}
       {canResend && (
         <form action={resend}>
           <button
