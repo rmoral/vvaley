@@ -9,10 +9,13 @@ import {
 } from "@/lib/event-registration-emails";
 import {
   amountToCents,
+  createCheckoutSession,
   getCheckoutSession,
   getKunfupayConfig,
+  KunfupayError,
   type KunfupayWebhook,
 } from "@/lib/kunfupay";
+import { getSiteUrl } from "@/lib/site-url";
 
 // ---------------------------------------------------------------------------
 // Cobro de inscripciones con Kunfupay.
@@ -198,5 +201,82 @@ export async function syncRegistrationPayment(reg: EventRegistration): Promise<v
     }
   } catch (err) {
     console.error("[kunfupay] no se pudo consultar la sesión", reg.kunfupaySessionId, err);
+  }
+}
+
+/** URL de vuelta del checkout: la página de gracias del evento. */
+export function paymentReturnUrl(event: Pick<Event, "slug">, registrationId: string, locale: string) {
+  return `${getSiteUrl()}/${asLocale(locale)}/eventos/${event.slug}/pago?r=${registrationId}`;
+}
+
+/**
+ * Abre un checkout de Kunfupay para una inscripción que ya está marcada como
+ * pendiente de pago (paymentStatus PENDING, amountCents y paymentAttempts al
+ * día) y guarda la sesión. Devuelve la URL a la que redirigir, o null si
+ * Kunfupay no está configurado o falla (queda en el log).
+ */
+export async function openRegistrationCheckout(
+  event: Pick<Event, "id" | "slug"> & { translations: Pick<EventTranslation, "locale" | "title">[] },
+  registration: Pick<EventRegistration, "id" | "locale" | "amountCents" | "paymentAttempts">,
+  source: "registration_form" | "payment_link",
+): Promise<string | null> {
+  const config = getKunfupayConfig();
+  if (!config || registration.amountCents == null) return null;
+  const returnUrl = paymentReturnUrl(event, registration.id, registration.locale);
+  try {
+    const session = await createCheckoutSession(config, {
+      amountCents: registration.amountCents,
+      currency: "EUR",
+      description: eventTitle(event, registration.locale).slice(0, 200),
+      externalReference: registration.id,
+      metadata: {
+        registrationId: registration.id,
+        eventId: event.id,
+        eventSlug: event.slug,
+        source,
+      },
+      successUrl: returnUrl,
+      cancelUrl: `${returnUrl}&cancelled=1`,
+      // Un intento = una sesión. Reintentar la misma petición recupera la
+      // misma sesión en vez de crear otra.
+      idempotencyKey: `vv-reg-${registration.id}-${registration.paymentAttempts}`,
+    });
+    await prisma.eventRegistration.update({
+      where: { id: registration.id },
+      data: { kunfupaySessionId: session.id },
+    });
+    return session.checkoutUrl;
+  } catch (err) {
+    console.error(
+      "[kunfupay] no se pudo crear el checkout",
+      registration.id,
+      err instanceof KunfupayError ? { status: err.status, body: err.body } : err,
+    );
+    return null;
+  }
+}
+
+/** expiresAt de Kunfupay puede venir en segundos o en milisegundos. */
+const toMs = (t: number) => (t < 1e12 ? t * 1000 : t);
+
+/**
+ * Si la última sesión de la inscripción sigue abierta (al menos 10 minutos
+ * más), su URL. Así abrir el enlace de pago varias veces, o que un antivirus
+ * de correo lo visite antes que la persona, no deja una sesión por visita.
+ */
+export async function reusableCheckoutUrl(
+  registration: Pick<EventRegistration, "kunfupaySessionId">,
+): Promise<string | null> {
+  const config = getKunfupayConfig();
+  if (!config || !registration.kunfupaySessionId) return null;
+  try {
+    const session = await getCheckoutSession(config, registration.kunfupaySessionId);
+    const open =
+      session.status === "pending" &&
+      session.checkoutUrl &&
+      (session.expiresAt == null || toMs(session.expiresAt) > Date.now() + 10 * 60_000);
+    return open ? session.checkoutUrl! : null;
+  } catch {
+    return null;
   }
 }
