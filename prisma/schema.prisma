@@ -29,6 +29,7 @@ model User {
   campaigns          Campaign[]
   socialAccounts     SocialAccount[]
   socialPublications SocialPublication[]
+  eventEmailSends    EventEmailSend[]
 }
 
 // ---------- Podcast ---------- //
@@ -356,6 +357,7 @@ model Event {
   updatedAt            DateTime            @updatedAt
   translations         EventTranslation[]
   registrations        EventRegistration[]
+  emailSends           EventEmailSend[]
 
   @@index([status, startsAt])
   @@index([series, status, startsAt])
@@ -407,6 +409,44 @@ model EventRegistration {
 
   @@unique([eventId, email])
   @@index([eventId, status])
+}
+
+/// Plantilla de correo para escribir a los inscritos de un evento. El asunto
+/// y el cuerpo llevan huecos como {{nombre}} o {{evento}} que se rellenan con
+/// los datos de cada persona; {{motivo}} recibe el texto libre de cada envío.
+/// Una plantilla está escrita en un idioma: en él se formatean fecha y hora.
+model EventEmailTemplate {
+  id        String           @id @default(cuid())
+  name      String
+  locale    String           @default("es")
+  subject   String
+  body      String           @db.Text
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  sends     EventEmailSend[]
+}
+
+/// Registro de cada envío a los inscritos de un evento: qué se mandó, a
+/// cuántas personas y quién lo hizo. No guarda el cuerpo de cada correo.
+model EventEmailSend {
+  id         String               @id @default(cuid())
+  eventId    String
+  templateId String?
+  subject    String
+  reason     String?              @db.Text
+  /// Estados de inscripción a los que se envió; vacío = a una sola persona.
+  statuses   RegistrationStatus[]
+  recipients Int
+  sent       Int
+  failed     Int
+  sentById   String?
+  createdAt  DateTime             @default(now())
+
+  event    Event               @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  template EventEmailTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  sentBy   User?               @relation(fields: [sentById], references: [id], onDelete: SetNull)
+
+  @@index([eventId, createdAt])
 }
 
 /// Bandeja de entrada de webhooks de Kunfupay. eventId es único: Kunfupay
