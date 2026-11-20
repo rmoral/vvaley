@@ -90,8 +90,8 @@ Ver `.env.example`. Las imprescindibles:
 Correo (necesario en producción):
 
 - `PUBLIC_SITE_URL` — URL canónica del site (ej. `https://valiravalley.com`). Si no se define se usa `NEXTAUTH_URL`. Se utiliza para construir los enlaces de confirmación y baja del email.
-- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` — servidor SMTP propio y buzón de envío del correo transaccional (confirmación de newsletter, inscripciones, avisos de contacto, invitaciones de calendario). Puerto 465 o 587, siempre con TLS. Sin estas variables, en desarrollo los correos se imprimen en la consola del servidor (copia/pega el enlace para probar); en producción no se envían. `pnpm mail:test` comprueba la configuración.
-- `MAIL_FROM` — remitente (ej. `Valira Valley <noreply@valiravalley.com>`). Se sigue aceptando `EMAIL_FROM`.
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` — SMTP del correo transaccional (confirmación de newsletter, inscripciones y pagos, avisos de contacto, invitaciones de calendario, correos a inscritos). En producción es **Amazon SES** (`email-smtp.eu-west-1.amazonaws.com`, puerto 587 con STARTTLS o 465) con sus credenciales SMTP; `SMTP_PASSWORD` vale como alias de `SMTP_PASS`. Todo envío pasa por `sendEmail()` (`src/lib/email.ts`). Sin estas variables, en desarrollo los correos se imprimen en la consola del servidor (copia/pega el enlace para probar); en producción no se envían. `pnpm mail:test tu@correo.com` comprueba la configuración y envía una prueba a esa dirección.
+- `MAIL_FROM` — remitente (ej. `Valira Valley <noreply@valiravalley.com>`). Tiene que ser `@valiravalley.com` (dominio verificado en SES; otro dominio con `MAIL_FROM_DOMAIN`). Se sigue aceptando `EMAIL_FROM`. Opcional `MAIL_FROM_NAME`, que se antepone si `MAIL_FROM` es solo la dirección. En los avisos del formulario de contacto, el correo del visitante va en Reply-To, nunca en From.
 - `RESEND_API_KEY` — clave de [Resend](https://resend.com), solo para las campañas de newsletter que se envían desde `/admin/campanas`.
 
 Cobro de eventos (Kunfupay):

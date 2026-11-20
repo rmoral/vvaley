@@ -186,8 +186,11 @@ Rellena así (sustituye `$DB_PASSWORD` por el valor del paso 2 y
 | `SEED_ADMIN_EMAIL` | tu email real (vas a entrar al backoffice con esto) |
 | `SEED_ADMIN_PASSWORD` | una contraseña fuerte temporal — la cambias luego |
 | `SEED_ADMIN_NAME` | tu nombre |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | servidor SMTP propio y buzón de envío; puerto 465 (TLS implícito) o 587 (STARTTLS). Comprueba con `pnpm mail:test` |
-| `MAIL_FROM` | `Valira Valley <noreply@valiravalley.com>` (remitente del correo transaccional) |
+| `SMTP_HOST` | `email-smtp.eu-west-1.amazonaws.com` (Amazon SES, Irlanda) |
+| `SMTP_PORT` | `587` (STARTTLS obligatorio); alternativa `465` (TLS implícito) |
+| `SMTP_USER`, `SMTP_PASS` | credenciales **SMTP** de SES (no son claves de acceso de AWS). Se acepta `SMTP_PASSWORD` como nombre alternativo de `SMTP_PASS`. Comprueba con `pnpm mail:test tu@correo.com` |
+| `MAIL_FROM` | `Valira Valley <noreply@valiravalley.com>` (remitente del correo transaccional). Debe ser `@valiravalley.com`: SES rechaza otros dominios y la app no envía si no lo es |
+| `MAIL_FROM_NAME`, `MAIL_FROM_DOMAIN`, `MAIL_REPLY_TO`, `EVENT_MAIL_FROM` | opcionales; ver `.env.example` |
 | `RESEND_API_KEY` | solo para las campañas de newsletter; vacío si no se envían campañas |
 | `KUNFUPAY_API_KEY` | clave secreta `kfp_live_…` de Kunfupay; necesaria para los eventos que cobran la inscripción online |
 | `KUNFUPAY_WEBHOOK_SECRET` | secreto de firma del webhook de Kunfupay (endpoint `https://valiravalley.com/api/kunfupay/webhook`, eventos `payment.completed` y `payment.failed`) |
@@ -530,7 +533,7 @@ tar -xzf /var/backups/vvaley/vvaley-uploads-<fecha>.tar.gz -C /home/ubuntu/web/v
 | Login admin: "Configuration" o redirect loop | `NEXTAUTH_URL` no es `https://valiravalley.com` o falta `RequestHeader X-Forwarded-Proto`. |
 | Home OK pero `/podcast` da error de DB | `pnpm prisma migrate deploy` no se ejecutó. Hazlo y `sudo systemctl restart vvaley`. |
 | Cambias `.env` y no se aplica | systemd cachea el `EnvironmentFile` al arrancar. `sudo systemctl restart vvaley`. |
-| Email de confirmación no llega | Ejecuta `pnpm mail:test` en el servidor: comprueba conexión, TLS y credenciales SMTP y envía una prueba. Sin variables `SMTP_*`, en producción el correo no sale y queda una línea `[email] not sent` en `journalctl -u vvaley`. |
+| Email de confirmación no llega | Ejecuta `pnpm mail:test tu@correo.com` en el servidor: comprueba conexión, TLS y credenciales SMTP (SES) y envía una prueba. Sin variables `SMTP_*`, en producción el correo no sale y queda una línea `[email] not sent` en `journalctl -u vvaley`; con un `MAIL_FROM` de otro dominio, el log dice qué variable corregir. Los fallos del servidor salen como `[email] SMTP error {…}` sin direcciones. En las cabeceras del correo recibido debe verse `amazonses.com` con `spf=pass`, `dkim=pass` y `dmarc=pass`. |
 | `pnpm build` se cuelga sin error | EC2 micro/small se queda sin RAM. Crea swap (`sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile && echo '/swapfile none swap sw 0 0' \| sudo tee -a /etc/fstab`) y reintenta. `deploy.sh` ya tira con `NODE_OPTIONS=--max-old-space-size=1024` por defecto. Alternativa: build localmente y `rsync` el `.next/`. |
 | `deploy.sh` pide contraseña en el restart | No has instalado el sudoers drop-in (paso 5). Hazlo y reintenta. |
 
