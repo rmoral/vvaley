@@ -11,6 +11,7 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Stat } from "@/components/ui/Stat";
 import { HomeHero } from "./_sections/HomeHero";
 import { routing, type AppLocale } from "@/i18n/routing";
+import { SITE_TIME_ZONE } from "@/i18n/time-zone";
 
 function isAppLocale(value: string): value is AppLocale {
   return (routing.locales as readonly string[]).includes(value);
@@ -68,8 +69,8 @@ export default async function HomePage({
   ]);
 
   const featured = episodes[0] ?? null;
-  const shortDate = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
-  const longDate = new Intl.DateTimeFormat(locale, { dateStyle: "long" });
+  const shortDate = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: SITE_TIME_ZONE });
+  const longDate = new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: SITE_TIME_ZONE });
 
   const archive = episodes.slice(1, 4).map((ep) => ({
     slug: ep.slug,

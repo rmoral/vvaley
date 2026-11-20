@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/navigation";
+import { SITE_TIME_ZONE } from "@/i18n/time-zone";
 
 // Server Component. Fila del archivo de newsletter (/newsletter/archivo).
 // Misma anatomía que NewsItem —fecha en columna, título, preheader— porque
@@ -28,7 +29,7 @@ export function CampaignRow({
           dateTime={campaign.sentAt.toISOString()}
           className="shrink-0 text-[0.74rem] uppercase tracking-[0.1em] text-river sm:w-32"
         >
-          {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(campaign.sentAt)}
+          {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: SITE_TIME_ZONE }).format(campaign.sentAt)}
         </time>
       ) : null}
 

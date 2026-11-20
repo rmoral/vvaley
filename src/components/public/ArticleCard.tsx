@@ -1,6 +1,7 @@
 import { Link } from "@/i18n/navigation";
 import { CoverArt } from "./CoverArt";
 import { TagChips } from "./TagChips";
+import { SITE_TIME_ZONE } from "@/i18n/time-zone";
 
 // Server Component. Listado de /blog. Misma anatomía que EpisodeCard pero
 // con autor y chips de etiqueta en lugar de invitados y duración.
@@ -48,7 +49,7 @@ export function ArticleCard({
             dateTime={post.publishedAt.toISOString()}
             className="text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-river"
           >
-            {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(post.publishedAt)}
+            {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: SITE_TIME_ZONE }).format(post.publishedAt)}
           </time>
         ) : null}
 

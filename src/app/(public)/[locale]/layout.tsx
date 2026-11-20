@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { fraunces, jakarta } from "@/fonts";
 import { routing, type AppLocale } from "@/i18n/routing";
+import { SITE_TIME_ZONE } from "@/i18n/time-zone";
 import { getSiteUrl } from "@/lib/site-url";
 import { localizedUrls, ogAlternateLocales, ogLocale } from "@/lib/seo";
 
@@ -80,7 +81,7 @@ export default async function PublicLocaleLayout({
       <body>
         <GoogleTagManager />
         <GoogleTagManagerNoScript />
-        <NextIntlClientProvider locale={locale} messages={messages}>
+        <NextIntlClientProvider locale={locale} messages={messages} timeZone={SITE_TIME_ZONE}>
           <SiteNav locale={locale} />
           {children}
           <SiteFooter />

@@ -1,6 +1,7 @@
 import { Link } from "@/i18n/navigation";
 import { CoverArt } from "./CoverArt";
 import { TagChips } from "./TagChips";
+import { SITE_TIME_ZONE } from "@/i18n/time-zone";
 
 // Server Component. Fila de /noticias. Formato lista con fecha en columna
 // izquierda: la noticia es un flujo cronológico, no una rejilla de tarjetas.
@@ -57,7 +58,7 @@ export function NewsItem({
             dateTime={news.publishedAt.toISOString()}
             className="text-[0.74rem] uppercase tracking-[0.1em] text-river sm:pt-1"
           >
-            {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(news.publishedAt)}
+            {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: SITE_TIME_ZONE }).format(news.publishedAt)}
           </time>
         ) : null}
 

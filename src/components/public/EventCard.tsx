@@ -1,5 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import { CoverArt } from "./CoverArt";
+import { SITE_TIME_ZONE } from "@/i18n/time-zone";
 
 // Server Component. Dos densidades en un solo componente, porque el listado
 // las necesita ambas:
@@ -44,7 +45,7 @@ export function EventCard({
           dateTime={event.startsAt.toISOString()}
           className="shrink-0 text-[0.74rem] uppercase tracking-[0.1em] text-text-2 sm:w-32"
         >
-          {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(event.startsAt)}
+          {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: SITE_TIME_ZONE }).format(event.startsAt)}
         </time>
         <span className="font-medium text-text-2 transition-colors duration-150 group-hover:text-river">
           {event.title}
@@ -70,7 +71,7 @@ export function EventCard({
           dateTime={event.startsAt.toISOString()}
           className="text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-river"
         >
-          {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(event.startsAt)}
+          {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short", timeZone: SITE_TIME_ZONE }).format(event.startsAt)}
         </time>
 
         <h3 className="mt-2.5 font-display text-[1.25rem] font-bold leading-tight text-text transition-colors duration-150 group-hover:text-river text-pretty">
