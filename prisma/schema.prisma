@@ -358,6 +358,7 @@ model Event {
   translations         EventTranslation[]
   registrations        EventRegistration[]
   emailSends           EventEmailSend[]
+  presenters           EventPresenter[]
 
   @@index([status, startsAt])
   @@index([series, status, startsAt])
@@ -375,6 +376,38 @@ model EventTranslation {
 
   @@unique([eventId, locale])
   @@index([locale])
+}
+
+/// Empresa o proyecto que se presenta en un evento. Sale en la sección
+/// «Presentan» de la página del evento, con su logo enlazado a la web o al
+/// perfil que nos den. La descripción es contenido editorial: se traduce por
+/// idioma y, si falta, se muestra la de castellano.
+model EventPresenter {
+  id           String                      @id @default(cuid())
+  eventId      String
+  name         String
+  logoUrl      String?
+  /// Web, Instagram, LinkedIn… Lo que nos den; es el destino del logo.
+  url          String?
+  /// Orden en la sección: de menor a mayor.
+  position     Int                         @default(0)
+  createdAt    DateTime                    @default(now())
+  updatedAt    DateTime                    @updatedAt
+  event        Event                       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  translations EventPresenterTranslation[]
+
+  @@index([eventId, position])
+}
+
+model EventPresenterTranslation {
+  id          String @id @default(cuid())
+  presenterId String
+  locale      String
+  description String @db.Text
+
+  presenter EventPresenter @relation(fields: [presenterId], references: [id], onDelete: Cascade)
+
+  @@unique([presenterId, locale])
 }
 
 model EventRegistration {
