@@ -45,7 +45,7 @@ export default async function EditEventPage({
     where: { id },
     include: {
       translations: true,
-      _count: { select: { registrations: true } },
+      _count: { select: { registrations: true, presenters: true } },
     },
   });
   if (!event) notFound();
@@ -81,6 +81,12 @@ export default async function EditEventPage({
           >
             Inscripciones ({event._count.registrations}
             {event.capacity ? ` / ${event.capacity}` : ""}) →
+          </Link>
+          <Link
+            href={`/admin/eventos/${event.id}/presentan`}
+            className="font-semibold text-river no-underline hover:text-text"
+          >
+            Presentan ({event._count.presenters}) →
           </Link>
           {event.status === "PUBLISHED" && (
             <Link
