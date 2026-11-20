@@ -1,9 +1,11 @@
 // Email sending.
 //
 // Transactional email (newsletter confirmation, event registration, contact
-// notifications, calendar invites) goes out over our own SMTP server with
-// Nodemailer — the same setup every Level Five site uses: SMTP_HOST,
-// SMTP_PORT (465 or 587), SMTP_USER, SMTP_PASS and MAIL_FROM.
+// notifications, calendar invites, messages to attendees) goes out over SMTP
+// with Nodemailer — in production, Amazon SES (eu-west-1). Every send goes
+// through `sendEmail`; the configuration lives in email-config.ts (SMTP_HOST,
+// SMTP_PORT, SMTP_USER, SMTP_PASS, MAIL_FROM…). Senders must belong to the
+// verified domain (MAIL_FROM_DOMAIN, valiravalley.com by default).
 //
 // Bulk newsletter campaigns are the one exception: they go through Resend
 // (RESEND_API_KEY) via `sendCampaignEmail`, so a large send never touches the
@@ -17,6 +19,7 @@ import nodemailer, { type Transporter } from "nodemailer";
 import {
   addressOf,
   describeFailure,
+  isSenderDomain,
   mailFrom,
   smtpConfig,
   transportOptions,
@@ -94,6 +97,11 @@ export async function sendEmail(input: SendEmailInput): Promise<SendResult> {
     return { ok: false, error: "smtp_config" };
   }
   if (!config) return withoutProvider("SMTP", input);
+  // Un From de otro dominio no sale: SES lo rechazaría igualmente.
+  if (input.from && !isSenderDomain(input.from)) {
+    console.error(`[email] not sent, sender outside the verified domain. Subject: ${input.subject}`);
+    return { ok: false, error: "from_domain" };
+  }
 
   try {
     await transportFor(config).sendMail({

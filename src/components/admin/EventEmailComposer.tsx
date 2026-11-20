@@ -30,8 +30,8 @@ const REASON_HINT: Record<string, string> = {
   not_configured: "faltan las variables SMTP_* en el .env del servidor",
   smtp_config: "las variables SMTP_* están incompletas o mal (el log dice cuál)",
   smtp_EAUTH: "el servidor de correo rechaza el usuario o la contraseña",
-  smtp_EENVELOPE:
-    "el servidor de correo no acepta el remitente: el buzón SMTP debe poder enviar como EVENT_MAIL_FROM",
+  smtp_EENVELOPE: "el servidor de correo no acepta el remitente o el destinatario",
+  from_domain: "el remitente no es una dirección @valiravalley.com (revisa EVENT_MAIL_FROM)",
   smtp_ECONNECTION: "no se puede conectar con el servidor de correo",
   smtp_ETIMEDOUT: "el servidor de correo no responde",
 };

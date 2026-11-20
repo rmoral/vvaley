@@ -1,11 +1,15 @@
 /**
- * Comprueba el SMTP (conexión, TLS y autenticación) y envía un correo de
- * prueba al propio buzón remitente, o a la dirección que se pase.
+ * Comprueba el SMTP (conexión, TLS y autenticación; en producción, Amazon
+ * SES) y envía un correo de prueba a la dirección que se pase, o al propio
+ * remitente si no se pasa ninguna.
  *
- *   pnpm mail:test [correo@dominio.com]
+ *   pnpm mail:test correo@dominio.com
  *
- * Lee `.env`. No imprime credenciales ni direcciones: solo el resultado o el
- * error exacto del servidor o de TLS.
+ * Usa la misma configuración que la web (src/lib/email-config.ts) y lee
+ * `.env`. No imprime credenciales ni el destinatario: solo servidor, puerto,
+ * remitente y el resultado o el error exacto del servidor o de TLS. En las
+ * cabeceras del correo recibido se comprueba que sale por amazonses.com con
+ * spf=pass, dkim=pass y dmarc=pass.
  */
 import nodemailer from "nodemailer";
 import { addressOf, describeFailure, smtpConfig, transportOptions } from "../src/lib/email-config";
@@ -14,8 +18,9 @@ async function main() {
   const config = smtpConfig();
   if (!config) throw new Error("Faltan las variables SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS y MAIL_FROM.");
   console.log(
-    `Servidor SMTP: puerto ${config.port} (${config.port === 465 ? "TLS implícito" : "STARTTLS obligatorio"}), verificación de certificado activada.`,
+    `Servidor SMTP: ${config.host}, puerto ${config.port} (${config.port === 465 ? "TLS implícito" : "STARTTLS obligatorio"}), verificación de certificado activada.`,
   );
+  console.log(`Remitente: ${config.from}`);
   const transport = nodemailer.createTransport(transportOptions(config));
   await transport.verify();
   console.log("verify(): conexión, TLS y autenticación correctas.");

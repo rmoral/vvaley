@@ -81,7 +81,9 @@ export async function POST(req: Request) {
       message: data.message,
       locale: asLocale(data.locale),
     });
-    await sendEmail({ to: notify, ...mail }).catch(() => {
+    // El correo del visitante va en Reply-To, nunca en From: el From es
+    // siempre el nuestro (MAIL_FROM) y responder al aviso le llega a él.
+    await sendEmail({ to: notify, ...mail, replyTo: data.email }).catch(() => {
       // Swallow: the submission is stored either way.
     });
   }

@@ -10,7 +10,7 @@ Web pública multilingüe y backoffice de Valira Valley (valiravalley.com), el m
 ## Pila
 - Next.js 15 (App Router), TypeScript, Tailwind v4, Prisma + PostgreSQL, Auth.js, next-intl.
 - Gestor de paquetes: **pnpm** (no npm).
-- Correo transaccional por SMTP propio con Nodemailer (`src/lib/email.ts`, variables `SMTP_*` y `MAIL_FROM`, las mismas en todos los sitios de Level Five). Resend solo para las campañas de newsletter (`sendCampaignEmail`). Analítica con Plausible.
+- Correo transaccional por SMTP con Nodemailer, en producción Amazon SES (eu-west-1). Todo envío pasa por `sendEmail()` (`src/lib/email.ts`; configuración en `src/lib/email-config.ts`, variables `SMTP_*` y `MAIL_FROM`, las mismas en todos los sitios de Level Five). El From siempre es `@valiravalley.com`; el correo de un visitante va en Reply-To. Resend solo para las campañas de newsletter (`sendCampaignEmail`). Analítica con Plausible.
 
 ## Despliegue: servidor propio, no Vercel
 - Producción es un servidor Ubuntu (EC2) con Apache como proxy inverso y Node bajo systemd (`vvaley.service`). La base de datos **no** está en el servidor: es PostgreSQL en Amazon RDS (instancia `vvaley-prod`, región us-east-2), y `DATABASE_URL` del `.env` apunta ahí.
