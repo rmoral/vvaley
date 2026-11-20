@@ -1,11 +1,17 @@
 // Configuración del correo por SMTP (patrón común de los sitios de Level Five).
 // Módulo puro: no importa Nodemailer ni `server-only`, para poder probarlo en unitarias.
 //
-//   SMTP_HOST   nombre del servidor (con certificado válido para ese nombre)
-//   SMTP_PORT   465 (TLS implícito) o 587 (STARTTLS obligatorio)
-//   SMTP_USER   buzón de envío
-//   SMTP_PASS   contraseña del buzón
+// En producción el SMTP es Amazon SES (eu-west-1). SES solo acepta remitentes
+// del dominio verificado, así que el From se comprueba aquí: un remitente de
+// otro dominio es un error de configuración, no un rechazo en cada envío.
+//
+//   SMTP_HOST   nombre del servidor (SES: email-smtp.eu-west-1.amazonaws.com)
+//   SMTP_PORT   587 (STARTTLS obligatorio) o 465 (TLS implícito)
+//   SMTP_USER   usuario SMTP (en SES, el de las credenciales SMTP, no una clave de AWS)
+//   SMTP_PASS   contraseña SMTP (se acepta también SMTP_PASSWORD)
 //   MAIL_FROM   "correo@dominio" o "Nombre <correo@dominio>" (se acepta EMAIL_FROM, el nombre anterior)
+//   MAIL_FROM_NAME  opcional: nombre que se antepone si MAIL_FROM es solo la dirección
+//   MAIL_FROM_DOMAIN  opcional: dominio obligatorio de los remitentes (por defecto valiravalley.com)
 //   MAIL_REPLY_TO  opcional
 //   EVENT_MAIL_FROM  remitente de los correos que el equipo escribe a los
 //                    inscritos de un evento (por defecto hola@valiravalley.com)
@@ -27,20 +33,37 @@ const ADDRESS = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
 export const addressOf = (mailbox: string) => (mailbox.match(/<([^>]+)>\s*$/)?.[1] ?? mailbox).trim();
 
 const DEFAULT_FROM = "Valira Valley <noreply@valiravalley.com>";
+const DEFAULT_DOMAIN = "valiravalley.com";
 
-/** Remitente: MAIL_FROM (nombre común del grupo), EMAIL_FROM (nombre anterior) o el de por defecto. */
-export const mailFrom = (env: Env = process.env) => env.MAIL_FROM?.trim() || env.EMAIL_FROM?.trim() || DEFAULT_FROM;
+/** Dominio al que deben pertenecer todos los remitentes (el verificado en SES). */
+export const senderDomain = (env: Env = process.env) =>
+  (env.MAIL_FROM_DOMAIN?.trim() || DEFAULT_DOMAIN).toLowerCase();
+
+/** ¿La dirección de este buzón es del dominio de envío? */
+export const isSenderDomain = (mailbox: string, env: Env = process.env) =>
+  addressOf(mailbox).toLowerCase().endsWith(`@${senderDomain(env)}`);
+
+/**
+ * Remitente: MAIL_FROM (nombre común del grupo), EMAIL_FROM (nombre anterior)
+ * o el de por defecto. Si es solo la dirección y hay MAIL_FROM_NAME, se le
+ * antepone el nombre.
+ */
+export const mailFrom = (env: Env = process.env) => {
+  const from = env.MAIL_FROM?.trim() || env.EMAIL_FROM?.trim() || DEFAULT_FROM;
+  const name = env.MAIL_FROM_NAME?.trim().replace(/[<>"]/g, "");
+  return name && !from.includes("<") ? `${name} <${from}>` : from;
+};
 
 const DEFAULT_EVENT_FROM = "Valira Valley <hola@valiravalley.com>";
 
 /**
  * Remitente de los correos que el equipo escribe a mano a los inscritos. Las
  * respuestas vuelven a esta misma dirección. Si EVENT_MAIL_FROM no es una
- * dirección válida se usa la de por defecto.
+ * dirección válida del dominio de envío, se usa la de por defecto.
  */
 export const eventMessageFrom = (env: Env = process.env) => {
   const value = env.EVENT_MAIL_FROM?.trim();
-  return value && ADDRESS.test(addressOf(value)) ? value : DEFAULT_EVENT_FROM;
+  return value && ADDRESS.test(addressOf(value)) && isSenderDomain(value, env) ? value : DEFAULT_EVENT_FROM;
 };
 
 /** Los mensajes nombran la variable y el problema, nunca su valor. */
@@ -60,11 +83,14 @@ export class MailConfigError extends Error {
  */
 export function smtpConfig(env: Env = process.env): SmtpConfig | null {
   const get = (name: string) => env[name]?.trim() ?? "";
-  const names = ["SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASS"] as const;
-  if (names.every((n) => !get(n))) return null;
+  // SMTP_PASSWORD es el nombre que usan otros proyectos; aquí vale igual.
+  const pass = env.SMTP_PASS ?? env.SMTP_PASSWORD ?? "";
+  const names = ["SMTP_HOST", "SMTP_PORT", "SMTP_USER"] as const;
+  if (names.every((n) => !get(n)) && !pass.trim()) return null;
 
   const issues: string[] = [];
   for (const n of names) if (!get(n)) issues.push(`${n}: no está definida`);
+  if (!pass.trim()) issues.push("SMTP_PASS: no está definida (vale también SMTP_PASSWORD)");
   const from = mailFrom(env);
 
   const port = Number(get("SMTP_PORT"));
@@ -73,6 +99,8 @@ export function smtpConfig(env: Env = process.env): SmtpConfig | null {
   }
   if (!ADDRESS.test(addressOf(from))) {
     issues.push("MAIL_FROM: debe ser una dirección de correo o «Nombre <correo@dominio>»");
+  } else if (!isSenderDomain(from, env)) {
+    issues.push(`MAIL_FROM: el remitente debe ser una dirección @${senderDomain(env)} (el servidor rechaza otros dominios)`);
   }
   if (get("MAIL_REPLY_TO") && !ADDRESS.test(addressOf(get("MAIL_REPLY_TO")))) {
     issues.push("MAIL_REPLY_TO: no es una dirección de correo válida");
@@ -84,7 +112,7 @@ export function smtpConfig(env: Env = process.env): SmtpConfig | null {
     port: port as 465 | 587,
     user: get("SMTP_USER"),
     // La contraseña no se recorta: puede empezar o acabar en espacio.
-    pass: env.SMTP_PASS ?? "",
+    pass,
     from,
     replyTo: get("MAIL_REPLY_TO") || undefined,
   };
