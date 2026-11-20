@@ -5,6 +5,7 @@ import { ResultGroup, ResultRow } from "@/components/public/ResultGroup";
 import { ListHeader } from "@/components/public/ListHeader";
 import { Button } from "@/components/ui/Button";
 import type { AppLocale } from "@/i18n/routing";
+import { SITE_TIME_ZONE } from "@/i18n/time-zone";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +38,7 @@ export default async function SearchPage({
     ? await searchAll(query, locale as AppLocale)
     : { posts: [], news: [], episodes: [], guests: [], total: 0 };
 
-  const fmt = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
+  const fmt = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: SITE_TIME_ZONE });
 
   return (
     <main>

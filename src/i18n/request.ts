@@ -1,6 +1,7 @@
 import { getRequestConfig } from "next-intl/server";
 import type { AbstractIntlMessages } from "next-intl";
 import { routing, type AppLocale } from "./routing";
+import { SITE_TIME_ZONE } from "./time-zone";
 
 function isAppLocale(value: string | undefined): value is AppLocale {
   return !!value && (routing.locales as readonly string[]).includes(value);
@@ -44,11 +45,11 @@ export default getRequestConfig(async ({ requestLocale }) => {
     .default as Messages;
 
   if (locale === routing.defaultLocale) {
-    return { locale, messages };
+    return { locale, messages, timeZone: SITE_TIME_ZONE };
   }
 
   const fallback = (await import(`../messages/${routing.defaultLocale}.json`))
     .default as Messages;
 
-  return { locale, messages: mergeMessages(fallback, messages) };
+  return { locale, messages: mergeMessages(fallback, messages), timeZone: SITE_TIME_ZONE };
 });

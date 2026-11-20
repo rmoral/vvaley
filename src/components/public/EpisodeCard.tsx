@@ -1,5 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import { CoverArt } from "./CoverArt";
+import { SITE_TIME_ZONE } from "@/i18n/time-zone";
 
 // Server Component. Hover 100% CSS. Toda la tarjeta es el enlace.
 export type EpisodeCardData = {
@@ -70,7 +71,7 @@ export function EpisodeCard({
           ) : null}
           {ep.publishedAt ? (
             <time dateTime={ep.publishedAt.toISOString()}>
-              {new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(ep.publishedAt)}
+              {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: SITE_TIME_ZONE }).format(ep.publishedAt)}
             </time>
           ) : null}
         </div>
